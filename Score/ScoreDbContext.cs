@@ -9,9 +9,9 @@ namespace Score
 {
     class ScoreDbContext : DbContext
     {
-        public ScoreDbContext() : base()
+        public ScoreDbContext() : base("cns")
         {
-
+           
         }
         public virtual DbSet<ScoreCount> ScoreCounts{get; set;}
     }

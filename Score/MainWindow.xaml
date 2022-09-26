@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Score"
         mc:Ignorable="d"
-        Title="INTACH Heritage Quiz Score Board"  WindowState="Maximized" WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
+        Title="INTACH Heritage Quiz Score Board"  WindowState="Maximized" WindowStartupLocation="CenterScreen" ResizeMode="CanResizeWithGrip">
     <Window.Background>
         <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
             <GradientStop Color="#FF8ED28A" Offset="0"/>
@@ -32,7 +32,7 @@
                 <DropShadowEffect/>
             </Label.Effect>
         </Label>
-        <Label Content="Team JBA 1" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="100" FontFamily="Segoe UI Black" Grid.Row="0" Grid.Column="0">
+        <Label Content="Team JBA" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="100" FontFamily="Segoe UI Black" Grid.Row="0" Grid.Column="0">
             <Label.Foreground>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                     <GradientStop Color="#FFFF1C76" Offset="0"/>
@@ -55,7 +55,7 @@
                 <DropShadowEffect/>
             </Label.Effect>
         </Label>
-        <Label Content="Team JBA 2" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="100" FontFamily="Segoe UI Black" Grid.Row="0" Grid.Column="1">
+        <Label Content="Team AIS" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="100" FontFamily="Segoe UI Black" Grid.Row="0" Grid.Column="1">
             <Label.Foreground>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                     <GradientStop Color="#FFFF1C76" Offset="0"/>
@@ -78,7 +78,7 @@
                 <DropShadowEffect/>
             </Label.Effect>
         </Label>
-        <Label Content="Team YVM 1" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="100" FontFamily="Segoe UI Black" Grid.Row="1" Grid.Column="0">
+        <Label Content="Team YVM" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="100" FontFamily="Segoe UI Black" Grid.Row="1" Grid.Column="0">
             <Label.Foreground>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                     <GradientStop Color="#FFFF1C76" Offset="0"/>
@@ -101,7 +101,7 @@
                 <DropShadowEffect/>
             </Label.Effect>
         </Label>
-        <Label Content="Team YVM 2" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="100" FontFamily="Segoe UI Black" Grid.Row="1" Grid.Column="1">
+        <Label Content="Team IMA" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="100" FontFamily="Segoe UI Black" Grid.Row="1" Grid.Column="1">
             <Label.Foreground>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                     <GradientStop Color="#FFFF1C76" Offset="0"/>

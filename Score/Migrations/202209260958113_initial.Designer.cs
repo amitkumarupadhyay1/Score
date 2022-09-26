@@ -13,7 +13,7 @@ namespace Score.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "202208280539068_initial"; }
+            get { return "202209260958113_initial"; }
         }
         
         string IMigrationMetadata.Source

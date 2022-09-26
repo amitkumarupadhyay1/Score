@@ -65,9 +65,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Migrations\202208280539068_initial.cs" />
-    <Compile Include="Migrations\202208280539068_initial.designer.cs">
-      <DependentUpon>202208280539068_initial.cs</DependentUpon>
+    <Compile Include="Migrations\202209260958113_initial.cs" />
+    <Compile Include="Migrations\202209260958113_initial.designer.cs">
+      <DependentUpon>202209260958113_initial.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="ScoreCount.cs" />
@@ -99,8 +99,8 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <EmbeddedResource Include="Migrations\202208280539068_initial.resx">
-      <DependentUpon>202208280539068_initial.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\202209260958113_initial.resx">
+      <DependentUpon>202209260958113_initial.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
