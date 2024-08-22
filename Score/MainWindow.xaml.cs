@@ -79,7 +79,7 @@ namespace Score
         private void AnimateScoreIncrease(Label scoreLabel)
         {
             // Color Animation
-            ColorAnimation colorAnimation = new ColorAnimation(Colors.Green, Colors.Black, TimeSpan.FromSeconds(0.5));
+            ColorAnimation colorAnimation = new ColorAnimation(Colors.Green, Colors.MidnightBlue, TimeSpan.FromSeconds(0.5));
             scoreLabel.Foreground = new SolidColorBrush(Colors.Black);
             scoreLabel.Foreground.BeginAnimation(SolidColorBrush.ColorProperty, colorAnimation);
 
@@ -94,7 +94,7 @@ namespace Score
         private void AnimateScoreDecrease(Label scoreLabel)
         {
             // Color Animation
-            ColorAnimation colorAnimation = new ColorAnimation(Colors.Red, Colors.Black, TimeSpan.FromSeconds(0.5));
+            ColorAnimation colorAnimation = new ColorAnimation(Colors.HotPink, Colors.DarkRed, TimeSpan.FromSeconds(0.5));
             scoreLabel.Foreground = new SolidColorBrush(Colors.Black);
             scoreLabel.Foreground.BeginAnimation(SolidColorBrush.ColorProperty, colorAnimation);
 

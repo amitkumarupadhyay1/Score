@@ -135,10 +135,9 @@
                     </Label.Effect>
                 </Label>
                 <Label x:Name="lblScoreTeam4" Content="1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="260" FontFamily="IMPACT">
-                    <Label.RenderTransfo>
+                    <Label.RenderTransform>
                         <ScaleTransform x:Name="ScaleTransformTeam4" ScaleX="1" ScaleY="1"/>
-                    </Label.RenderTransfo
-                        rm>
+                    </Label.RenderTransform>
                     <Label.Foreground>
                         <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                             <GradientStop Color="#FF0E26DD" Offset="0"/>
