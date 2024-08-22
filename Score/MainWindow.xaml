@@ -3,9 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Score"
         mc:Ignorable="d"
-        Title="INTACH Heritage Quiz Score Board"  WindowState="Maximized" WindowStartupLocation="CenterScreen" ResizeMode="CanResizeWithGrip">
+        Title="INTACH Heritage Quiz Score Board" WindowState="Maximized" WindowStartupLocation="CenterScreen" ResizeMode="CanResizeWithGrip">
     <Window.Background>
         <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
             <GradientStop Color="#FF8ED28A" Offset="0"/>
@@ -14,120 +13,133 @@
     </Window.Background>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-            <ColumnDefinition/>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition/>
-            <RowDefinition/>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Label x:Name="lblScoreTeam1" Content="1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="260" FontFamily="Old English Text MT" Grid.Row="0" Grid.Column="0">
-            <Label.Foreground>
-                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="#FF0E26DD" Offset="0"/>
-                    <GradientStop Color="#FF3AF115" Offset="1"/>
-                </LinearGradientBrush>
-            </Label.Foreground>
-            <Label.Effect>
-                <DropShadowEffect/>
-            </Label.Effect>
-        </Label>
-        <Label Content="Team JBA" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="100" FontFamily="Segoe UI Black" Grid.Row="0" Grid.Column="0">
-            <Label.Foreground>
-                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="#FFFF1C76" Offset="0"/>
-                    <GradientStop Color="#FFF9F2F0" Offset="1"/>
-                </LinearGradientBrush>
-            </Label.Foreground>
-            <Label.Effect>
-                <DropShadowEffect/>
-            </Label.Effect>
-        </Label>
 
-        <Label x:Name="lblScoreTeam2" Content="1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="260" FontFamily="Old English Text MT" Grid.Row="0" Grid.Column="1">
-            <Label.Foreground>
-                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="#FF0E26DD" Offset="0"/>
-                    <GradientStop Color="#FF3AF115" Offset="1"/>
-                </LinearGradientBrush>
-            </Label.Foreground>
-            <Label.Effect>
-                <DropShadowEffect/>
-            </Label.Effect>
-        </Label>
-        <Label Content="Team AIS" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="100" FontFamily="Segoe UI Black" Grid.Row="0" Grid.Column="1">
-            <Label.Foreground>
-                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="#FFFF1C76" Offset="0"/>
-                    <GradientStop Color="#FFF9F2F0" Offset="1"/>
-                </LinearGradientBrush>
-            </Label.Foreground>
-            <Label.Effect>
-                <DropShadowEffect/>
-            </Label.Effect>
-        </Label>
+        <!-- Team 1 -->
+        <Border Grid.Row="0" Grid.Column="0" BorderBrush="Black" BorderThickness="2" CornerRadius="10">
+            <Grid>
+                <Label Content="Ajanta" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="80" FontFamily="Segoe UI Black" Margin="0,-15,0,0">
+                    <Label.Foreground>
+                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                            <GradientStop Color="#FFFF1C76" Offset="0"/>
+                            <GradientStop Color="#FFF9F2F0" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Label.Foreground>
+                    <Label.Effect>
+                        <DropShadowEffect Color="Black" BlurRadius="15" ShadowDepth="5" Direction="315" Opacity="0.7"/>
+                    </Label.Effect>
+                </Label>
+                <Label x:Name="lblScoreTeam1" Content="1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="260" FontFamily="IMPACT">
+                    <Label.Foreground>
+                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                            <GradientStop Color="#FF0E26DD" Offset="0"/>
+                            <GradientStop Color="#000" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Label.Foreground>
+                    <Label.Effect>
+                        <DropShadowEffect Color="Black" BlurRadius="15" ShadowDepth="5" Direction="315" Opacity="0.7"/>
+                    </Label.Effect>
+                </Label>
+                <Button Content="-" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="50" FontSize="40" Click="Button_Click_1"/>
+                <Button Content="+" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="50" FontSize="40" Click="Button_Click"/>
+            </Grid>
+        </Border>
 
-        <Label x:Name="lblScoreTeam3" Content="1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="260" FontFamily="Old English Text MT" Grid.Row="1" Grid.Column="0">
-            <Label.Foreground>
-                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="#FF0E26DD" Offset="0"/>
-                    <GradientStop Color="#FF3AF115" Offset="1"/>
-                </LinearGradientBrush>
-            </Label.Foreground>
-            <Label.Effect>
-                <DropShadowEffect/>
-            </Label.Effect>
-        </Label>
-        <Label Content="Team YVM" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="100" FontFamily="Segoe UI Black" Grid.Row="1" Grid.Column="0">
-            <Label.Foreground>
-                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="#FFFF1C76" Offset="0"/>
-                    <GradientStop Color="#FFF9F2F0" Offset="1"/>
-                </LinearGradientBrush>
-            </Label.Foreground>
-            <Label.Effect>
-                <DropShadowEffect/>
-            </Label.Effect>
-        </Label>
+        <!-- Team 2 -->
+        <Border Grid.Row="0" Grid.Column="1" BorderBrush="Black" BorderThickness="2" CornerRadius="10">
+            <Grid>
+                <Label Content="Taxila" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="80" FontFamily="Segoe UI Black" Margin="0,-15,0,0">
+                    <Label.Foreground>
+                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                            <GradientStop Color="#FFFF1C76" Offset="0"/>
+                            <GradientStop Color="#FFF9F2F0" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Label.Foreground>
+                    <Label.Effect>
+                        <DropShadowEffect Color="Black" BlurRadius="15" ShadowDepth="5" Direction="315" Opacity="0.7"/>
+                    </Label.Effect>
+                </Label>
+                <Label x:Name="lblScoreTeam2" Content="1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="260" FontFamily="IMPACT">
+                    <Label.Foreground>
+                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                            <GradientStop Color="#FF0E26DD" Offset="0"/>
+                            <GradientStop Color="#000" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Label.Foreground>
+                    <Label.Effect>
+                        <DropShadowEffect Color="Black" BlurRadius="15" ShadowDepth="5" Direction="315" Opacity="0.7"/>
+                    </Label.Effect>
+                </Label>
+                <Button Content="-" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="50" FontSize="40" Click="Button_Click_2"/>
+                <Button Content="+" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="50" FontSize="40" Click="Button_Click_3"/>
+            </Grid>
+        </Border>
 
-        <Label x:Name="lblScoreTeam4" Content="1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="260" FontFamily="Old English Text MT" Grid.Row="1" Grid.Column="1">
-            <Label.Foreground>
-                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="#FF0E26DD" Offset="0"/>
-                    <GradientStop Color="#FF3AF115" Offset="1"/>
-                </LinearGradientBrush>
-            </Label.Foreground>
-            <Label.Effect>
-                <DropShadowEffect/>
-            </Label.Effect>
-        </Label>
-        <Label Content="Team IMA" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="100" FontFamily="Segoe UI Black" Grid.Row="1" Grid.Column="1">
-            <Label.Foreground>
-                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="#FFFF1C76" Offset="0"/>
-                    <GradientStop Color="#FFF9F2F0" Offset="1"/>
-                </LinearGradientBrush>
-            </Label.Foreground>
-            <Label.Effect>
-                <DropShadowEffect/>
-            </Label.Effect>
-        </Label>
+        <!-- Team 3 -->
+        <Border Grid.Row="1" Grid.Column="0" BorderBrush="Black" BorderThickness="2" CornerRadius="10">
+            <Grid>
+                <Label Content="Sanchi" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="80" FontFamily="Segoe UI Black" Margin="0,-15,0,0">
+                    <Label.Foreground>
+                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                            <GradientStop Color="#FFFF1C76" Offset="0"/>
+                            <GradientStop Color="#FFF9F2F0" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Label.Foreground>
+                    <Label.Effect>
+                        <DropShadowEffect Color="Black" BlurRadius="15" ShadowDepth="5" Direction="315" Opacity="0.7"/>
+                    </Label.Effect>
+                </Label>
+                <Label x:Name="lblScoreTeam3" Content="1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="260" FontFamily="IMPACT">
+                    <Label.Foreground>
+                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                            <GradientStop Color="#FF0E26DD" Offset="0"/>
+                            <GradientStop Color="#000" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Label.Foreground>
+                    <Label.Effect>
+                        <DropShadowEffect Color="Black" BlurRadius="15" ShadowDepth="5" Direction="315" Opacity="0.7"/>
+                    </Label.Effect>
+                </Label>
+                <Button Content="-" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="50" FontSize="40" Click="Button_Click_4"/>
+                <Button Content="+" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="50" FontSize="40" Click="Button_Click_5"/>
+            </Grid>
+        </Border>
 
-
-
-        <Button Content="-" HorizontalAlignment="Left" Grid.Column="0" Grid.Row="0" VerticalAlignment="Bottom" Width="35" Click="Button_Click_1" />
-        <Button Content="+" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="0" VerticalAlignment="Bottom" Width="35" Click="Button_Click" />
-
-        <Button Content="-" HorizontalAlignment="Left" Grid.Column="1" Grid.Row="0" Width="35" Click="Button_Click_2" VerticalAlignment="Bottom"  />
-        <Button Content="+" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="0" Width="35" Click="Button_Click_3" VerticalAlignment="Bottom" />
-
-        <Button Content="-" HorizontalAlignment="Left" Grid.Column="0" Grid.Row="1" Width="35" Click="Button_Click_4" VerticalAlignment="Bottom" />
-        <Button Content="+" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="1" Width="35" Click="Button_Click_5" VerticalAlignment="Bottom" />
-
-        <Button Content="-" HorizontalAlignment="Left" Grid.Column="1" Grid.Row="1" VerticalAlignment="Bottom" Width="35" Click="Button_Click_6"  />
-        <Button Content="+" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="1" VerticalAlignment="Bottom" Width="35" Click="Button_Click_7" />
-
-
+        <!-- Team 4 -->
+        <Border Grid.Row="1" Grid.Column="1" BorderBrush="Black" BorderThickness="2" CornerRadius="10">
+            <Grid>
+                <Label Content="Nalanda" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="80" FontFamily="Segoe UI Black" Margin="0,-15,0,0">
+                    <Label.Foreground>
+                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                            <GradientStop Color="#FFFF1C76" Offset="0"/>
+                            <GradientStop Color="#FFF9F2F0" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Label.Foreground>
+                    <Label.Effect>
+                        <DropShadowEffect Color="Black" BlurRadius="15" ShadowDepth="5" Direction="315" Opacity="0.7"/>
+                    </Label.Effect>
+                </Label>
+                <Label x:Name="lblScoreTeam4" Content="1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="260" FontFamily="IMPACT">
+                    <Label.Foreground>
+                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                            <GradientStop Color="#FF0E26DD" Offset="0"/>
+                            <GradientStop Color="#000" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Label.Foreground>
+                    <Label.Effect>
+                        <DropShadowEffect Color="Black" BlurRadius="10" ShadowDepth="0" Direction="0" Opacity="1"/>
+                    </Label.Effect>
+                </Label>
+                <Button Content="-" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="50" FontSize="40" Click="Button_Click_6"/>
+                <Button Content="+" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="50" FontSize="40" Click="Button_Click_7"/>
+            </Grid>
+        </Border>
 
     </Grid>
 </Window>

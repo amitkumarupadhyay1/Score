@@ -4,169 +4,83 @@ using System.Windows;
 
 namespace Score
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
+        private ScoreDbContext score;
+
         public MainWindow()
         {
             InitializeComponent();
-            
-            var countT1 = score.ScoreCounts.Where(m => m.Team == "JBA 1").Count();
-            lblScoreTeam1.Content= score.ScoreCounts.OrderBy(c => 1 == 1).Skip(countT1 - 1).FirstOrDefault().ScoreValue;
-
-            var countT2 = score.ScoreCounts.Where(m => m.Team == "JBA 2").Count();
-            lblScoreTeam2.Content = score.ScoreCounts.OrderBy(c => 1 == 1).Skip(countT2 - 1).FirstOrDefault().ScoreValue;
-
-            var countT3 = score.ScoreCounts.Where(m => m.Team == "YVM 1").Count();
-            lblScoreTeam3.Content = score.ScoreCounts.OrderBy(c => 1 == 1).Skip(countT3 - 1).FirstOrDefault().ScoreValue;
-
-            var countT4 = score.ScoreCounts.Where(m => m.Team == "YVM 2").Count();
-            lblScoreTeam4.Content = score.ScoreCounts.OrderBy(c => 1 == 1).Skip(countT4 - 1).FirstOrDefault().ScoreValue;
+            score = new ScoreDbContext();
+            LoadScores();
         }
-        ScoreDbContext score = new ScoreDbContext();
+
+        private void LoadScores()
+        {
+            lblScoreTeam1.Content = GetScore("JBA 1");
+            lblScoreTeam2.Content = GetScore("JBA 2");
+            lblScoreTeam3.Content = GetScore("YVM 1");
+            lblScoreTeam4.Content = GetScore("YVM 2");
+        }
+
+        private int GetScore(string teamName)
+        {
+            var scoreRecord = score.ScoreCounts.FirstOrDefault(m => m.Team == teamName);
+            return scoreRecord != null ? scoreRecord.ScoreValue : 0;
+        }
+
+        private void UpdateScore(string teamName, int change)
+        {
+            var scoreRecord = score.ScoreCounts.FirstOrDefault(m => m.Team == teamName);
+            if (scoreRecord != null)
+            {
+                scoreRecord.ScoreValue += change;
+                lblScoreTeam1.Content = teamName == "JBA 1" ? scoreRecord.ScoreValue : lblScoreTeam1.Content;
+                lblScoreTeam2.Content = teamName == "JBA 2" ? scoreRecord.ScoreValue : lblScoreTeam2.Content;
+                lblScoreTeam3.Content = teamName == "YVM 1" ? scoreRecord.ScoreValue : lblScoreTeam3.Content;
+                lblScoreTeam4.Content = teamName == "YVM 2" ? scoreRecord.ScoreValue : lblScoreTeam4.Content;
+                score.SaveChanges();
+            }
+        }
+
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            //var count = score.ScoreCounts.Where(m => m.Team == "JBA 1").Count();
-            // int p = score.ScoreCounts.OrderBy(c => 1 == 1).Skip(count - 1).FirstOrDefault().ScoreValue;
-            var m = from x in score.ScoreCounts
-                    where x.Team == "JBA 1"
-                    select x.ScoreValue;
-
-            int p = m.ToList().LastOrDefault();
-                   
-
-            ScoreCount sc = new ScoreCount();
-            sc.Team = "JBA 1";
-            sc.ScoreValue = p + 1;
-            lblScoreTeam1.Content = sc.ScoreValue;
-            score.ScoreCounts.Add(sc);
-            score.SaveChanges();
+            UpdateScore("JBA 1", 1);
         }
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            //var count = score.ScoreCounts.Where(m => m.Team == "JBA 1").Count();
-            //int p = score.ScoreCounts.OrderBy(c => 1 == 1).Skip(count - 1).FirstOrDefault().ScoreValue;
-            var m = from x in score.ScoreCounts
-                    where x.Team == "JBA 1"
-                    select x.ScoreValue;
-
-            int p = m.ToList().LastOrDefault();
-
-            ScoreCount sc = new ScoreCount();
-            sc.Team = "JBA 1";
-            sc.ScoreValue = p - 1;
-            lblScoreTeam1.Content = sc.ScoreValue;
-            score.ScoreCounts.Add(sc);
-            score.SaveChanges();
-           
+            UpdateScore("JBA 1", -1);
         }
 
         private void Button_Click_2(object sender, RoutedEventArgs e)
         {
-            // var count = score.ScoreCounts.Where(m => m.Team == "JBA 2").Count();
-            //int p = score.ScoreCounts.OrderBy(c => 1 == 1).Skip(count - 1).FirstOrDefault().ScoreValue;
-            var m = from x in score.ScoreCounts
-                    where x.Team == "JBA 2"
-                    select x.ScoreValue;
-
-            int p = m.ToList().LastOrDefault();
-            ScoreCount sc = new ScoreCount();
-            sc.Team = "JBA 2";
-            sc.ScoreValue = p - 1;
-            lblScoreTeam2.Content = sc.ScoreValue;
-            score.ScoreCounts.Add(sc);
-            score.SaveChanges();
+            UpdateScore("JBA 2", -1);
         }
 
         private void Button_Click_3(object sender, RoutedEventArgs e)
         {
-            //var count = score.ScoreCounts.Where(m => m.Team == "JBA 2").Count();
-            //int p = score.ScoreCounts.OrderBy(c => 1 == 1).Skip(count - 1).FirstOrDefault().ScoreValue;
-            var m = from x in score.ScoreCounts
-                    where x.Team == "JBA 2"
-                    select x.ScoreValue;
-
-            int p = m.ToList().LastOrDefault();
-            ScoreCount sc = new ScoreCount();
-            sc.Team = "JBA 2";
-            sc.ScoreValue = p + 1;
-            lblScoreTeam2.Content = sc.ScoreValue;
-            score.ScoreCounts.Add(sc);
-            score.SaveChanges();
+            UpdateScore("JBA 2", 1);
         }
 
         private void Button_Click_4(object sender, RoutedEventArgs e)
         {
-            //var count = score.ScoreCounts.Where(m => m.Team == "YVM 1").Count();
-            // int p = score.ScoreCounts.OrderBy(c => 1 == 1).Skip(count - 1).FirstOrDefault().ScoreValue;
-            var m = from x in score.ScoreCounts
-                    where x.Team == "YVM 1"
-                    select x.ScoreValue;
-
-            int p = m.ToList().LastOrDefault();
-            ScoreCount sc = new ScoreCount();
-            sc.Team = "YVM 1";
-            sc.ScoreValue = p - 1;
-            lblScoreTeam3.Content = sc.ScoreValue;
-            score.ScoreCounts.Add(sc);
-            score.SaveChanges();
+            UpdateScore("YVM 1", -1);
         }
 
         private void Button_Click_5(object sender, RoutedEventArgs e)
         {
-            //  var count = score.ScoreCounts.Where(m => m.Team == "YVM 1").Count();
-            // int p = score.ScoreCounts.OrderBy(c => 1 == 1).Skip(count - 1).FirstOrDefault().ScoreValue;
-            var m = from x in score.ScoreCounts
-                    where x.Team == "YVM 1"
-                    select x.ScoreValue;
-
-            int p = m.ToList().LastOrDefault();
-            ScoreCount sc = new ScoreCount();
-            sc.Team = "YVM 1";
-            sc.ScoreValue = p + 1;
-            lblScoreTeam3.Content = sc.ScoreValue;
-            score.ScoreCounts.Add(sc);
-            score.SaveChanges();
-
+            UpdateScore("YVM 1", 1);
         }
 
         private void Button_Click_6(object sender, RoutedEventArgs e)
         {
-            //   var count = score.ScoreCounts.Where(m => m.Team == "YVM 2").Count();
-            //int p = score.ScoreCounts.OrderBy(c => 1 == 1).Skip(count - 1).FirstOrDefault().ScoreValue;
-            var m = from x in score.ScoreCounts
-                    where x.Team == "YVM 2"
-                    select x.ScoreValue;
-
-            int p = m.ToList().LastOrDefault();
-            ScoreCount sc = new ScoreCount();
-            sc.Team = "YVM 2";
-            sc.ScoreValue = p - 1;
-            lblScoreTeam4.Content = sc.ScoreValue;
-            score.ScoreCounts.Add(sc);
-            score.SaveChanges();
-
+            UpdateScore("YVM 2", -1);
         }
 
         private void Button_Click_7(object sender, RoutedEventArgs e)
         {
-            //var count = score.ScoreCounts.Where(m => m.Team == "YVM 2").Count();
-            // int p = score.ScoreCounts.OrderBy(c => 1 == 1).Skip(count - 1).FirstOrDefault().ScoreValue;
-            var m = from x in score.ScoreCounts
-                    where x.Team == "YVM 2"
-                    select x.ScoreValue;
-
-            int p = m.ToList().LastOrDefault();
-            ScoreCount sc = new ScoreCount();
-            sc.Team = "YVM 2";
-            sc.ScoreValue = p + 1;
-            lblScoreTeam4.Content = sc.ScoreValue;
-            score.ScoreCounts.Add(sc);
-            score.SaveChanges();
-
+            UpdateScore("YVM 2", 1);
         }
     }
 }
