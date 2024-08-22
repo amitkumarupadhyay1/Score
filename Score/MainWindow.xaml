@@ -36,6 +36,9 @@
                     </Label.Effect>
                 </Label>
                 <Label x:Name="lblScoreTeam1" Content="1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="260" FontFamily="IMPACT">
+                    <Label.RenderTransform>
+                        <ScaleTransform x:Name="ScaleTransformTeam1" ScaleX="1" ScaleY="1"/>
+                    </Label.RenderTransform>
                     <Label.Foreground>
                         <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                             <GradientStop Color="#FF0E26DD" Offset="0"/>
@@ -66,6 +69,9 @@
                     </Label.Effect>
                 </Label>
                 <Label x:Name="lblScoreTeam2" Content="1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="260" FontFamily="IMPACT">
+                    <Label.RenderTransform>
+                        <ScaleTransform x:Name="ScaleTransformTeam2" ScaleX="1" ScaleY="1"/>
+                    </Label.RenderTransform>
                     <Label.Foreground>
                         <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                             <GradientStop Color="#FF0E26DD" Offset="0"/>
@@ -96,6 +102,9 @@
                     </Label.Effect>
                 </Label>
                 <Label x:Name="lblScoreTeam3" Content="1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="260" FontFamily="IMPACT">
+                    <Label.RenderTransform>
+                        <ScaleTransform x:Name="ScaleTransformTeam3" ScaleX="1" ScaleY="1"/>
+                    </Label.RenderTransform>
                     <Label.Foreground>
                         <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                             <GradientStop Color="#FF0E26DD" Offset="0"/>
@@ -126,6 +135,10 @@
                     </Label.Effect>
                 </Label>
                 <Label x:Name="lblScoreTeam4" Content="1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="260" FontFamily="IMPACT">
+                    <Label.RenderTransfo>
+                        <ScaleTransform x:Name="ScaleTransformTeam4" ScaleX="1" ScaleY="1"/>
+                    </Label.RenderTransfo
+                        rm>
                     <Label.Foreground>
                         <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                             <GradientStop Color="#FF0E26DD" Offset="0"/>
@@ -133,7 +146,7 @@
                         </LinearGradientBrush>
                     </Label.Foreground>
                     <Label.Effect>
-                        <DropShadowEffect Color="Black" BlurRadius="10" ShadowDepth="0" Direction="0" Opacity="1"/>
+                        <DropShadowEffect Color="Black" BlurRadius="15" ShadowDepth="5" Direction="315" Opacity="0.7"/>
                     </Label.Effect>
                 </Label>
                 <Button Content="-" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="50" FontSize="40" Click="Button_Click_6"/>

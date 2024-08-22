@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
 
 namespace Score
 {
@@ -26,7 +29,7 @@ namespace Score
         private int GetScore(string teamName)
         {
             var scoreRecord = score.ScoreCounts.FirstOrDefault(m => m.Team == teamName);
-            return scoreRecord != null ? scoreRecord.ScoreValue : 0;
+            return scoreRecord?.ScoreValue ?? 0;
         }
 
         private void UpdateScore(string teamName, int change)
@@ -35,12 +38,72 @@ namespace Score
             if (scoreRecord != null)
             {
                 scoreRecord.ScoreValue += change;
-                lblScoreTeam1.Content = teamName == "JBA 1" ? scoreRecord.ScoreValue : lblScoreTeam1.Content;
-                lblScoreTeam2.Content = teamName == "JBA 2" ? scoreRecord.ScoreValue : lblScoreTeam2.Content;
-                lblScoreTeam3.Content = teamName == "YVM 1" ? scoreRecord.ScoreValue : lblScoreTeam3.Content;
-                lblScoreTeam4.Content = teamName == "YVM 2" ? scoreRecord.ScoreValue : lblScoreTeam4.Content;
                 score.SaveChanges();
+
+                // Update the UI label and animate
+                if (teamName == "JBA 1")
+                {
+                    lblScoreTeam1.Content = scoreRecord.ScoreValue;
+                    AnimateScoreChange(lblScoreTeam1, change);
+                }
+                else if (teamName == "JBA 2")
+                {
+                    lblScoreTeam2.Content = scoreRecord.ScoreValue;
+                    AnimateScoreChange(lblScoreTeam2, change);
+                }
+                else if (teamName == "YVM 1")
+                {
+                    lblScoreTeam3.Content = scoreRecord.ScoreValue;
+                    AnimateScoreChange(lblScoreTeam3, change);
+                }
+                else if (teamName == "YVM 2")
+                {
+                    lblScoreTeam4.Content = scoreRecord.ScoreValue;
+                    AnimateScoreChange(lblScoreTeam4, change);
+                }
             }
+        }
+
+        private void AnimateScoreChange(Label scoreLabel, int change)
+        {
+            if (change > 0)
+            {
+                AnimateScoreIncrease(scoreLabel);
+            }
+            else if (change < 0)
+            {
+                AnimateScoreDecrease(scoreLabel);
+            }
+        }
+
+        private void AnimateScoreIncrease(Label scoreLabel)
+        {
+            // Color Animation
+            ColorAnimation colorAnimation = new ColorAnimation(Colors.Green, Colors.Black, TimeSpan.FromSeconds(0.5));
+            scoreLabel.Foreground = new SolidColorBrush(Colors.Black);
+            scoreLabel.Foreground.BeginAnimation(SolidColorBrush.ColorProperty, colorAnimation);
+
+            // Scale Animation
+            ScaleTransform scaleTransform = new ScaleTransform();
+            scoreLabel.RenderTransform = scaleTransform;
+            DoubleAnimation scaleAnimation = new DoubleAnimation(1.2, 1, TimeSpan.FromSeconds(0.5));
+            scaleTransform.BeginAnimation(ScaleTransform.ScaleXProperty, scaleAnimation);
+            scaleTransform.BeginAnimation(ScaleTransform.ScaleYProperty, scaleAnimation);
+        }
+
+        private void AnimateScoreDecrease(Label scoreLabel)
+        {
+            // Color Animation
+            ColorAnimation colorAnimation = new ColorAnimation(Colors.Red, Colors.Black, TimeSpan.FromSeconds(0.5));
+            scoreLabel.Foreground = new SolidColorBrush(Colors.Black);
+            scoreLabel.Foreground.BeginAnimation(SolidColorBrush.ColorProperty, colorAnimation);
+
+            // Scale Animation
+            ScaleTransform scaleTransform = new ScaleTransform();
+            scoreLabel.RenderTransform = scaleTransform;
+            DoubleAnimation scaleAnimation = new DoubleAnimation(0.8, 1, TimeSpan.FromSeconds(0.5));
+            scaleTransform.BeginAnimation(ScaleTransform.ScaleXProperty, scaleAnimation);
+            scaleTransform.BeginAnimation(ScaleTransform.ScaleYProperty, scaleAnimation);
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
