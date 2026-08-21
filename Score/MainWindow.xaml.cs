@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -78,30 +78,46 @@ namespace Score
 
         private void AnimateScoreIncrease(Label scoreLabel)
         {
-            // Color Animation
-            ColorAnimation colorAnimation = new ColorAnimation(Colors.Green, Colors.MidnightBlue, TimeSpan.FromSeconds(0.5));
-            scoreLabel.Foreground = new SolidColorBrush(Colors.Black);
+            var originalColor = ((SolidColorBrush)scoreLabel.Foreground).Color;
+            var flashColor = Colors.White;
+
+            var colorAnimation = new ColorAnimationUsingKeyFrames();
+            colorAnimation.KeyFrames.Add(new EasingColorKeyFrame(flashColor, KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0.1))));
+            colorAnimation.KeyFrames.Add(new EasingColorKeyFrame(originalColor, KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0.4))));
+
             scoreLabel.Foreground.BeginAnimation(SolidColorBrush.ColorProperty, colorAnimation);
 
-            // Scale Animation
-            ScaleTransform scaleTransform = new ScaleTransform();
-            scoreLabel.RenderTransform = scaleTransform;
-            DoubleAnimation scaleAnimation = new DoubleAnimation(1.2, 1, TimeSpan.FromSeconds(0.5));
+            var scaleTransform = new ScaleTransform();
+            var rotateTransform = new RotateTransform();
+            var transformGroup = new TransformGroup();
+            transformGroup.Children.Add(scaleTransform);
+            transformGroup.Children.Add(rotateTransform);
+            scoreLabel.RenderTransform = transformGroup;
+            scoreLabel.RenderTransformOrigin = new Point(0.5, 0.5);
+
+            var scaleAnimation = new DoubleAnimationUsingKeyFrames();
+            scaleAnimation.KeyFrames.Add(new EasingDoubleKeyFrame(1.5, KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0.1))));
+            scaleAnimation.KeyFrames.Add(new EasingDoubleKeyFrame(1.0, KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0.4))) { EasingFunction = new BounceEase() { Bounces = 2, EasingMode = EasingMode.EaseOut } });
             scaleTransform.BeginAnimation(ScaleTransform.ScaleXProperty, scaleAnimation);
             scaleTransform.BeginAnimation(ScaleTransform.ScaleYProperty, scaleAnimation);
         }
 
         private void AnimateScoreDecrease(Label scoreLabel)
         {
-            // Color Animation
-            ColorAnimation colorAnimation = new ColorAnimation(Colors.HotPink, Colors.DarkRed, TimeSpan.FromSeconds(0.5));
-            scoreLabel.Foreground = new SolidColorBrush(Colors.Black);
+            var originalColor = ((SolidColorBrush)scoreLabel.Foreground).Color;
+            var flashColor = Colors.Red;
+
+            var colorAnimation = new ColorAnimationUsingKeyFrames();
+            colorAnimation.KeyFrames.Add(new EasingColorKeyFrame(flashColor, KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0.1))));
+            colorAnimation.KeyFrames.Add(new EasingColorKeyFrame(originalColor, KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0.4))));
+
             scoreLabel.Foreground.BeginAnimation(SolidColorBrush.ColorProperty, colorAnimation);
 
-            // Scale Animation
-            ScaleTransform scaleTransform = new ScaleTransform();
+            var scaleTransform = new ScaleTransform();
             scoreLabel.RenderTransform = scaleTransform;
-            DoubleAnimation scaleAnimation = new DoubleAnimation(0.8, 1, TimeSpan.FromSeconds(0.5));
+            scoreLabel.RenderTransformOrigin = new Point(0.5, 0.5);
+
+            var scaleAnimation = new DoubleAnimation(0.8, 1, TimeSpan.FromSeconds(0.4));
             scaleTransform.BeginAnimation(ScaleTransform.ScaleXProperty, scaleAnimation);
             scaleTransform.BeginAnimation(ScaleTransform.ScaleYProperty, scaleAnimation);
         }

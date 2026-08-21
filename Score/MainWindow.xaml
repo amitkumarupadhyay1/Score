@@ -1,4 +1,4 @@
-﻿<Window x:Class="Score.MainWindow"
+<Window x:Class="Score.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -6,11 +6,72 @@
         mc:Ignorable="d"
         Title="INTACH Heritage Quiz Score Board" WindowState="Maximized" WindowStartupLocation="CenterScreen" ResizeMode="CanResizeWithGrip">
     <Window.Background>
-        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-            <GradientStop Color="#FF8ED28A" Offset="0"/>
-            <GradientStop Color="#FF007ACC" Offset="1"/>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#FF232526" Offset="0.0"/>
+            <GradientStop Color="#FF414345" Offset="1.0"/>
         </LinearGradientBrush>
     </Window.Background>
+    <Window.Resources>
+        <!-- Glow Effect for Score Panels -->
+        <DropShadowEffect x:Key="PanelGlowEffect" Color="#FFD700" BlurRadius="30" ShadowDepth="0" Opacity="0.3"/>
+
+        
+        <!-- Style for the Team Name Label -->
+        <Style x:Key="TeamNameLabelStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="50"/>
+            <Setter Property="FontFamily" Value="Segoe UI Black"/>
+            <Setter Property="Foreground" Value="#FFEFEFEF"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="Black" BlurRadius="8" ShadowDepth="2" Direction="315" Opacity="0.4"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Style for the Score Label -->
+        <Style x:Key="ScoreLabelStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="250"/>
+            <Setter Property="FontFamily" Value="Impact"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="Black" BlurRadius="15" ShadowDepth="8" Direction="315" Opacity="0.7"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Style for the Score Buttons -->
+        <Style x:Key="ScoreButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="70"/>
+            <Setter Property="Height" Value="70"/>
+            <Setter Property="FontSize" Value="45"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="#FF282828"/>
+            <Setter Property="BorderBrush" Value="#FF444444"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Ellipse Fill="{TemplateBinding Background}" Stroke="{TemplateBinding BorderBrush}" StrokeThickness="{TemplateBinding BorderThickness}"/>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Style for the Team Logo -->
+        <Style x:Key="TeamLogoStyle" TargetType="Image">
+            <Setter Property="Width" Value="50"/>
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+    </Window.Resources>
+
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
@@ -22,135 +83,87 @@
         </Grid.RowDefinitions>
 
         <!-- Team 1 -->
-        <Border Grid.Row="0" Grid.Column="0" BorderBrush="Black" BorderThickness="2" CornerRadius="10">
-            <Grid>
-                <Label Content="Ajanta" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="80" FontFamily="Segoe UI Black" Margin="0,-15,0,0">
-                    <Label.Foreground>
-                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                            <GradientStop Color="#FFFF1C76" Offset="0"/>
-                            <GradientStop Color="#FFF9F2F0" Offset="1"/>
-                        </LinearGradientBrush>
-                    </Label.Foreground>
-                    <Label.Effect>
-                        <DropShadowEffect Color="Black" BlurRadius="15" ShadowDepth="5" Direction="315" Opacity="0.7"/>
-                    </Label.Effect>
-                </Label>
-                <Label x:Name="lblScoreTeam1" Content="1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="260" FontFamily="IMPACT">
-                    <Label.RenderTransform>
-                        <ScaleTransform x:Name="ScaleTransformTeam1" ScaleX="1" ScaleY="1"/>
-                    </Label.RenderTransform>
-                    <Label.Foreground>
-                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                            <GradientStop Color="#FF0E26DD" Offset="0"/>
-                            <GradientStop Color="#000" Offset="1"/>
-                        </LinearGradientBrush>
-                    </Label.Foreground>
-                    <Label.Effect>
-                        <DropShadowEffect Color="Black" BlurRadius="15" ShadowDepth="5" Direction="315" Opacity="0.7"/>
-                    </Label.Effect>
-                </Label>
-                <Button Content="-" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="50" FontSize="40" Click="Button_Click_1"/>
-                <Button Content="+" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="50" FontSize="40" Click="Button_Click"/>
-            </Grid>
+        <Border Grid.Row="0" Grid.Column="0" Margin="15" Background="#FF1C1C1C" CornerRadius="20">
+            <DockPanel Effect="{StaticResource PanelGlowEffect}">
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
+                    <Image Source="star.png" Style="{StaticResource TeamLogoStyle}"/>
+                    <Label Content="APS" Style="{StaticResource TeamNameLabelStyle}"/>
+                </StackPanel>
+                <Grid DockPanel.Dock="Bottom" Margin="20,0,20,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" Content="-" Style="{StaticResource ScoreButtonStyle}" Click="Button_Click_1" HorizontalAlignment="Left"/>
+                    <Button Grid.Column="1" Content="+" Style="{StaticResource ScoreButtonStyle}" Click="Button_Click" HorizontalAlignment="Right"/>
+                </Grid>
+                    <Viewbox Stretch="Uniform">
+                        <Label x:Name="lblScoreTeam1" Content="0" Style="{StaticResource ScoreLabelStyle}" Foreground="#FFFF007F"/>
+                    </Viewbox>
+            </DockPanel>
         </Border>
 
         <!-- Team 2 -->
-        <Border Grid.Row="0" Grid.Column="1" BorderBrush="Black" BorderThickness="2" CornerRadius="10">
-            <Grid>
-                <Label Content="Taxila" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="80" FontFamily="Segoe UI Black" Margin="0,-15,0,0">
-                    <Label.Foreground>
-                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                            <GradientStop Color="#FFFF1C76" Offset="0"/>
-                            <GradientStop Color="#FFF9F2F0" Offset="1"/>
-                        </LinearGradientBrush>
-                    </Label.Foreground>
-                    <Label.Effect>
-                        <DropShadowEffect Color="Black" BlurRadius="15" ShadowDepth="5" Direction="315" Opacity="0.7"/>
-                    </Label.Effect>
-                </Label>
-                <Label x:Name="lblScoreTeam2" Content="1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="260" FontFamily="IMPACT">
-                    <Label.RenderTransform>
-                        <ScaleTransform x:Name="ScaleTransformTeam2" ScaleX="1" ScaleY="1"/>
-                    </Label.RenderTransform>
-                    <Label.Foreground>
-                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                            <GradientStop Color="#FF0E26DD" Offset="0"/>
-                            <GradientStop Color="#000" Offset="1"/>
-                        </LinearGradientBrush>
-                    </Label.Foreground>
-                    <Label.Effect>
-                        <DropShadowEffect Color="Black" BlurRadius="15" ShadowDepth="5" Direction="315" Opacity="0.7"/>
-                    </Label.Effect>
-                </Label>
-                <Button Content="-" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="50" FontSize="40" Click="Button_Click_2"/>
-                <Button Content="+" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="50" FontSize="40" Click="Button_Click_3"/>
-            </Grid>
+        <Border Grid.Row="0" Grid.Column="1" Margin="15" Background="#FF1C1C1C" CornerRadius="20">
+            <DockPanel Effect="{StaticResource PanelGlowEffect}">
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
+                    <Image Source="star.png" Style="{StaticResource TeamLogoStyle}"/>
+                    <Label Content="Sunbeam" Style="{StaticResource TeamNameLabelStyle}"/>
+                </StackPanel>
+                <Grid DockPanel.Dock="Bottom" Margin="20,0,20,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" Content="-" Style="{StaticResource ScoreButtonStyle}" Click="Button_Click_2" HorizontalAlignment="Left"/>
+                    <Button Grid.Column="1" Content="+" Style="{StaticResource ScoreButtonStyle}" Click="Button_Click_3" HorizontalAlignment="Right"/>
+                </Grid>
+                    <Viewbox Stretch="Uniform">
+                        <Label x:Name="lblScoreTeam2" Content="0" Style="{StaticResource ScoreLabelStyle}" Foreground="#FF00D8FF"/>
+                    </Viewbox>
+            </DockPanel>
         </Border>
 
         <!-- Team 3 -->
-        <Border Grid.Row="1" Grid.Column="0" BorderBrush="Black" BorderThickness="2" CornerRadius="10">
-            <Grid>
-                <Label Content="Sanchi" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="80" FontFamily="Segoe UI Black" Margin="0,-15,0,0">
-                    <Label.Foreground>
-                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                            <GradientStop Color="#FFFF1C76" Offset="0"/>
-                            <GradientStop Color="#FFF9F2F0" Offset="1"/>
-                        </LinearGradientBrush>
-                    </Label.Foreground>
-                    <Label.Effect>
-                        <DropShadowEffect Color="Black" BlurRadius="15" ShadowDepth="5" Direction="315" Opacity="0.7"/>
-                    </Label.Effect>
-                </Label>
-                <Label x:Name="lblScoreTeam3" Content="1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="260" FontFamily="IMPACT">
-                    <Label.RenderTransform>
-                        <ScaleTransform x:Name="ScaleTransformTeam3" ScaleX="1" ScaleY="1"/>
-                    </Label.RenderTransform>
-                    <Label.Foreground>
-                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                            <GradientStop Color="#FF0E26DD" Offset="0"/>
-                            <GradientStop Color="#000" Offset="1"/>
-                        </LinearGradientBrush>
-                    </Label.Foreground>
-                    <Label.Effect>
-                        <DropShadowEffect Color="Black" BlurRadius="15" ShadowDepth="5" Direction="315" Opacity="0.7"/>
-                    </Label.Effect>
-                </Label>
-                <Button Content="-" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="50" FontSize="40" Click="Button_Click_4"/>
-                <Button Content="+" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="50" FontSize="40" Click="Button_Click_5"/>
-            </Grid>
+        <Border Grid.Row="1" Grid.Column="0" Margin="15" Background="#FF1C1C1C" CornerRadius="20">
+            <DockPanel Effect="{StaticResource PanelGlowEffect}">
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
+                    <Image Source="star.png" Style="{StaticResource TeamLogoStyle}"/>
+                    <Label Content="JB Academy" Style="{StaticResource TeamNameLabelStyle}"/>
+                </StackPanel>
+                <Grid DockPanel.Dock="Bottom" Margin="20,0,20,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" Content="-" Style="{StaticResource ScoreButtonStyle}" Click="Button_Click_4" HorizontalAlignment="Left"/>
+                    <Button Grid.Column="1" Content="+" Style="{StaticResource ScoreButtonStyle}" Click="Button_Click_5" HorizontalAlignment="Right"/>
+                </Grid>
+                    <Viewbox Stretch="Uniform">
+                        <Label x:Name="lblScoreTeam3" Content="0" Style="{StaticResource ScoreLabelStyle}" Foreground="#FF00FF80"/>
+                    </Viewbox>
+            </DockPanel>
         </Border>
 
         <!-- Team 4 -->
-        <Border Grid.Row="1" Grid.Column="1" BorderBrush="Black" BorderThickness="2" CornerRadius="10">
-            <Grid>
-                <Label Content="Nalanda" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="80" FontFamily="Segoe UI Black" Margin="0,-15,0,0">
-                    <Label.Foreground>
-                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                            <GradientStop Color="#FFFF1C76" Offset="0"/>
-                            <GradientStop Color="#FFF9F2F0" Offset="1"/>
-                        </LinearGradientBrush>
-                    </Label.Foreground>
-                    <Label.Effect>
-                        <DropShadowEffect Color="Black" BlurRadius="15" ShadowDepth="5" Direction="315" Opacity="0.7"/>
-                    </Label.Effect>
-                </Label>
-                <Label x:Name="lblScoreTeam4" Content="1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="260" FontFamily="IMPACT">
-                    <Label.RenderTransform>
-                        <ScaleTransform x:Name="ScaleTransformTeam4" ScaleX="1" ScaleY="1"/>
-                    </Label.RenderTransform>
-                    <Label.Foreground>
-                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                            <GradientStop Color="#FF0E26DD" Offset="0"/>
-                            <GradientStop Color="#000" Offset="1"/>
-                        </LinearGradientBrush>
-                    </Label.Foreground>
-                    <Label.Effect>
-                        <DropShadowEffect Color="Black" BlurRadius="15" ShadowDepth="5" Direction="315" Opacity="0.7"/>
-                    </Label.Effect>
-                </Label>
-                <Button Content="-" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="50" FontSize="40" Click="Button_Click_6"/>
-                <Button Content="+" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="50" FontSize="40" Click="Button_Click_7"/>
-            </Grid>
+        <Border Grid.Row="1" Grid.Column="1" Margin="15" Background="#FF1C1C1C" CornerRadius="20">
+            <DockPanel Effect="{StaticResource PanelGlowEffect}">
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
+                    <Image Source="star.png" Style="{StaticResource TeamLogoStyle}"/>
+                    <Label Content="AIS" Style="{StaticResource TeamNameLabelStyle}"/>
+                </StackPanel>
+                <Grid DockPanel.Dock="Bottom" Margin="20,0,20,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" Content="-" Style="{StaticResource ScoreButtonStyle}" Click="Button_Click_6" HorizontalAlignment="Left"/>
+                    <Button Grid.Column="1" Content="+" Style="{StaticResource ScoreButtonStyle}" Click="Button_Click_7" HorizontalAlignment="Right"/>
+                </Grid>
+                    <Viewbox Stretch="Uniform">
+                        <Label x:Name="lblScoreTeam4" Content="0" Style="{StaticResource ScoreLabelStyle}" Foreground="#FFFFD700"/>
+                    </Viewbox>
+            </DockPanel>
         </Border>
 
     </Grid>
