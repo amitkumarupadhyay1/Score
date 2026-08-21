@@ -29,7 +29,7 @@ namespace Score
         private int GetScore(string teamName)
         {
             var scoreRecord = score.ScoreCounts.FirstOrDefault(m => m.Team == teamName);
-            return scoreRecord?.ScoreValue ?? 0;
+            return scoreRecord != null ? scoreRecord.ScoreValue : 0;
         }
 
         private void UpdateScore(string teamName, int change)
