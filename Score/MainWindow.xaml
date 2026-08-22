@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Score"
         mc:Ignorable="d"
         Title="INTACH Heritage Quiz Score Board" WindowState="Maximized" WindowStartupLocation="CenterScreen" ResizeMode="CanResizeWithGrip">
     <Window.Background>
@@ -11,160 +12,100 @@
             <GradientStop Color="#FF414345" Offset="1.0"/>
         </LinearGradientBrush>
     </Window.Background>
-    <Window.Resources>
-        <!-- Glow Effect for Score Panels -->
-        <DropShadowEffect x:Key="PanelGlowEffect" Color="#FFD700" BlurRadius="30" ShadowDepth="0" Opacity="0.3"/>
 
-        
-        <!-- Style for the Team Name Label -->
-        <Style x:Key="TeamNameLabelStyle" TargetType="Label">
-            <Setter Property="FontSize" Value="50"/>
-            <Setter Property="FontFamily" Value="Segoe UI Black"/>
-            <Setter Property="Foreground" Value="#FFEFEFEF"/>
-            <Setter Property="Effect">
-                <Setter.Value>
-                    <DropShadowEffect Color="Black" BlurRadius="8" ShadowDepth="2" Direction="315" Opacity="0.4"/>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Style for the Score Label -->
-        <Style x:Key="ScoreLabelStyle" TargetType="Label">
-            <Setter Property="FontSize" Value="250"/>
-            <Setter Property="FontFamily" Value="Impact"/>
-            <Setter Property="HorizontalAlignment" Value="Center"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Effect">
-                <Setter.Value>
-                    <DropShadowEffect Color="Black" BlurRadius="15" ShadowDepth="8" Direction="315" Opacity="0.7"/>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Style for the Score Buttons -->
-        <Style x:Key="ScoreButtonStyle" TargetType="Button">
-            <Setter Property="Width" Value="70"/>
-            <Setter Property="Height" Value="70"/>
-            <Setter Property="FontSize" Value="45"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Background" Value="#FF282828"/>
-            <Setter Property="BorderBrush" Value="#FF444444"/>
-            <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Grid>
-                            <Ellipse Fill="{TemplateBinding Background}" Stroke="{TemplateBinding BorderBrush}" StrokeThickness="{TemplateBinding BorderThickness}"/>
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Style for the Team Logo -->
-        <Style x:Key="TeamLogoStyle" TargetType="Image">
-            <Setter Property="Width" Value="50"/>
-            <Setter Property="Height" Value="50"/>
-            <Setter Property="Margin" Value="0,0,10,0"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
-    </Window.Resources>
-
-    <Grid>
+    <Grid Margin="24">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
+        <Grid Grid.Row="0" Grid.ColumnSpan="2" Margin="8,0,8,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                <TextBox x:Name="EventTitleEditor" Text="INTACH HERITAGE QUIZ" MaxLength="36" ToolTip="Click to edit quiz title" FontFamily="Segoe UI Black" FontSize="20" Foreground="#FFEFEFEF" Background="Transparent" BorderThickness="0" Padding="0" KeyDown="EventTitleEditor_KeyDown" LostFocus="EventTitleEditor_LostFocus" />
+                <TextBlock Text="LIVE SCOREBOARD" FontFamily="Segoe UI" FontSize="11" FontWeight="Bold" Foreground="#FFB8C0C8" />
+            </StackPanel>
+            <StackPanel Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="GLOBAL" VerticalAlignment="Center" Margin="0,0,4,0" FontFamily="Segoe UI" FontSize="10" FontWeight="Bold" Foreground="#FFB8C0C8" />
+                <ComboBox x:Name="GlobalMinutesSelector" SelectedIndex="0" Width="42" Height="27" Margin="0,0,5,0" ToolTip="Global minutes">
+                    <ComboBoxItem Content="0" />
+                    <ComboBoxItem Content="15" />
+                    <ComboBoxItem Content="30" />
+                    <ComboBoxItem Content="45" />
+                    <ComboBoxItem Content="60" />
+                </ComboBox>
+                <TextBlock x:Name="GlobalTimerLabel" Text="--:--" VerticalAlignment="Center" Margin="0,0,8,0" FontFamily="Consolas" FontSize="12" FontWeight="Bold" Foreground="#FF7CFFB2" />
+                <TextBlock Text="ROUND" VerticalAlignment="Center" Margin="0,0,4,0" FontFamily="Segoe UI" FontSize="10" FontWeight="Bold" Foreground="#FFB8C0C8" />
+                <ComboBox x:Name="RoundMinutesSelector" SelectedIndex="1" Width="42" Height="27" Margin="0,0,5,0" ToolTip="Round minutes">
+                    <ComboBoxItem Content="1" />
+                    <ComboBoxItem Content="2" />
+                    <ComboBoxItem Content="3" />
+                    <ComboBoxItem Content="5" />
+                    <ComboBoxItem Content="10" />
+                </ComboBox>
+                <TextBlock x:Name="RoundTimerLabel" Text="--:--" VerticalAlignment="Center" Margin="0,0,8,0" FontFamily="Consolas" FontSize="12" FontWeight="Bold" Foreground="#FF7CFFB2" />
+                <Button x:Name="StartTimerButton" Content="START" Click="StartTimerButton_Click" Margin="0,0,5,0" Padding="8,7" FontFamily="Segoe UI" FontSize="10" FontWeight="Bold" Foreground="#FF1C1C1C" Background="#FF7CFFB2" BorderBrush="#FFC0FFDA" BorderThickness="1" />
+                <Button x:Name="PauseTimerButton" Content="PAUSE" Click="PauseTimerButton_Click" Margin="0,0,5,0" Padding="8,7" FontFamily="Segoe UI" FontSize="10" FontWeight="Bold" Foreground="White" Background="#FFB88632" BorderBrush="#FFE4C070" BorderThickness="1" />
+                <Button x:Name="ResumeTimerButton" Content="RESUME" Click="ResumeTimerButton_Click" Margin="0,0,7,0" Padding="8,7" FontFamily="Segoe UI" FontSize="10" FontWeight="Bold" Foreground="White" Background="#FF3A6F9B" BorderBrush="#FF7EAED1" BorderThickness="1" />
+                <TextBlock x:Name="RoundNumberLabel" Text="ROUND 1" VerticalAlignment="Center" Margin="0,0,7,0" FontFamily="Segoe UI" FontSize="11" FontWeight="Bold" Foreground="#FFFFD700" />
+                <ComboBox x:Name="RoundCountSelector" SelectedIndex="2" SelectionChanged="RoundCountSelector_SelectionChanged" Width="45" Height="27" Margin="0,0,7,0" ToolTip="Number of rounds">
+                    <ComboBoxItem Content="1" />
+                    <ComboBoxItem Content="2" />
+                    <ComboBoxItem Content="3" />
+                    <ComboBoxItem Content="4" />
+                    <ComboBoxItem Content="5" />
+                    <ComboBoxItem Content="6" />
+                    <ComboBoxItem Content="7" />
+                    <ComboBoxItem Content="8" />
+                    <ComboBoxItem Content="9" />
+                    <ComboBoxItem Content="10" />
+                </ComboBox>
+                <Button Content="FINISH ROUND" Click="FinishRoundButton_Click" Margin="0,0,7,0" Padding="10,7" FontFamily="Segoe UI" FontSize="11" FontWeight="Bold" Foreground="#FF1C1C1C" Background="#FF7CFFB2" BorderBrush="#FFC0FFDA" BorderThickness="1" />
+                <Border Background="#FF2D3338" CornerRadius="6" Padding="10,7">
+                    <TextBlock Text="4 TEAMS  |  LIVE" FontFamily="Segoe UI" FontSize="11" FontWeight="Bold" Foreground="#FF7CFFB2" />
+                </Border>
+                <Button Content="ANNOUNCE WINNER" Click="AnnounceWinnerButton_Click" Margin="7,0,0,0" Padding="10,7" FontFamily="Segoe UI" FontSize="11" FontWeight="Bold" Foreground="#FF1C1C1C" Background="#FFFFD700" BorderBrush="#FFFFF0A0" BorderThickness="1" />
+                <Button Content="RESET" Click="ResetButton_Click" Margin="7,0,0,0" Padding="10,7" FontFamily="Segoe UI" FontSize="11" FontWeight="Bold" Foreground="White" Background="#FF9B3D3D" BorderBrush="#FFD06A6A" BorderThickness="1" />
+                <Button Content="EXPORT LOG" Click="ExportLogButton_Click" Margin="7,0,0,0" Padding="10,7" FontFamily="Segoe UI" FontSize="11" FontWeight="Bold" Foreground="White" Background="#FF3A6F9B" BorderBrush="#FF7EAED1" BorderThickness="1" />
+            </StackPanel>
+        </Grid>
+
         <!-- Team 1 -->
-        <Border Grid.Row="0" Grid.Column="0" Margin="15" Background="#FF1C1C1C" CornerRadius="20">
-            <DockPanel Effect="{StaticResource PanelGlowEffect}">
-                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
-                    <Image Source="star.png" Style="{StaticResource TeamLogoStyle}"/>
-                    <Label Content="APS" Style="{StaticResource TeamNameLabelStyle}"/>
-                </StackPanel>
-                <Grid DockPanel.Dock="Bottom" Margin="20,0,20,20">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Button Grid.Column="0" Content="-" Style="{StaticResource ScoreButtonStyle}" Click="Button_Click_1" HorizontalAlignment="Left"/>
-                    <Button Grid.Column="1" Content="+" Style="{StaticResource ScoreButtonStyle}" Click="Button_Click" HorizontalAlignment="Right"/>
-                </Grid>
-                    <Viewbox Stretch="Uniform">
-                        <Label x:Name="lblScoreTeam1" Content="0" Style="{StaticResource ScoreLabelStyle}" Foreground="#FFFF007F"/>
-                    </Viewbox>
-            </DockPanel>
-        </Border>
+        <local:TeamScoreCard x:Name="Team1Card" Grid.Row="1" Grid.Column="0" 
+                             TeamName="APS" DatabaseTeamName="JBA 1" ScoreColor="#FFFF007F"
+                             ScoreDecreased="Card_ScoreDecreased" ScoreIncreased="Card_ScoreIncreased" TeamTimerStarted="Card_TeamTimerStarted" TeamTimerStopped="Card_TeamTimerStopped"/>
 
         <!-- Team 2 -->
-        <Border Grid.Row="0" Grid.Column="1" Margin="15" Background="#FF1C1C1C" CornerRadius="20">
-            <DockPanel Effect="{StaticResource PanelGlowEffect}">
-                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
-                    <Image Source="star.png" Style="{StaticResource TeamLogoStyle}"/>
-                    <Label Content="Sunbeam" Style="{StaticResource TeamNameLabelStyle}"/>
-                </StackPanel>
-                <Grid DockPanel.Dock="Bottom" Margin="20,0,20,20">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Button Grid.Column="0" Content="-" Style="{StaticResource ScoreButtonStyle}" Click="Button_Click_2" HorizontalAlignment="Left"/>
-                    <Button Grid.Column="1" Content="+" Style="{StaticResource ScoreButtonStyle}" Click="Button_Click_3" HorizontalAlignment="Right"/>
-                </Grid>
-                    <Viewbox Stretch="Uniform">
-                        <Label x:Name="lblScoreTeam2" Content="0" Style="{StaticResource ScoreLabelStyle}" Foreground="#FF00D8FF"/>
-                    </Viewbox>
-            </DockPanel>
-        </Border>
+        <local:TeamScoreCard x:Name="Team2Card" Grid.Row="1" Grid.Column="1" 
+                             TeamName="Sunbeam" DatabaseTeamName="JBA 2" ScoreColor="#FF00D8FF"
+                             ScoreDecreased="Card_ScoreDecreased" ScoreIncreased="Card_ScoreIncreased" TeamTimerStarted="Card_TeamTimerStarted" TeamTimerStopped="Card_TeamTimerStopped"/>
 
         <!-- Team 3 -->
-        <Border Grid.Row="1" Grid.Column="0" Margin="15" Background="#FF1C1C1C" CornerRadius="20">
-            <DockPanel Effect="{StaticResource PanelGlowEffect}">
-                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
-                    <Image Source="star.png" Style="{StaticResource TeamLogoStyle}"/>
-                    <Label Content="JB Academy" Style="{StaticResource TeamNameLabelStyle}"/>
-                </StackPanel>
-                <Grid DockPanel.Dock="Bottom" Margin="20,0,20,20">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Button Grid.Column="0" Content="-" Style="{StaticResource ScoreButtonStyle}" Click="Button_Click_4" HorizontalAlignment="Left"/>
-                    <Button Grid.Column="1" Content="+" Style="{StaticResource ScoreButtonStyle}" Click="Button_Click_5" HorizontalAlignment="Right"/>
-                </Grid>
-                    <Viewbox Stretch="Uniform">
-                        <Label x:Name="lblScoreTeam3" Content="0" Style="{StaticResource ScoreLabelStyle}" Foreground="#FF00FF80"/>
-                    </Viewbox>
-            </DockPanel>
-        </Border>
+        <local:TeamScoreCard x:Name="Team3Card" Grid.Row="2" Grid.Column="0" 
+                             TeamName="JB Academy" DatabaseTeamName="YVM 1" ScoreColor="#FF00FF80"
+                             ScoreDecreased="Card_ScoreDecreased" ScoreIncreased="Card_ScoreIncreased" TeamTimerStarted="Card_TeamTimerStarted" TeamTimerStopped="Card_TeamTimerStopped"/>
 
         <!-- Team 4 -->
-        <Border Grid.Row="1" Grid.Column="1" Margin="15" Background="#FF1C1C1C" CornerRadius="20">
-            <DockPanel Effect="{StaticResource PanelGlowEffect}">
-                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
-                    <Image Source="star.png" Style="{StaticResource TeamLogoStyle}"/>
-                    <Label Content="AIS" Style="{StaticResource TeamNameLabelStyle}"/>
-                </StackPanel>
-                <Grid DockPanel.Dock="Bottom" Margin="20,0,20,20">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Button Grid.Column="0" Content="-" Style="{StaticResource ScoreButtonStyle}" Click="Button_Click_6" HorizontalAlignment="Left"/>
-                    <Button Grid.Column="1" Content="+" Style="{StaticResource ScoreButtonStyle}" Click="Button_Click_7" HorizontalAlignment="Right"/>
-                </Grid>
-                    <Viewbox Stretch="Uniform">
-                        <Label x:Name="lblScoreTeam4" Content="0" Style="{StaticResource ScoreLabelStyle}" Foreground="#FFFFD700"/>
-                    </Viewbox>
-            </DockPanel>
-        </Border>
+        <local:TeamScoreCard x:Name="Team4Card" Grid.Row="2" Grid.Column="1" 
+                             TeamName="AIS" DatabaseTeamName="YVM 2" ScoreColor="#FFFFD700"
+                             ScoreDecreased="Card_ScoreDecreased" ScoreIncreased="Card_ScoreIncreased" TeamTimerStarted="Card_TeamTimerStarted" TeamTimerStopped="Card_TeamTimerStopped"/>
 
+        <Border x:Name="WinnerOverlay" Grid.Row="1" Grid.RowSpan="2" Grid.ColumnSpan="2" Visibility="Collapsed" Background="#F51C1C1C" Panel.ZIndex="10">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock x:Name="WinnerContext" Text="FINAL RESULT" HorizontalAlignment="Center" FontFamily="Segoe UI" FontSize="18" FontWeight="Bold" Foreground="#FFFFD700" />
+                <TextBlock x:Name="WinnerTitle" Text="WINNER" HorizontalAlignment="Center" Margin="0,8,0,0" FontFamily="Segoe UI Black" FontSize="52" Foreground="White" />
+                <TextBlock x:Name="WinnerScore" HorizontalAlignment="Center" Margin="0,4,0,20" FontFamily="Impact" FontSize="100" Foreground="#FFFFD700" />
+                <TextBlock x:Name="FinalStandings" HorizontalAlignment="Center" Margin="0,0,0,20" FontFamily="Segoe UI" FontSize="15" Foreground="#FFEFEFEF" TextAlignment="Center" Visibility="Collapsed" />
+                <Button x:Name="WinnerActionButton" Content="NEXT ROUND" Click="WinnerActionButton_Click" HorizontalAlignment="Center" Padding="24,12" FontFamily="Segoe UI" FontSize="16" FontWeight="Bold" Foreground="#FF1C1C1C" Background="#FFFFD700" BorderBrush="#FFFFF0A0" BorderThickness="1" />
+            </StackPanel>
+        </Border>
     </Grid>
 </Window>

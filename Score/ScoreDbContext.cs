@@ -10,21 +10,13 @@ namespace Score
 {
     class ScoreDbContext : DbContext
     {
-        public ScoreDbContext() : base(GetConnectionString())
+        public ScoreDbContext() : base("name=cns")
         {
-           
-        }
-
-        private static string GetConnectionString()
-        {
-            var cs = ConfigurationManager.ConnectionStrings["cns"];
-            if (cs != null && !string.IsNullOrEmpty(cs.ConnectionString))
-            {
-                return cs.ConnectionString;
-            }
-            return @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=ScoreDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;";
         }
 
         public virtual DbSet<ScoreCount> ScoreCounts{get; set;}
+        public virtual DbSet<QuizSession> QuizSessions { get; set; }
+        public virtual DbSet<QuizRoundScore> QuizRoundScores { get; set; }
+        public virtual DbSet<QuizEventLog> QuizEventLogs { get; set; }
     }
 }

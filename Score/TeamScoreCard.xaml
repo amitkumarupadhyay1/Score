@@ -1,0 +1,62 @@
+<UserControl x:Class="Score.TeamScoreCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="400">
+    <Border x:Name="CardBorder" Margin="10" Background="#FF1C1C1C" BorderBrush="{Binding ScoreColor, RelativeSource={RelativeSource AncestorType=UserControl}}" BorderThickness="3" CornerRadius="14">
+        <DockPanel Effect="{StaticResource PanelGlowEffect}">
+            <Grid DockPanel.Dock="Top" Margin="18,14,18,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center">
+                <Image Source="star.png" Stretch="Uniform" Style="{StaticResource TeamLogoStyle}"/>
+                <TextBox x:Name="TeamNameEditor" Text="{Binding TeamName, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}" MaxLength="24" ToolTip="Click to edit school name" Style="{StaticResource TeamNameEditorStyle}" KeyDown="TeamNameEditor_KeyDown" LostFocus="TeamNameEditor_LostFocus" />
+                </StackPanel>
+                <TextBlock Grid.Row="1" x:Name="TotalScoreLabel" Text="TOTAL 0" HorizontalAlignment="Left" Margin="18,4,0,0" FontFamily="Segoe UI" FontSize="12" FontWeight="Bold" Foreground="#FFB8C0C8" />
+                <TextBlock Grid.Row="2" x:Name="RoundScoresLabel" Text="ROUND SCORES" HorizontalAlignment="Left" Margin="18,2,0,4" FontFamily="Segoe UI" FontSize="11" Foreground="#FF7CFFB2" RenderTransformOrigin="0.5,0.5">
+                    <TextBlock.RenderTransform>
+                        <TranslateTransform />
+                    </TextBlock.RenderTransform>
+                </TextBlock>
+                <StackPanel Grid.Row="0" HorizontalAlignment="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border x:Name="RankBadge" Background="#FF3B4248" CornerRadius="4" Padding="8,4" Margin="0,0,6,0">
+                        <TextBlock x:Name="RankLabel" Text="1ST" FontFamily="Segoe UI" FontSize="11" FontWeight="Bold" Foreground="White" />
+                    </Border>
+                    <Border x:Name="LeadBadge" Visibility="Collapsed" Background="#FFFFD700" CornerRadius="4" Padding="8,4" RenderTransformOrigin="0.5,0.5">
+                    <Border.RenderTransform>
+                        <ScaleTransform />
+                    </Border.RenderTransform>
+                    <TextBlock Text="LEADING" FontFamily="Segoe UI" FontSize="11" FontWeight="Bold" Foreground="#FF1C1C1C" />
+                    </Border>
+                    <Border x:Name="DangerBadge" Visibility="Collapsed" Background="#FFB83232" CornerRadius="4" Padding="8,4" Margin="6,0,0,0">
+                        <TextBlock Text="DANGER" FontFamily="Segoe UI" FontSize="11" FontWeight="Bold" Foreground="White" />
+                    </Border>
+                </StackPanel>
+            </Grid>
+            <Grid DockPanel.Dock="Bottom" Margin="20,0,20,16">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button x:Name="DecreaseButton" Grid.Row="0" Grid.Column="0" Content="-" ToolTip="Decrease score" Style="{StaticResource ScoreButtonStyle}" Click="DecreaseButton_Click" HorizontalAlignment="Left"/>
+                <Button x:Name="IncreaseButton" Grid.Row="0" Grid.Column="1" Content="+" Style="{StaticResource ScoreButtonStyle}" Click="IncreaseButton_Click" HorizontalAlignment="Right"/>
+                <TextBlock x:Name="TeamTimerLabel" Grid.Row="1" Grid.Column="0" Text="TEAM --:--" VerticalAlignment="Center" Margin="0,10,0,0" FontFamily="Consolas" FontSize="12" FontWeight="Bold" Foreground="#FFB8C0C8" />
+                <Button x:Name="TeamTimerButton" Grid.Row="1" Grid.Column="1" Content="START TEAM" Click="TeamTimerButton_Click" HorizontalAlignment="Right" Margin="0,8,0,0" Padding="8,5" FontFamily="Segoe UI" FontSize="10" FontWeight="Bold" Foreground="White" Background="#FF3A6F9B" BorderBrush="#FF7EAED1" BorderThickness="1" />
+            </Grid>
+            <Grid>
+                <Viewbox Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Label x:Name="ScoreLabel" Content="0" Style="{StaticResource ScoreLabelStyle}"/>
+                </Viewbox>
+            </Grid>
+        </DockPanel>
+    </Border>
+</UserControl>
