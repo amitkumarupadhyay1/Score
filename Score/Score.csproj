@@ -83,6 +83,7 @@
     <Compile Include="QuizSession.cs" />
     <Compile Include="QuizRoundScore.cs" />
     <Compile Include="QuizEventLog.cs" />
+    <Compile Include="TeamScoreRequestedEventArgs.cs" />
     <Compile Include="Migrations\202608221708254_add_quiz_timing_generated.cs" />
     <Compile Include="Migrations\202608221708254_add_quiz_timing_generated.Designer.cs">
       <DependentUpon>202608221708254_add_quiz_timing_generated.cs</DependentUpon>

@@ -18,7 +18,12 @@ namespace Score
         private TimeSpan accumulated;
         private TimeSpan duration;
 
-        public QuizTimerState State { get; private set; } = QuizTimerState.Stopped;
+        public QuizTimerState State { get; private set; }
+
+        public QuizTimerService()
+        {
+            State = QuizTimerState.Stopped;
+        }
 
         public TimeSpan Duration
         {

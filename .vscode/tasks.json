@@ -4,12 +4,19 @@
 		{
 			"label": "Build Score WPF App",
 			"type": "shell",
-			"command": "msbuild Score.sln /t:Build /p:Configuration=Debug",
+			"command": "& 'C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe' '..\\Score.sln' /t:Build /p:Configuration=Debug",
 			"isBackground": false,
 			"problemMatcher": [
 				"$msCompile"
 			],
 			"group": "build"
+		},
+		{
+			"label": "Run Score WPF App",
+			"type": "shell",
+			"command": "Start-Process .\\bin\\Debug\\Score.exe",
+			"dependsOn": "Build Score WPF App",
+			"problemMatcher": []
 		}
 	]
 }

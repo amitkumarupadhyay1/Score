@@ -15,59 +15,35 @@ namespace Score
             InitializeComponent();
         }
 
-        public static readonly DependencyProperty TeamNameProperty = DependencyProperty.Register(
-            "TeamName", typeof(string), typeof(TeamScoreCard), new PropertyMetadata(string.Empty, OnTeamNameChanged));
+        public static readonly DependencyProperty TeamNameProperty = DependencyProperty.Register("TeamName", typeof(string), typeof(TeamScoreCard), new PropertyMetadata(string.Empty));
+        public static readonly DependencyProperty TeamMembersProperty = DependencyProperty.Register("TeamMembers", typeof(string), typeof(TeamScoreCard), new PropertyMetadata(string.Empty));
+        public static readonly DependencyProperty DatabaseTeamNameProperty = DependencyProperty.Register("DatabaseTeamName", typeof(string), typeof(TeamScoreCard), new PropertyMetadata(string.Empty));
+        public static readonly DependencyProperty ScoreColorProperty = DependencyProperty.Register("ScoreColor", typeof(Brush), typeof(TeamScoreCard), new PropertyMetadata(Brushes.White, OnScoreColorChanged));
+        public static readonly DependencyProperty ScoreValueProperty = DependencyProperty.Register("ScoreValue", typeof(int), typeof(TeamScoreCard), new PropertyMetadata(0, OnScoreValueChanged));
 
-        public string TeamName
-        {
-            get { return (string)GetValue(TeamNameProperty); }
-            set { SetValue(TeamNameProperty, value); }
-        }
+        public string TeamName { get { return (string)GetValue(TeamNameProperty); } set { SetValue(TeamNameProperty, value); } }
+        public string TeamMembers { get { return (string)GetValue(TeamMembersProperty); } set { SetValue(TeamMembersProperty, value); } }
+        public string DatabaseTeamName { get { return (string)GetValue(DatabaseTeamNameProperty); } set { SetValue(DatabaseTeamNameProperty, value); } }
+        public Brush ScoreColor { get { return (Brush)GetValue(ScoreColorProperty); } set { SetValue(ScoreColorProperty, value); } }
+        public int ScoreValue { get { return (int)GetValue(ScoreValueProperty); } set { SetValue(ScoreValueProperty, value); } }
 
-        public static readonly DependencyProperty DatabaseTeamNameProperty = DependencyProperty.Register(
-            "DatabaseTeamName", typeof(string), typeof(TeamScoreCard), new PropertyMetadata(string.Empty));
-
-        public string DatabaseTeamName
-        {
-            get { return (string)GetValue(DatabaseTeamNameProperty); }
-            set { SetValue(DatabaseTeamNameProperty, value); }
-        }
-
-        private static void OnTeamNameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var control = d as TeamScoreCard;
-            if (control != null)
-            {
-                if (control.TeamNameEditor != null && control.TeamNameEditor.Text != (string)e.NewValue)
-                    control.TeamNameEditor.Text = (string)e.NewValue;
-            }
-        }
-
-        public static readonly DependencyProperty ScoreColorProperty = DependencyProperty.Register(
-            "ScoreColor", typeof(Brush), typeof(TeamScoreCard), new PropertyMetadata(Brushes.White, OnScoreColorChanged));
-
-        public Brush ScoreColor
-        {
-            get { return (Brush)GetValue(ScoreColorProperty); }
-            set { SetValue(ScoreColorProperty, value); }
-        }
+        public event EventHandler<TeamScoreRequestedEventArgs> ScoreRequested;
+        public event RoutedEventHandler TeamTimerStarted;
+        public event RoutedEventHandler TeamTimerStopped;
+        public event RoutedEventHandler TeamDetailsChanged;
 
         private static void OnScoreColorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var control = d as TeamScoreCard;
-            if (control != null)
-            {
+            if (control != null && control.ScoreLabel != null)
                 control.ScoreLabel.Foreground = ((Brush)e.NewValue).Clone();
-            }
         }
 
-        public static readonly DependencyProperty ScoreValueProperty = DependencyProperty.Register(
-            "ScoreValue", typeof(int), typeof(TeamScoreCard), new PropertyMetadata(0, OnScoreValueChanged));
-
-        public int ScoreValue
+        private static void OnScoreValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            get { return (int)GetValue(ScoreValueProperty); }
-            set { SetValue(ScoreValueProperty, value); }
+            var control = d as TeamScoreCard;
+            if (control != null && control.ScoreLabel != null)
+                control.ScoreLabel.Content = e.NewValue.ToString();
         }
 
         public void SetLeading(bool isLeading)
@@ -76,28 +52,19 @@ namespace Score
             {
                 CardBorder.BorderThickness = new Thickness(5);
                 LeadBadge.Visibility = Visibility.Visible;
-
-                var pulseAnimation = new DoubleAnimation
-                {
-                    From = 1.0,
-                    To = 1.08,
-                    Duration = TimeSpan.FromSeconds(0.7),
-                    AutoReverse = true,
-                    RepeatBehavior = RepeatBehavior.Forever
-                };
-
-                ((ScaleTransform)LeadBadge.RenderTransform).BeginAnimation(ScaleTransform.ScaleXProperty, pulseAnimation);
-                ((ScaleTransform)LeadBadge.RenderTransform).BeginAnimation(ScaleTransform.ScaleYProperty, pulseAnimation);
+                var pulse = new DoubleAnimation(1.0, 1.08, TimeSpan.FromSeconds(0.7)) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever };
+                ((ScaleTransform)LeadBadge.RenderTransform).BeginAnimation(ScaleTransform.ScaleXProperty, pulse);
+                ((ScaleTransform)LeadBadge.RenderTransform).BeginAnimation(ScaleTransform.ScaleYProperty, pulse);
             }
             else
             {
                 CardBorder.BorderThickness = new Thickness(3);
                 LeadBadge.Visibility = Visibility.Collapsed;
-
-                var scaleTransform = (ScaleTransform)LeadBadge.RenderTransform;
-                scaleTransform.BeginAnimation(ScaleTransform.ScaleXProperty, null);
-                scaleTransform.ScaleX = 1.0;
-                scaleTransform.ScaleY = 1.0;
+                var scale = (ScaleTransform)LeadBadge.RenderTransform;
+                scale.BeginAnimation(ScaleTransform.ScaleXProperty, null);
+                scale.BeginAnimation(ScaleTransform.ScaleYProperty, null);
+                scale.ScaleX = 1.0;
+                scale.ScaleY = 1.0;
             }
         }
 
@@ -106,10 +73,7 @@ namespace Score
             RankLabel.Text = rank == 1 ? "1ST" : rank == 2 ? "2ND" : rank == 3 ? "3RD" : rank + "TH";
         }
 
-        public void SetTotalScore(int totalScore)
-        {
-            TotalScoreLabel.Text = "TOTAL " + totalScore;
-        }
+        public void SetTotalScore(int totalScore) { TotalScoreLabel.Text = "TOURNAMENT " + totalScore; }
 
         public void SetDangerState(bool isDanger)
         {
@@ -120,44 +84,27 @@ namespace Score
 
         public void SetFinalWinner(bool isWinner)
         {
-            if (isWinner)
-            {
-                CardBorder.BorderBrush = Brushes.Gold;
-                CardBorder.BorderThickness = new Thickness(7);
-            }
-            else
-            {
-                SetDangerState(ScoreValue < 0);
-                CardBorder.BorderThickness = new Thickness(3);
-            }
+            CardBorder.BorderBrush = isWinner ? Brushes.Gold : ScoreColor;
+            CardBorder.BorderThickness = new Thickness(isWinner ? 7 : 3);
         }
 
-        public void SetRoundScores(string roundScores)
+        public void SetRoundScores(string scores)
         {
-            RoundScoresLabel.Text = string.IsNullOrWhiteSpace(roundScores) ? "ROUND SCORES" : roundScores;
-
-            var slideAnimation = new DoubleAnimation
-            {
-                From = 8,
-                To = 0,
-                Duration = TimeSpan.FromSeconds(0.3)
-            };
-            var fadeAnimation = new DoubleAnimation
-            {
-                From = 0,
-                To = 1,
-                Duration = TimeSpan.FromSeconds(0.3)
-            };
-            ((TranslateTransform)RoundScoresLabel.RenderTransform).BeginAnimation(TranslateTransform.YProperty, slideAnimation);
-            RoundScoresLabel.BeginAnimation(OpacityProperty, fadeAnimation);
+            RoundScoresLabel.Text = string.IsNullOrWhiteSpace(scores) ? "NO SCORES RECORDED" : scores;
+            ((TranslateTransform)RoundScoresLabel.RenderTransform).BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(8, 0, TimeSpan.FromSeconds(0.25)));
+            RoundScoresLabel.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromSeconds(0.25)));
         }
 
         public void SetScoringEnabled(bool isEnabled)
         {
-            IncreaseButton.IsEnabled = isEnabled;
-            DecreaseButton.IsEnabled = isEnabled;
+            foreach (var child in ScoreActionsPanel.Children)
+            {
+                var button = child as Button;
+                if (button != null) button.IsEnabled = isEnabled;
+            }
             TeamTimerButton.IsEnabled = isEnabled;
             TeamNameEditor.IsReadOnly = !isEnabled;
+            TeamMembersEditor.IsReadOnly = !isEnabled;
         }
 
         public void SetTeamTimerDisplay(string displayText, bool isOvertime)
@@ -169,148 +116,80 @@ namespace Score
         public void SetTeamTimerRunning(bool isRunning)
         {
             isTeamTimerRunning = isRunning;
-            TeamTimerButton.Content = isRunning ? "STOP TEAM" : "START TEAM";
-            TeamTimerButton.Background = isRunning ? Brushes.IndianRed : new SolidColorBrush(Color.FromRgb(58, 111, 155));
-        }
-
-        private static void OnScoreValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var control = d as TeamScoreCard;
-            if (control != null)
-            {
-                control.ScoreLabel.Content = e.NewValue.ToString();
-            }
+            TeamTimerButton.Content = isRunning ? "STOP TIME" : "TIME TEAM";
+            TeamTimerButton.Background = isRunning ? Brushes.IndianRed : new SolidColorBrush(Color.FromRgb(33, 102, 164));
         }
 
         public void UpdateScore(int newScore, int change)
         {
             ScoreValue = newScore;
-            
-            if (change > 0)
-                AnimateScoreIncrease();
-            else if (change < 0)
-                AnimateScoreDecrease();
+            AnimateScore(change > 0 ? 1.18 : 0.84, change > 0 ? Colors.White : Colors.IndianRed);
         }
 
-        public static readonly RoutedEvent ScoreIncreasedEvent = EventManager.RegisterRoutedEvent(
-            "ScoreIncreased", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(TeamScoreCard));
-
-        public event RoutedEventHandler ScoreIncreased
+        private void RequestScore(int points)
         {
-            add { AddHandler(ScoreIncreasedEvent, value); }
-            remove { RemoveHandler(ScoreIncreasedEvent, value); }
+            var handler = ScoreRequested;
+            if (handler != null) handler(this, new TeamScoreRequestedEventArgs(points));
         }
 
-        public static readonly RoutedEvent ScoreDecreasedEvent = EventManager.RegisterRoutedEvent(
-            "ScoreDecreased", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(TeamScoreCard));
-
-        public event RoutedEventHandler ScoreDecreased
-        {
-            add { AddHandler(ScoreDecreasedEvent, value); }
-            remove { RemoveHandler(ScoreDecreasedEvent, value); }
-        }
-
-        private void IncreaseButton_Click(object sender, RoutedEventArgs e)
-        {
-            RaiseEvent(new RoutedEventArgs(ScoreIncreasedEvent));
-        }
-
-        private void DecreaseButton_Click(object sender, RoutedEventArgs e)
-        {
-            RaiseEvent(new RoutedEventArgs(ScoreDecreasedEvent));
-        }
-
-        public static readonly RoutedEvent TeamTimerStartedEvent = EventManager.RegisterRoutedEvent(
-            "TeamTimerStarted", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(TeamScoreCard));
-
-        public event RoutedEventHandler TeamTimerStarted
-        {
-            add { AddHandler(TeamTimerStartedEvent, value); }
-            remove { RemoveHandler(TeamTimerStartedEvent, value); }
-        }
-
-        public static readonly RoutedEvent TeamTimerStoppedEvent = EventManager.RegisterRoutedEvent(
-            "TeamTimerStopped", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(TeamScoreCard));
-
-        public event RoutedEventHandler TeamTimerStopped
-        {
-            add { AddHandler(TeamTimerStoppedEvent, value); }
-            remove { RemoveHandler(TeamTimerStoppedEvent, value); }
-        }
+        private void PenaltyButton_Click(object sender, RoutedEventArgs e) { RequestScore(-1); }
+        private void AddOneButton_Click(object sender, RoutedEventArgs e) { RequestScore(1); }
+        private void AddTwoButton_Click(object sender, RoutedEventArgs e) { RequestScore(2); }
+        private void AddFiveButton_Click(object sender, RoutedEventArgs e) { RequestScore(5); }
 
         private void TeamTimerButton_Click(object sender, RoutedEventArgs e)
         {
-            RaiseEvent(new RoutedEventArgs(isTeamTimerRunning ? TeamTimerStoppedEvent : TeamTimerStartedEvent));
+            if (isTeamTimerRunning)
+            {
+                if (TeamTimerStopped != null) TeamTimerStopped(this, new RoutedEventArgs());
+            }
+            else if (TeamTimerStarted != null)
+                TeamTimerStarted(this, new RoutedEventArgs());
         }
 
-        private void TeamNameEditor_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        private void TeamNameEditor_KeyDown(object sender, System.Windows.Input.KeyEventArgs e) { MoveOnEnter(TeamNameEditor, e); }
+        private void TeamMembersEditor_KeyDown(object sender, System.Windows.Input.KeyEventArgs e) { MoveOnEnter(TeamMembersEditor, e); }
+
+        private void MoveOnEnter(Control control, System.Windows.Input.KeyEventArgs e)
         {
-            if (e.Key == System.Windows.Input.Key.Enter)
-            {
-                TeamNameEditor.MoveFocus(new System.Windows.Input.TraversalRequest(System.Windows.Input.FocusNavigationDirection.Next));
-                e.Handled = true;
-            }
+            if (e.Key != System.Windows.Input.Key.Enter) return;
+            control.MoveFocus(new System.Windows.Input.TraversalRequest(System.Windows.Input.FocusNavigationDirection.Next));
+            e.Handled = true;
         }
 
         private void TeamNameEditor_LostFocus(object sender, RoutedEventArgs e)
         {
-            TeamName = string.IsNullOrWhiteSpace(TeamNameEditor.Text) ? "School" : TeamNameEditor.Text.Trim();
+            TeamName = string.IsNullOrWhiteSpace(TeamName) ? "Team" : TeamName.Trim();
+            NotifyTeamDetailsChanged();
         }
 
-        private void AnimateScoreIncrease()
+        private void TeamMembersEditor_LostFocus(object sender, RoutedEventArgs e)
         {
-            var originalColor = GetScoreColor();
-            var flashColor = Colors.White;
+            TeamMembers = (TeamMembers ?? string.Empty).Trim();
+            NotifyTeamDetailsChanged();
+        }
 
-            var colorAnimation = new ColorAnimationUsingKeyFrames();
-            colorAnimation.KeyFrames.Add(new EasingColorKeyFrame(flashColor, KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0.1))));
-            colorAnimation.KeyFrames.Add(new EasingColorKeyFrame(originalColor, KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0.4))));
+        private void NotifyTeamDetailsChanged()
+        {
+            if (TeamDetailsChanged != null) TeamDetailsChanged(this, new RoutedEventArgs());
+        }
 
-            var animatedBrush = new SolidColorBrush(originalColor);
-            ScoreLabel.Foreground = animatedBrush;
-            animatedBrush.BeginAnimation(SolidColorBrush.ColorProperty, colorAnimation);
-
-            var scaleTransform = new ScaleTransform();
-            var rotateTransform = new RotateTransform();
-            var transformGroup = new TransformGroup();
-            transformGroup.Children.Add(scaleTransform);
-            transformGroup.Children.Add(rotateTransform);
-            ScoreLabel.RenderTransform = transformGroup;
+        private void AnimateScore(double scaleValue, Color flashColor)
+        {
+            var originalBrush = ScoreLabel.Foreground as SolidColorBrush;
+            var original = originalBrush != null ? originalBrush.Color : Colors.White;
+            var brush = new SolidColorBrush(original);
+            ScoreLabel.Foreground = brush;
+            var colors = new ColorAnimationUsingKeyFrames();
+            colors.KeyFrames.Add(new EasingColorKeyFrame(flashColor, KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0.08))));
+            colors.KeyFrames.Add(new EasingColorKeyFrame(original, KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0.35))));
+            brush.BeginAnimation(SolidColorBrush.ColorProperty, colors);
+            var transform = new ScaleTransform();
+            ScoreLabel.RenderTransform = transform;
             ScoreLabel.RenderTransformOrigin = new Point(0.5, 0.5);
-
-            var scaleAnimation = new DoubleAnimationUsingKeyFrames();
-            scaleAnimation.KeyFrames.Add(new EasingDoubleKeyFrame(1.5, KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0.1))));
-            scaleAnimation.KeyFrames.Add(new EasingDoubleKeyFrame(1.0, KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0.4))) { EasingFunction = new BounceEase() { Bounces = 2, EasingMode = EasingMode.EaseOut } });
-            scaleTransform.BeginAnimation(ScaleTransform.ScaleXProperty, scaleAnimation);
-            scaleTransform.BeginAnimation(ScaleTransform.ScaleYProperty, scaleAnimation);
-        }
-
-        private void AnimateScoreDecrease()
-        {
-            var originalColor = GetScoreColor();
-            var flashColor = Colors.Red;
-
-            var colorAnimation = new ColorAnimationUsingKeyFrames();
-            colorAnimation.KeyFrames.Add(new EasingColorKeyFrame(flashColor, KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0.1))));
-            colorAnimation.KeyFrames.Add(new EasingColorKeyFrame(originalColor, KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0.4))));
-
-            var animatedBrush = new SolidColorBrush(originalColor);
-            ScoreLabel.Foreground = animatedBrush;
-            animatedBrush.BeginAnimation(SolidColorBrush.ColorProperty, colorAnimation);
-
-            var scaleTransform = new ScaleTransform();
-            ScoreLabel.RenderTransform = scaleTransform;
-            ScoreLabel.RenderTransformOrigin = new Point(0.5, 0.5);
-
-            var scaleAnimation = new DoubleAnimation(0.8, 1, TimeSpan.FromSeconds(0.4));
-            scaleTransform.BeginAnimation(ScaleTransform.ScaleXProperty, scaleAnimation);
-            scaleTransform.BeginAnimation(ScaleTransform.ScaleYProperty, scaleAnimation);
-        }
-
-        private Color GetScoreColor()
-        {
-            var brush = ScoreLabel.Foreground as SolidColorBrush;
-            return brush != null ? brush.Color : Colors.White;
+            var animation = new DoubleAnimation(scaleValue, 1, TimeSpan.FromSeconds(0.35)) { EasingFunction = new BackEase { EasingMode = EasingMode.EaseOut } };
+            transform.BeginAnimation(ScaleTransform.ScaleXProperty, animation);
+            transform.BeginAnimation(ScaleTransform.ScaleYProperty, animation);
         }
     }
 }
