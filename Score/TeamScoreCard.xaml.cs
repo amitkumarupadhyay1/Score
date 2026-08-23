@@ -3,12 +3,14 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Effects;
 
 namespace Score
 {
     public partial class TeamScoreCard : UserControl
     {
         private bool isTeamTimerRunning;
+        private bool isLiveScoring;
 
         public TeamScoreCard()
         {
@@ -86,6 +88,36 @@ namespace Score
         {
             CardBorder.BorderBrush = isWinner ? Brushes.Gold : ScoreColor;
             CardBorder.BorderThickness = new Thickness(isWinner ? 7 : 3);
+        }
+
+        public void SetLiveScoring(bool isLive)
+        {
+            if (isLiveScoring == isLive) return;
+            isLiveScoring = isLive;
+            if (!isLive)
+            {
+                var transform = ScoreLabel.RenderTransform as ScaleTransform;
+                if (transform != null)
+                {
+                    transform.BeginAnimation(ScaleTransform.ScaleXProperty, null);
+                    transform.BeginAnimation(ScaleTransform.ScaleYProperty, null);
+                    transform.ScaleX = 1.45;
+                    transform.ScaleY = 1.45;
+                }
+                var effect = new DropShadowEffect { Color = Colors.Black, BlurRadius = 13, ShadowDepth = 7, Direction = 315, Opacity = 0.85 };
+                ScoreLabel.Effect = effect;
+                return;
+            }
+            var liveTransform = new ScaleTransform(1.45, 1.45);
+            ScoreLabel.RenderTransform = liveTransform;
+            ScoreLabel.RenderTransformOrigin = new Point(0.5, 0.5);
+            var pulse = new DoubleAnimation(1.45, 1.5, TimeSpan.FromSeconds(0.9)) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } };
+            liveTransform.BeginAnimation(ScaleTransform.ScaleXProperty, pulse);
+            liveTransform.BeginAnimation(ScaleTransform.ScaleYProperty, pulse);
+            var glow = new DropShadowEffect { Color = ScoreColor is SolidColorBrush ? ((SolidColorBrush)ScoreColor).Color : Colors.White, BlurRadius = 18, ShadowDepth = 0, Opacity = 0.72 };
+            ScoreLabel.Effect = glow;
+            var glowPulse = new DoubleAnimation(18, 32, TimeSpan.FromSeconds(1.1)) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } };
+            glow.BeginAnimation(DropShadowEffect.BlurRadiusProperty, glowPulse);
         }
 
         public void SetRoundScores(string scores)
@@ -187,7 +219,7 @@ namespace Score
             var transform = new ScaleTransform();
             ScoreLabel.RenderTransform = transform;
             ScoreLabel.RenderTransformOrigin = new Point(0.5, 0.5);
-            var animation = new DoubleAnimation(scaleValue, 1, TimeSpan.FromSeconds(0.35)) { EasingFunction = new BackEase { EasingMode = EasingMode.EaseOut } };
+            var animation = new DoubleAnimation(scaleValue * 1.45, 1.45, TimeSpan.FromSeconds(0.35)) { EasingFunction = new BackEase { EasingMode = EasingMode.EaseOut } };
             transform.BeginAnimation(ScaleTransform.ScaleXProperty, animation);
             transform.BeginAnimation(ScaleTransform.ScaleYProperty, animation);
         }

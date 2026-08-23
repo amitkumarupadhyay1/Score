@@ -55,6 +55,7 @@ namespace Score
                 SynchronizeRoundCountSelector();
                 LoadScores();
                 LoadRoundHistory();
+                foreach (var card in Cards) card.SetScoringEnabled(false);
                 UpdateTotalLabels();
                 timerRefresh.Tick += TimerRefresh_Tick;
                 UpdateTimerLabels();
@@ -592,7 +593,7 @@ namespace Score
             roundFinalized = false;
             roundOvertimeAnnounced = false;
             WinnerOverlay.Visibility = Visibility.Collapsed;
-            foreach (var card in Cards) { card.ScoreValue = 0; card.SetScoringEnabled(true); card.SetFinalWinner(false); }
+            foreach (var card in Cards) { card.ScoreValue = 0; card.SetScoringEnabled(false); card.SetFinalWinner(false); }
             ResetTimerState();
             UpdateTimerControls();
             UpdateTotalLabels();
@@ -628,6 +629,7 @@ namespace Score
             activeSession.StartedAtUtc = DateTime.UtcNow;
             GlobalMinutesSelector.IsEnabled = false;
             RoundMinutesSelector.IsEnabled = false;
+            foreach (var card in Cards) card.SetScoringEnabled(true);
             timerRefresh.Start();
             PersistSession("Running");
             LogEvent("TimerStarted", string.Empty, 0, 0, CurrentRoundContext + "; event and round timers started");
@@ -690,6 +692,7 @@ namespace Score
             PauseTimerButton.IsEnabled = isRunning;
             ResumeTimerButton.IsEnabled = isPaused;
             RestartTimerButton.IsEnabled = !isStopped;
+            foreach (var card in Cards) card.SetLiveScoring(isRunning);
         }
 
         private string FormatTimer(QuizTimerService timer) { return timer.IsOvertime ? "OT " + timer.Elapsed.ToString(@"mm\:ss") : timer.Remaining.ToString(@"mm\:ss"); }

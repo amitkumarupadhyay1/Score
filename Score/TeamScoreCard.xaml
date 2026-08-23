@@ -62,7 +62,9 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Viewbox Grid.Row="0" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Label x:Name="ScoreLabel" Content="0" Style="{StaticResource ScoreLabelStyle}" />
+                    <Label x:Name="ScoreLabel" Content="0" Style="{StaticResource ScoreLabelStyle}" FontSize="300" Margin="0,0,0,12" RenderTransformOrigin="0.5,0.5">
+                        <Label.RenderTransform><ScaleTransform ScaleX="1.45" ScaleY="1.45" /></Label.RenderTransform>
+                    </Label>
                 </Viewbox>
                 <StackPanel Grid.Row="1" HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,0,0,8">
                     <TextBlock Text="ROUND" FontSize="10" FontWeight="Bold" Foreground="#FF697FA5" Margin="0,0,6,0" VerticalAlignment="Center" />
