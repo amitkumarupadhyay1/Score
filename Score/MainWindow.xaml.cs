@@ -105,6 +105,7 @@ namespace Score
                 card.ScoreRequested += Card_ScoreRequested;
                 card.TeamTimerStarted += Card_TeamTimerStarted;
                 card.TeamTimerStopped += Card_TeamTimerStopped;
+                card.TeamTimerResetRequested += Card_TeamTimerResetRequested;
                 card.TeamDetailsChanged += Card_TeamDetailsChanged;
                 TeamCardsGrid.Children.Add(card);
             }
@@ -999,6 +1000,24 @@ namespace Score
         private void Card_TeamTimerStopped(object sender, RoutedEventArgs e)
         {
             if (sender == activeTeamTimerCard) { var card = activeTeamTimerCard; StopActiveTeamTimer(); LogEvent("TeamTimerStopped", card.TeamName, 0, card.ScoreValue, "Response timer stopped"); }
+        }
+
+        private void Card_TeamTimerResetRequested(object sender, RoutedEventArgs e)
+        {
+            var card = sender as TeamScoreCard;
+            if (card == null) return;
+            var index = GetTeamIndex(card.DatabaseTeamName);
+            if (index < 0) return;
+            if (card == activeTeamTimerCard)
+            {
+                teamTimer.Reset();
+                activeTeamTimerCard = null;
+            }
+            currentRoundTeamElapsed[index] = 0;
+            card.SetTeamTimerRunning(false);
+            card.SetTeamTimerDisplay("00:00", false);
+            LogEvent("TeamTimerReset", card.TeamName, 0, card.ScoreValue, "Team response timer reset for the current round");
+            SetFeed("Response timer reset for " + card.TeamName + ".");
         }
 
         private void StopActiveTeamTimer()

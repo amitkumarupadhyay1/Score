@@ -32,6 +32,7 @@ namespace Score
         public event EventHandler<TeamScoreRequestedEventArgs> ScoreRequested;
         public event RoutedEventHandler TeamTimerStarted;
         public event RoutedEventHandler TeamTimerStopped;
+        public event RoutedEventHandler TeamTimerResetRequested;
         public event RoutedEventHandler TeamDetailsChanged;
 
         private static void OnScoreColorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -137,6 +138,7 @@ namespace Score
                 if (button != null) button.IsEnabled = isEnabled;
             }
             TeamTimerButton.IsEnabled = isEnabled;
+            ResetTeamTimerButton.IsEnabled = isEnabled;
         }
 
         public void SetEditingEnabled(bool isEnabled)
@@ -183,6 +185,11 @@ namespace Score
             }
             else if (TeamTimerStarted != null)
                 TeamTimerStarted(this, new RoutedEventArgs());
+        }
+
+        private void ResetTeamTimerButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (TeamTimerResetRequested != null) TeamTimerResetRequested(this, new RoutedEventArgs());
         }
 
         private void TeamNameEditor_KeyDown(object sender, System.Windows.Input.KeyEventArgs e) { MoveOnEnter(TeamNameEditor, e); }

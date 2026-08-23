@@ -90,6 +90,7 @@
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock x:Name="TeamTimerLabel" Text="00:00" Margin="0,0,10,0" VerticalAlignment="Center" FontFamily="Consolas" FontSize="15" FontWeight="Bold" Foreground="#FFB6C8E8" />
                     <Button x:Name="TeamTimerButton" Content="TIME TEAM" Click="TeamTimerButton_Click" AutomationProperties.Name="Start or stop team response timer" Style="{StaticResource CompactButtonStyle}" />
+                    <Button x:Name="ResetTeamTimerButton" Content="RESET" Margin="6,0,0,0" Click="ResetTeamTimerButton_Click" AutomationProperties.Name="Reset team response timer" ToolTip="Reset this team's response timer" Style="{StaticResource CompactButtonStyle}" />
                 </StackPanel>
             </Grid>
         </Grid>
