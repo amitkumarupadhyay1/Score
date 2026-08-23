@@ -21,7 +21,7 @@ namespace Score
         public static readonly DependencyProperty TeamMembersProperty = DependencyProperty.Register("TeamMembers", typeof(string), typeof(TeamScoreCard), new PropertyMetadata(string.Empty));
         public static readonly DependencyProperty DatabaseTeamNameProperty = DependencyProperty.Register("DatabaseTeamName", typeof(string), typeof(TeamScoreCard), new PropertyMetadata(string.Empty));
         public static readonly DependencyProperty ScoreColorProperty = DependencyProperty.Register("ScoreColor", typeof(Brush), typeof(TeamScoreCard), new PropertyMetadata(Brushes.White, OnScoreColorChanged));
-        public static readonly DependencyProperty ScoreValueProperty = DependencyProperty.Register("ScoreValue", typeof(int), typeof(TeamScoreCard), new PropertyMetadata(0, OnScoreValueChanged));
+        public static readonly DependencyProperty ScoreValueProperty = DependencyProperty.Register("ScoreValue", typeof(int), typeof(TeamScoreCard), new PropertyMetadata(0));
 
         public string TeamName { get { return (string)GetValue(TeamNameProperty); } set { SetValue(TeamNameProperty, value); } }
         public string TeamMembers { get { return (string)GetValue(TeamMembersProperty); } set { SetValue(TeamMembersProperty, value); } }
@@ -41,22 +41,18 @@ namespace Score
                 control.ScoreLabel.Foreground = ((Brush)e.NewValue).Clone();
         }
 
-        private static void OnScoreValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var control = d as TeamScoreCard;
-            if (control != null && control.ScoreLabel != null)
-                control.ScoreLabel.Content = e.NewValue.ToString();
-        }
-
         public void SetLeading(bool isLeading)
         {
             if (isLeading)
             {
                 CardBorder.BorderThickness = new Thickness(5);
                 LeadBadge.Visibility = Visibility.Visible;
-                var pulse = new DoubleAnimation(1.0, 1.08, TimeSpan.FromSeconds(0.7)) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever };
-                ((ScaleTransform)LeadBadge.RenderTransform).BeginAnimation(ScaleTransform.ScaleXProperty, pulse);
-                ((ScaleTransform)LeadBadge.RenderTransform).BeginAnimation(ScaleTransform.ScaleYProperty, pulse);
+                if (SystemParameters.ClientAreaAnimation)
+                {
+                    var pulse = new DoubleAnimation(1.0, 1.08, TimeSpan.FromSeconds(0.7)) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever };
+                    ((ScaleTransform)LeadBadge.RenderTransform).BeginAnimation(ScaleTransform.ScaleXProperty, pulse);
+                    ((ScaleTransform)LeadBadge.RenderTransform).BeginAnimation(ScaleTransform.ScaleYProperty, pulse);
+                }
             }
             else
             {
@@ -101,30 +97,36 @@ namespace Score
                 {
                     transform.BeginAnimation(ScaleTransform.ScaleXProperty, null);
                     transform.BeginAnimation(ScaleTransform.ScaleYProperty, null);
-                    transform.ScaleX = 1.45;
-                    transform.ScaleY = 1.45;
+                    transform.ScaleX = 1;
+                    transform.ScaleY = 1;
                 }
                 var effect = new DropShadowEffect { Color = Colors.Black, BlurRadius = 13, ShadowDepth = 7, Direction = 315, Opacity = 0.85 };
                 ScoreLabel.Effect = effect;
                 return;
             }
-            var liveTransform = new ScaleTransform(1.45, 1.45);
+            var liveTransform = new ScaleTransform(1, 1);
             ScoreLabel.RenderTransform = liveTransform;
             ScoreLabel.RenderTransformOrigin = new Point(0.5, 0.5);
-            var pulse = new DoubleAnimation(1.45, 1.5, TimeSpan.FromSeconds(0.9)) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } };
-            liveTransform.BeginAnimation(ScaleTransform.ScaleXProperty, pulse);
-            liveTransform.BeginAnimation(ScaleTransform.ScaleYProperty, pulse);
             var glow = new DropShadowEffect { Color = ScoreColor is SolidColorBrush ? ((SolidColorBrush)ScoreColor).Color : Colors.White, BlurRadius = 18, ShadowDepth = 0, Opacity = 0.72 };
             ScoreLabel.Effect = glow;
-            var glowPulse = new DoubleAnimation(18, 32, TimeSpan.FromSeconds(1.1)) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } };
-            glow.BeginAnimation(DropShadowEffect.BlurRadiusProperty, glowPulse);
+            if (SystemParameters.ClientAreaAnimation)
+            {
+                var pulse = new DoubleAnimation(1, 1.025, TimeSpan.FromSeconds(0.9)) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } };
+                liveTransform.BeginAnimation(ScaleTransform.ScaleXProperty, pulse);
+                liveTransform.BeginAnimation(ScaleTransform.ScaleYProperty, pulse);
+                var glowPulse = new DoubleAnimation(18, 32, TimeSpan.FromSeconds(1.1)) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } };
+                glow.BeginAnimation(DropShadowEffect.BlurRadiusProperty, glowPulse);
+            }
         }
 
         public void SetRoundScores(string scores)
         {
             RoundScoresLabel.Text = string.IsNullOrWhiteSpace(scores) ? "NO SCORES RECORDED" : scores;
-            ((TranslateTransform)RoundScoresLabel.RenderTransform).BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(8, 0, TimeSpan.FromSeconds(0.25)));
-            RoundScoresLabel.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromSeconds(0.25)));
+            if (SystemParameters.ClientAreaAnimation)
+            {
+                ((TranslateTransform)RoundScoresLabel.RenderTransform).BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(8, 0, TimeSpan.FromSeconds(0.25)));
+                RoundScoresLabel.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromSeconds(0.25)));
+            }
         }
 
         public void SetScoringEnabled(bool isEnabled)
@@ -135,6 +137,10 @@ namespace Score
                 if (button != null) button.IsEnabled = isEnabled;
             }
             TeamTimerButton.IsEnabled = isEnabled;
+        }
+
+        public void SetEditingEnabled(bool isEnabled)
+        {
             TeamNameEditor.IsReadOnly = !isEnabled;
             TeamMembersEditor.IsReadOnly = !isEnabled;
         }
@@ -208,6 +214,11 @@ namespace Score
 
         private void AnimateScore(double scaleValue, Color flashColor)
         {
+            if (!SystemParameters.ClientAreaAnimation)
+            {
+                ScoreLabel.Foreground = ScoreValue < 0 ? Brushes.IndianRed : ScoreColor;
+                return;
+            }
             var originalBrush = ScoreLabel.Foreground as SolidColorBrush;
             var original = originalBrush != null ? originalBrush.Color : Colors.White;
             var brush = new SolidColorBrush(original);
@@ -219,9 +230,16 @@ namespace Score
             var transform = new ScaleTransform();
             ScoreLabel.RenderTransform = transform;
             ScoreLabel.RenderTransformOrigin = new Point(0.5, 0.5);
-            var animation = new DoubleAnimation(scaleValue * 1.45, 1.45, TimeSpan.FromSeconds(0.35)) { EasingFunction = new BackEase { EasingMode = EasingMode.EaseOut } };
-            transform.BeginAnimation(ScaleTransform.ScaleXProperty, animation);
-            transform.BeginAnimation(ScaleTransform.ScaleYProperty, animation);
+            var animationX = new DoubleAnimation(scaleValue, 1, TimeSpan.FromSeconds(0.35)) { EasingFunction = new BackEase { EasingMode = EasingMode.EaseOut } };
+            var animationY = new DoubleAnimation(scaleValue, 1, TimeSpan.FromSeconds(0.35)) { EasingFunction = new BackEase { EasingMode = EasingMode.EaseOut } };
+            animationY.Completed += delegate
+            {
+                if (!isLiveScoring) return;
+                isLiveScoring = false;
+                SetLiveScoring(true);
+            };
+            transform.BeginAnimation(ScaleTransform.ScaleXProperty, animationX);
+            transform.BeginAnimation(ScaleTransform.ScaleYProperty, animationY);
         }
     }
 }

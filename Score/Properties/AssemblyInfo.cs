@@ -7,14 +7,15 @@ using System.Windows;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Score")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("QuizScore Live")]
+[assembly: AssemblyDescription("Reliable live quiz scoring, timing, standings, and audit records.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("HP Inc.")]
-[assembly: AssemblyProduct("Score")]
-[assembly: AssemblyCopyright("Copyright © HP Inc. 2022")]
+[assembly: AssemblyCompany("Amit Kumar Upadhyay")]
+[assembly: AssemblyProduct("QuizScore Live")]
+[assembly: AssemblyCopyright("Copyright © Amit Kumar Upadhyay 2026")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
+[assembly: InternalsVisibleTo("Score.Tests")]
 
 // Setting ComVisible to false makes the types in this assembly not visible
 // to COM components.  If you need to access a type in this assembly from

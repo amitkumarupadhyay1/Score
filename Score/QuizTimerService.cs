@@ -66,7 +66,7 @@ namespace Score
 
             accumulated += stopwatch.Elapsed;
             stopwatch.Reset();
-            State = IsOvertime ? QuizTimerState.Overtime : QuizTimerState.Paused;
+            State = QuizTimerState.Paused;
         }
 
         public void Resume()
@@ -98,6 +98,19 @@ namespace Score
             stopwatch.Reset();
             accumulated = TimeSpan.Zero;
             State = QuizTimerState.Stopped;
+        }
+
+        public void Restore(TimeSpan timerDuration, TimeSpan elapsed, QuizTimerState state)
+        {
+            Duration = timerDuration;
+            accumulated = elapsed < TimeSpan.Zero ? TimeSpan.Zero : elapsed;
+            stopwatch.Reset();
+            State = state;
+            if (state == QuizTimerState.Running || state == QuizTimerState.Overtime)
+            {
+                stopwatch.Start();
+                RefreshState();
+            }
         }
     }
 }

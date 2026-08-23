@@ -10,8 +10,14 @@ namespace Score
 {
     class ScoreDbContext : DbContext
     {
+        static ScoreDbContext()
+        {
+            System.Data.Entity.Database.SetInitializer<ScoreDbContext>(null);
+        }
+
         public ScoreDbContext() : base("name=cns")
         {
+            Database.CommandTimeout = 5;
         }
 
         public virtual DbSet<ScoreCount> ScoreCounts{get; set;}

@@ -1,12 +1,9 @@
 using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
+using System.Threading;
 using System.Windows;
 using System.Windows.Threading;
+using System.Runtime.InteropServices;
 
 namespace Score
 {
@@ -15,59 +12,102 @@ namespace Score
     /// </summary>
     public partial class App : Application
     {
-        private static readonly string LogFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "startup.log");
+        private const int RestoreWindow = 9;
+        private const string SingleInstanceName = "Local\\QuizScoreLive-8E9C9E4A-7E91-4A61-9F42-1C3D4AA4E0AB";
+        private Mutex instanceMutex;
+        private bool ownsInstanceMutex;
+        private bool isHandlingFatalError;
 
         public App()
         {
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             DispatcherUnhandledException += App_DispatcherUnhandledException;
             TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
-            WriteLog("App instance created.");
         }
 
         protected override void OnStartup(StartupEventArgs e)
         {
             try
             {
-                var dataDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
-                Directory.CreateDirectory(dataDirectory);
-                AppDomain.CurrentDomain.SetData("DataDirectory", dataDirectory);
-                WriteLog("DataDirectory set to: " + dataDirectory);
                 base.OnStartup(e);
-                WriteLog("OnStartup completed.");
+                instanceMutex = new Mutex(true, SingleInstanceName, out ownsInstanceMutex);
+                if (!ownsInstanceMutex)
+                {
+                    BringExistingWindowToFront();
+                    Shutdown(0);
+                    return;
+                }
+
+                AppPaths.Initialize();
+                AppDomain.CurrentDomain.SetData("DataDirectory", AppPaths.DataDirectory);
+                AppDiagnostics.Write("Application starting. Version " + GetType().Assembly.GetName().Version + "; data directory: " + AppPaths.DataDirectory);
+                NativeSqliteLoader.EnsureLoaded();
+                DatabaseMaintenance.Prepare();
+
+                var mainWindow = new MainWindow();
+                MainWindow = mainWindow;
+                mainWindow.Show();
+                AppDiagnostics.Write("Startup completed.");
             }
             catch (Exception ex)
             {
-                WriteLog("OnStartup failed: " + ex);
-                throw;
+                AppDiagnostics.WriteException("Startup failed.", ex);
+                MessageBox.Show(ex.Message, "QuizScore Live could not start", MessageBoxButton.OK, MessageBoxImage.Error);
+                Shutdown(-1);
             }
         }
 
-        private static void WriteLog(string message)
+        private static void BringExistingWindowToFront()
+        {
+            var windowHandle = FindWindow(null, "QuizScore Live");
+            if (windowHandle == IntPtr.Zero) return;
+            ShowWindow(windowHandle, RestoreWindow);
+            SetForegroundWindow(windowHandle);
+        }
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern IntPtr FindWindow(string className, string windowTitle);
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool ShowWindow(IntPtr windowHandle, int command);
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool SetForegroundWindow(IntPtr windowHandle);
+
+        protected override void OnExit(ExitEventArgs e)
         {
             try
             {
-                File.AppendAllText(LogFilePath, DateTime.UtcNow.ToString("o") + " " + message + Environment.NewLine);
+                AppDiagnostics.Write("Application exiting with code " + e.ApplicationExitCode + ".");
+                if (ownsInstanceMutex && instanceMutex != null) instanceMutex.ReleaseMutex();
+                if (instanceMutex != null) instanceMutex.Dispose();
             }
-            catch
+            finally
             {
+                base.OnExit(e);
             }
         }
 
         private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            WriteLog("AppDomain unhandled exception: " + e.ExceptionObject);
+            AppDiagnostics.Write("AppDomain unhandled exception: " + e.ExceptionObject);
         }
 
-        private static void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+        private void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
-            WriteLog("DispatcherUnhandledException: " + e.Exception);
+            AppDiagnostics.WriteException("Dispatcher unhandled exception.", e.Exception);
             e.Handled = true;
+            if (isHandlingFatalError) return;
+            isHandlingFatalError = true;
+            MessageBox.Show("QuizScore Live encountered an unexpected error and will close to protect the current session. Your saved scores remain on this computer.\n\nDiagnostic log:\n" + AppDiagnostics.LogFilePath, "Unexpected error", MessageBoxButton.OK, MessageBoxImage.Error);
+            Shutdown(-1);
         }
 
         private static void TaskScheduler_UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
         {
-            WriteLog("UnobservedTaskException: " + e.Exception);
+            AppDiagnostics.WriteException("Unobserved task exception.", e.Exception);
             e.SetObserved();
         }
     }

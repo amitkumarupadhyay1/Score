@@ -4,7 +4,8 @@
 		{
 			"label": "Build Score WPF App",
 			"type": "shell",
-			"command": "& 'C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe' '..\\Score.sln' /t:Build /p:Configuration=Debug",
+			"command": "powershell",
+			"args": ["-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}\\build.ps1", "-Configuration", "Debug", "-RunChecks"],
 			"isBackground": false,
 			"problemMatcher": [
 				"$msCompile"
@@ -14,7 +15,7 @@
 		{
 			"label": "Run Score WPF App",
 			"type": "shell",
-			"command": "Start-Process .\\bin\\Debug\\Score.exe",
+			"command": "Start-Process '${workspaceFolder}\\Score\\bin\\Debug\\Score.exe'",
 			"dependsOn": "Build Score WPF App",
 			"problemMatcher": []
 		}

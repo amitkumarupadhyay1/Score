@@ -1,0 +1,40 @@
+name: Build and verify
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v2
+
+      - name: Restore packages
+        shell: pwsh
+        run: nuget restore Score.sln -PackagesDirectory packages -NonInteractive
+
+      - name: Build Release
+        shell: pwsh
+        run: msbuild Score.sln /t:Rebuild /p:Configuration=Release /p:Platform="Any CPU" /warnaserror /v:minimal
+
+      - name: Run production checks
+        shell: pwsh
+        run: '& .\Score.Tests\bin\Release\Score.Tests.exe'

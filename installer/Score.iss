@@ -1,5 +1,7 @@
 #define MyAppName "QuizScore Live"
-#define MyAppVersion "1.0.0"
+#ifndef MyAppVersion
+  #define MyAppVersion "1.0.0"
+#endif
 #define MyAppPublisher "AMIT KUMAR UPADHYAY"
 #define MyAppURL "https://github.com/amitkumarupadhyay1/Score"
 #define MyAppExeName "Score.exe"
@@ -23,12 +25,22 @@ SolidCompression=yes
 WizardStyle=modern
 ArchitecturesAllowed=x86 x64
 UninstallDisplayName={#MyAppName}
+UninstallDisplayIcon={app}\{#MyAppExeName}
+SetupLogging=yes
+CloseApplications=yes
+CloseApplicationsFilter={#MyAppExeName}
+RestartApplications=no
+VersionInfoVersion={#MyAppVersion}
+VersionInfoCompany={#MyAppPublisher}
+VersionInfoDescription={#MyAppName} installer
+VersionInfoProductName={#MyAppName}
+VersionInfoProductVersion={#MyAppVersion}
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
-Source: "..\Score\bin\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\Score\bin\Release\*"; DestDir: "{app}"; Excludes: "*.pdb,*.xml,EntityFramework.SqlServer.*"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
