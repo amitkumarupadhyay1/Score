@@ -107,7 +107,7 @@ namespace Score
             ScoreLabel.RenderTransformOrigin = new Point(0.5, 0.5);
             if (SystemParameters.ClientAreaAnimation)
             {
-                var pulse = new DoubleAnimation(1, 1.025, TimeSpan.FromSeconds(0.9)) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } };
+                var pulse = new DoubleAnimation(1, Math.Min(1.025, GetMaximumScoreScale()), TimeSpan.FromSeconds(0.9)) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } };
                 liveTransform.BeginAnimation(ScaleTransform.ScaleXProperty, pulse);
                 liveTransform.BeginAnimation(ScaleTransform.ScaleYProperty, pulse);
             }
@@ -230,16 +230,27 @@ namespace Score
             var transform = new ScaleTransform();
             ScoreLabel.RenderTransform = transform;
             ScoreLabel.RenderTransformOrigin = new Point(0.5, 0.5);
-            var animationX = new DoubleAnimation(scaleValue, 1, TimeSpan.FromSeconds(0.35)) { EasingFunction = new BackEase { EasingMode = EasingMode.EaseOut } };
-            var animationY = new DoubleAnimation(scaleValue, 1, TimeSpan.FromSeconds(0.35)) { EasingFunction = new BackEase { EasingMode = EasingMode.EaseOut } };
-            animationY.Completed += delegate
+            var animation = new DoubleAnimation(Math.Min(scaleValue, GetMaximumScoreScale()), 1, TimeSpan.FromSeconds(0.35))
+            {
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+            };
+            animation.Completed += delegate
             {
                 if (!isLiveScoring) return;
                 isLiveScoring = false;
                 SetLiveScoring(true);
             };
-            transform.BeginAnimation(ScaleTransform.ScaleXProperty, animationX);
-            transform.BeginAnimation(ScaleTransform.ScaleYProperty, animationY);
+            transform.BeginAnimation(ScaleTransform.ScaleXProperty, animation);
+            transform.BeginAnimation(ScaleTransform.ScaleYProperty, animation);
+        }
+
+        private double GetMaximumScoreScale()
+        {
+            // WPF does not reserve extra layout space for a render transform.
+            var scoreArea = (Grid)ScoreLabel.Parent;
+            ScoreLabel.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+            var scoreWidth = ScoreLabel.DesiredSize.Width;
+            return scoreWidth > 0 ? Math.Max(1, (scoreArea.ActualWidth - 2) / scoreWidth) : 1;
         }
     }
 }

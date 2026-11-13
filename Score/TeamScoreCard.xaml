@@ -6,7 +6,7 @@
              mc:Ignorable="d" d:DesignHeight="340" d:DesignWidth="560"
              MinHeight="0" VerticalContentAlignment="Stretch"
              UseLayoutRounding="True" SnapsToDevicePixels="True" ClipToBounds="True">
-    <Border x:Name="CardBorder" Margin="5" Padding="12" Background="#FFFFFFFF"
+    <Border x:Name="CardBorder" Margin="4,3" Padding="8,4" Background="#FFFFFFFF"
             BorderBrush="{Binding ScoreColor, RelativeSource={RelativeSource AncestorType=UserControl}}"
             BorderThickness="3" CornerRadius="18">
         <Grid>
@@ -43,7 +43,7 @@
                 </StackPanel>
             </Grid>
 
-            <Grid Grid.Row="1" Margin="54,2,0,3">
+            <Grid Grid.Row="1" Margin="54,0,0,1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
@@ -60,15 +60,15 @@
 
             <Grid Grid.Row="2">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" MinHeight="110" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Row="0" x:Name="ScoreLabel" Text="{Binding ScoreValue, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                           Style="{StaticResource ScoreLabelStyle}" Foreground="#FF172B4D" FontSize="80" LineHeight="86"
-                           HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,4" RenderTransformOrigin="0.5,0.5">
+                           Style="{StaticResource ScoreLabelStyle}" Foreground="#FF172B4D" FontSize="80"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
                     <TextBlock.RenderTransform><ScaleTransform ScaleX="1" ScaleY="1" /></TextBlock.RenderTransform>
                 </TextBlock>
-                <StackPanel Grid.Row="1" HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,0,0,8">
+                <StackPanel Grid.Row="1" HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,0,0,2">
                     <TextBlock Text="ROUND" FontSize="10" FontWeight="Bold" Foreground="#FF526174" Margin="0,0,6,0" VerticalAlignment="Center" />
                     <TextBlock x:Name="RoundScoresLabel" Text="NO SCORES RECORDED" FontSize="11" FontWeight="SemiBold" Foreground="#FF475569" VerticalAlignment="Center">
                         <TextBlock.RenderTransform><TranslateTransform /></TextBlock.RenderTransform>
@@ -76,21 +76,21 @@
                 </StackPanel>
             </Grid>
 
-            <Grid Grid.Row="3" Margin="0,3,0,0">
+            <Grid Grid.Row="3">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <StackPanel x:Name="ScoreActionsPanel" Orientation="Horizontal">
-                    <Button x:Name="PenaltyButton" Content="−1" ToolTip="Penalty: subtract 1 point" AutomationProperties.Name="Subtract one point" Style="{StaticResource ScorePenaltyButtonStyle}" Click="PenaltyButton_Click" />
-                    <Button Content="+1" ToolTip="Award 1 point" AutomationProperties.Name="Add one point" Style="{StaticResource ScoreButtonStyle}" Click="AddOneButton_Click" />
-                    <Button Content="+2" ToolTip="Award 2 points" AutomationProperties.Name="Add two points" Style="{StaticResource ScoreButtonStyle}" Click="AddTwoButton_Click" />
-                    <Button Content="+5" ToolTip="Award 5 points" AutomationProperties.Name="Add five points" Style="{StaticResource ScoreButtonStyle}" Click="AddFiveButton_Click" />
+                    <Button x:Name="PenaltyButton" Content="−1" MinWidth="44" Margin="0,0,4,0" ToolTip="Penalty: subtract 1 point" AutomationProperties.Name="Subtract one point" Style="{StaticResource ScorePenaltyButtonStyle}" Click="PenaltyButton_Click" />
+                    <Button Content="+1" MinWidth="44" Margin="0,0,4,0" ToolTip="Award 1 point" AutomationProperties.Name="Add one point" Style="{StaticResource ScoreButtonStyle}" Click="AddOneButton_Click" />
+                    <Button Content="+2" MinWidth="44" Margin="0,0,4,0" ToolTip="Award 2 points" AutomationProperties.Name="Add two points" Style="{StaticResource ScoreButtonStyle}" Click="AddTwoButton_Click" />
+                    <Button Content="+5" MinWidth="44" Margin="0,0,4,0" ToolTip="Award 5 points" AutomationProperties.Name="Add five points" Style="{StaticResource ScoreButtonStyle}" Click="AddFiveButton_Click" />
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock x:Name="TeamTimerLabel" Text="00:00" Margin="0,0,10,0" VerticalAlignment="Center" FontFamily="Consolas" FontSize="15" FontWeight="Bold" Foreground="#FF176B45" />
-                    <Button x:Name="TeamTimerButton" Content="TIME TEAM" Click="TeamTimerButton_Click" AutomationProperties.Name="Start or stop team response timer" Style="{StaticResource CompactButtonStyle}" />
-                    <Button x:Name="ResetTeamTimerButton" Content="RESET" Margin="6,0,0,0" Click="ResetTeamTimerButton_Click" AutomationProperties.Name="Reset team response timer" ToolTip="Reset this team's response timer" Style="{StaticResource CompactButtonStyle}" />
+                    <TextBlock x:Name="TeamTimerLabel" Text="00:00" Margin="0,0,6,0" VerticalAlignment="Center" FontFamily="Consolas" FontSize="15" FontWeight="Bold" Foreground="#FF176B45" />
+                    <Button x:Name="TeamTimerButton" Content="TIME TEAM" MinWidth="74" Margin="0,0,4,0" Click="TeamTimerButton_Click" AutomationProperties.Name="Start or stop team response timer" Style="{StaticResource CompactButtonStyle}" />
+                    <Button x:Name="ResetTeamTimerButton" Content="RESET" MinWidth="54" Margin="0" Click="ResetTeamTimerButton_Click" AutomationProperties.Name="Reset team response timer" ToolTip="Reset this team's response timer" Style="{StaticResource CompactButtonStyle}" />
                 </StackPanel>
             </Grid>
         </Grid>

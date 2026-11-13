@@ -78,6 +78,7 @@
     <Compile Include="ScoreCount.cs" />
     <Compile Include="ScoreDbContext.cs" />
     <Compile Include="QuizTimerService.cs" />
+    <Compile Include="QuizChimes.cs" />
     <Compile Include="QuizSession.cs" />
     <Compile Include="QuizRoundScore.cs" />
     <Compile Include="QuizEventLog.cs" />
@@ -155,6 +156,8 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="star.png" />
+    <EmbeddedResource Include="Sounds\PointsAwarded.wav" />
+    <EmbeddedResource Include="Sounds\RoundFinished.wav" />
     <None Include="star.ico" />
   </ItemGroup>
   <ItemGroup>

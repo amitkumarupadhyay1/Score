@@ -219,7 +219,17 @@ namespace Score
         {
             using (var db = new ScoreDbContext())
             {
-                activeSession = db.QuizSessions.Where(session => session.IsActive).OrderByDescending(session => session.QuizSessionId).FirstOrDefault();
+                var activeSessions = db.QuizSessions.Where(session => session.IsActive).OrderByDescending(session => session.QuizSessionId).ToList();
+                if (activeSessions.Count > 1)
+                {
+                    foreach (var stale in activeSessions.Skip(1))
+                    {
+                        stale.IsActive = false;
+                        if (!stale.CompletedAtUtc.HasValue) stale.CompletedAtUtc = DateTime.UtcNow;
+                    }
+                    db.SaveChanges();
+                }
+                activeSession = activeSessions.FirstOrDefault();
                 if (activeSession == null)
                 {
                     activeSession = new QuizSession { Title = EventTitleEditor.Text, ConfiguredTeamCount = configuredTeamCount, ConfiguredRounds = configuredRounds, CurrentRound = currentRound, Status = "NotStarted", LastUpdatedAtUtc = DateTime.UtcNow, IsActive = true };
@@ -234,7 +244,9 @@ namespace Score
                     configuredTeamCount = activeSession.ConfiguredTeamCount < 2 ? 4 : Math.Min(12, activeSession.ConfiguredTeamCount);
                     currentRound = Math.Max(1, activeSession.CurrentRound);
                 }
-                setupLocked = !string.Equals(activeSession.Status, "NotStarted", StringComparison.OrdinalIgnoreCase);
+                var status = activeSession.Status ?? "NotStarted";
+                var hasMeaningfulProgress = activeSession.GlobalElapsedSeconds > 0 || activeSession.RoundElapsedSeconds > 0 || !string.Equals(status, "NotStarted", StringComparison.OrdinalIgnoreCase);
+                setupLocked = hasMeaningfulProgress && !string.Equals(status, "NotStarted", StringComparison.OrdinalIgnoreCase);
             }
         }
 
@@ -312,6 +324,14 @@ namespace Score
                 PersistSession("NotStarted");
                 status = "NotStarted";
             }
+            var hasMeaningfulProgress = activeSession != null && (activeSession.GlobalElapsedSeconds > 0 || activeSession.RoundElapsedSeconds > 0 || activeSession.StartedAtUtc.HasValue || isFinalRoundComplete || roundFinalized || totalScores.Any(value => value != 0));
+            if (string.Equals(status, "Paused", StringComparison.OrdinalIgnoreCase) && !hasMeaningfulProgress)
+            {
+                status = "NotStarted";
+                activeSession.Status = "NotStarted";
+                setupLocked = false;
+                PersistSession("NotStarted");
+            }
             var hasStarted = !string.Equals(status, "NotStarted", StringComparison.OrdinalIgnoreCase);
             if (!hasStarted)
             {
@@ -375,7 +395,7 @@ namespace Score
         {
             if (TeamCardsGrid == null || TeamCardsViewport == null || configuredTeamCount <= 0) return;
             var availableWidth = TeamCardsViewport.ActualWidth > 0 ? TeamCardsViewport.ActualWidth : ActualWidth;
-            var columns = availableWidth >= 2120 && configuredTeamCount >= 8 ? 4 : availableWidth >= 1580 && configuredTeamCount >= 6 ? 3 : availableWidth < 900 ? 1 : 2;
+            var columns = availableWidth >= 2120 && configuredTeamCount >= 8 ? 4 : availableWidth >= 1580 && configuredTeamCount >= 6 ? 3 : availableWidth < 920 ? 1 : 2;
             columns = Math.Max(1, Math.Min(configuredTeamCount, columns));
 
             var baseHeight = configuredTeamCount <= 4 ? 340d : configuredTeamCount <= 8 ? 300d : 260d;
@@ -383,7 +403,7 @@ namespace Score
             if (TeamCardsViewport.ActualHeight > 0)
             {
                 var fitHeight = (TeamCardsViewport.ActualHeight - 8) / rows;
-                baseHeight = Math.Min(baseHeight, Math.Max(230, fitHeight));
+                baseHeight = Math.Min(baseHeight, Math.Max(260, fitHeight));
             }
 
             TeamCardsGrid.ColumnDefinitions.Clear();
@@ -405,9 +425,16 @@ namespace Score
             }
         }
 
-        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+        private void TeamCardsViewport_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             UpdateTeamGridLayout();
+        }
+
+        private void RoundSetupButton_Click(object sender, RoutedEventArgs e)
+        {
+            var showSetup = RoundSetupPanel.Visibility != Visibility.Visible;
+            RoundSetupPanel.Visibility = showSetup ? Visibility.Visible : Visibility.Collapsed;
+            RoundSetupButton.Content = showSetup ? "HIDE SETUP" : "SHOW SETUP";
         }
 
         private int GetTeamIndex(string key)
@@ -432,6 +459,7 @@ namespace Score
             int after;
             if (!CommitScoreChange(card, change, verb, details, out after)) return;
             card.UpdateScore(after, change);
+            if (change > 0 && !isUndo) QuizChimes.PlayPointsAwarded();
             PersistSession(GetCurrentSessionStatus());
             UpdateLeaderIndicators();
             SetFeed(card.TeamName + (change > 0 ? " awarded +" : " penalized ") + change + " point" + (Math.Abs(change) == 1 ? string.Empty : "s") + ". Score: " + after + ".");
@@ -544,6 +572,7 @@ namespace Score
             LogEvent("RoundFinished", string.Empty, 0, 0, CurrentRoundContext + " completed");
             SetFeed(CurrentRoundContext + " recorded. Review the result before moving on.");
             ShowRoundAnnouncement(cards);
+            QuizChimes.PlayRoundFinished();
             UpdateTimerLabels();
         }
 
@@ -812,8 +841,11 @@ namespace Score
             StopActiveTeamTimer();
             using (var db = new ScoreDbContext())
             {
-                var previous = db.QuizSessions.SingleOrDefault(session => session.QuizSessionId == activeSession.QuizSessionId);
-                if (previous != null) { previous.IsActive = false; previous.CompletedAtUtc = DateTime.UtcNow; }
+                foreach (var session in db.QuizSessions.Where(item => item.IsActive).ToList())
+                {
+                    session.IsActive = false;
+                    if (!session.CompletedAtUtc.HasValue) session.CompletedAtUtc = DateTime.UtcNow;
+                }
                 foreach (var score in db.ScoreCounts) score.ScoreValue = 0;
                 var newSession = new QuizSession { Title = EventTitleEditor.Text, ConfiguredTeamCount = configuredTeamCount, ConfiguredRounds = configuredRounds, CurrentRound = 1, Status = "NotStarted", LastUpdatedAtUtc = DateTime.UtcNow, IsActive = true };
                 db.QuizSessions.Add(newSession);
@@ -821,6 +853,8 @@ namespace Score
                 activeSession = newSession;
             }
             InitializeTeamState(configuredTeamCount);
+            BuildTeamCards();
+            LoadTeamDetails();
             currentRound = 1;
             isFinalRoundComplete = false;
             isFinalAnnouncement = false;
@@ -830,14 +864,16 @@ namespace Score
             setupLocked = false;
             WinnerOverlay.Visibility = Visibility.Collapsed;
             foreach (var card in Cards) { card.ScoreValue = 0; card.SetRoundScores(string.Empty); card.SetScoringEnabled(false); card.SetEditingEnabled(true); card.SetFinalWinner(false); }
+            LoadScores();
             ResetTimerState();
             UpdateTimerControls();
             UpdateTotalLabels();
             UpdateLeaderIndicators();
             RoundNumberLabel.Text = "ROUND 1 OF " + configuredRounds;
-            LogEvent("SessionCreated", string.Empty, 0, 0, "New game started; previous session archived");
+            LogEvent("SessionCreated", string.Empty, 0, 0, "New game started; previous sessions archived");
             SetFeed("New game ready. Add or confirm player names, choose a round type, and start live scoring.");
             UpdateCompetitionStatus();
+            PersistSession("NotStarted");
         }
 
         private void ResetActiveRoundScores()
@@ -1073,7 +1109,7 @@ namespace Score
 
         private void TimerDurationSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (GlobalTimerLabel == null || RoundTimerLabel == null) return;
+            if (GlobalTimerLabel == null || RoundTimerLabel == null || GlobalMinutesSelector == null || RoundMinutesSelector == null) return;
             UpdateTimerLabels();
         }
 
@@ -1125,6 +1161,7 @@ namespace Score
         private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (Keyboard.FocusedElement is TextBox || Keyboard.FocusedElement is ComboBox) return;
+            if (e.Key == Key.Space && RoundSetupButton.IsKeyboardFocused) return;
             if (e.Key == Key.Escape && AboutOverlay.Visibility == Visibility.Visible) { AboutOverlay.Visibility = Visibility.Collapsed; e.Handled = true; }
             else if (e.Key == Key.Escape && WinnerOverlay.Visibility == Visibility.Visible && (isPreviewAnnouncement || isFinalAnnouncement)) { WinnerOverlay.Visibility = Visibility.Collapsed; isPreviewAnnouncement = false; isFinalAnnouncement = false; e.Handled = true; }
             else if (e.Key == Key.Space && (globalTimer.State == QuizTimerState.Running || globalTimer.State == QuizTimerState.Overtime || globalTimer.State == QuizTimerState.Paused)) { if (globalTimer.State == QuizTimerState.Running || globalTimer.State == QuizTimerState.Overtime) PauseTimerButton_Click(this, new RoutedEventArgs()); else ResumeTimerButton_Click(this, new RoutedEventArgs()); e.Handled = true; }
