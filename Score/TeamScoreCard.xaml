@@ -6,7 +6,7 @@
              mc:Ignorable="d" d:DesignHeight="340" d:DesignWidth="560"
              MinHeight="0" VerticalContentAlignment="Stretch"
              UseLayoutRounding="True" SnapsToDevicePixels="True" ClipToBounds="True">
-    <Border x:Name="CardBorder" Margin="5" Padding="12" Background="#FF111B2D"
+    <Border x:Name="CardBorder" Margin="5" Padding="12" Background="#FFFFFFFF"
             BorderBrush="{Binding ScoreColor, RelativeSource={RelativeSource AncestorType=UserControl}}"
             BorderThickness="3" CornerRadius="18">
         <Grid>
@@ -24,21 +24,21 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <Border Width="42" Height="42" CornerRadius="21" Background="{Binding ScoreColor, RelativeSource={RelativeSource AncestorType=UserControl}}" VerticalAlignment="Center">
-                    <TextBlock Text="TEAM" FontSize="9" FontWeight="Bold" Foreground="#FF101827" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <TextBlock Text="TEAM" FontSize="9" FontWeight="Bold" Foreground="#FFFFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center" />
                 </Border>
                 <TextBox x:Name="TeamNameEditor" Grid.Column="1" Margin="12,0" Text="{Binding TeamName, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"
                          MaxLength="30" ToolTip="Team or school name" Style="{StaticResource TeamNameEditorStyle}" AutomationProperties.Name="Team name"
                          KeyDown="TeamNameEditor_KeyDown" LostFocus="TeamNameEditor_LostFocus" />
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border x:Name="RankBadge" Background="#FF263451" CornerRadius="12" Padding="9,5" Margin="0,0,6,0">
-                        <TextBlock x:Name="RankLabel" Text="1ST" FontSize="11" FontWeight="Bold" Foreground="#FFD8E6FF" />
+                    <Border x:Name="RankBadge" Background="#FFE8EEF5" CornerRadius="12" Padding="9,5" Margin="0,0,6,0">
+                        <TextBlock x:Name="RankLabel" Text="1ST" FontSize="11" FontWeight="Bold" Foreground="#FF334155" />
                     </Border>
-                    <Border x:Name="LeadBadge" Visibility="Collapsed" Background="#FFF4C95D" CornerRadius="12" Padding="9,5" RenderTransformOrigin="0.5,0.5">
+                    <Border x:Name="LeadBadge" Visibility="Collapsed" Background="#FFFFE8A3" CornerRadius="12" Padding="9,5" RenderTransformOrigin="0.5,0.5">
                         <Border.RenderTransform><ScaleTransform /></Border.RenderTransform>
-                        <TextBlock Text="LEADING" FontSize="11" FontWeight="Bold" Foreground="#FF271D02" />
+                        <TextBlock Text="LEADING" FontSize="11" FontWeight="Bold" Foreground="#FF493600" />
                     </Border>
-                    <Border x:Name="DangerBadge" Visibility="Collapsed" Background="#FFCA4A53" CornerRadius="12" Padding="9,5" Margin="6,0,0,0">
-                        <TextBlock Text="PENALTY" FontSize="11" FontWeight="Bold" Foreground="White" />
+                    <Border x:Name="DangerBadge" Visibility="Collapsed" Background="#FFFBE4E6" CornerRadius="12" Padding="9,5" Margin="6,0,0,0">
+                        <TextBlock Text="PENALTY" FontSize="11" FontWeight="Bold" Foreground="#FF8A1C25" />
                     </Border>
                 </StackPanel>
             </Grid>
@@ -49,13 +49,13 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <DockPanel Grid.Column="0">
-                    <TextBlock DockPanel.Dock="Left" Text="PLAYERS" Margin="0,0,8,0" VerticalAlignment="Center" FontSize="10" FontWeight="Bold" Foreground="#FF607A9F" />
+                    <TextBlock DockPanel.Dock="Left" Text="PLAYERS" Margin="0,0,8,0" VerticalAlignment="Center" FontSize="10" FontWeight="Bold" Foreground="#FF526174" />
                     <TextBox x:Name="TeamMembersEditor" Text="{Binding TeamMembers, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"
                              MaxLength="120" ToolTip="Player names; separate names with commas" Style="{StaticResource PlayerEditorStyle}" AutomationProperties.Name="Player names"
                              KeyDown="TeamMembersEditor_KeyDown" LostFocus="TeamMembersEditor_LostFocus" />
                 </DockPanel>
                 <TextBlock Grid.Column="1" x:Name="TotalScoreLabel" Text="TOURNAMENT 0" Margin="12,0,0,0" VerticalAlignment="Center"
-                           FontSize="11" FontWeight="Bold" Foreground="#FF8EA5C8" />
+                           FontSize="11" FontWeight="Bold" Foreground="#FF526174" />
             </Grid>
 
             <Grid Grid.Row="2">
@@ -64,13 +64,13 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Row="0" x:Name="ScoreLabel" Text="{Binding ScoreValue, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                           Style="{StaticResource ScoreLabelStyle}" Foreground="#FFF5F8FF" FontSize="80" LineHeight="86"
+                           Style="{StaticResource ScoreLabelStyle}" Foreground="#FF172B4D" FontSize="80" LineHeight="86"
                            HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,4" RenderTransformOrigin="0.5,0.5">
                     <TextBlock.RenderTransform><ScaleTransform ScaleX="1" ScaleY="1" /></TextBlock.RenderTransform>
                 </TextBlock>
                 <StackPanel Grid.Row="1" HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,0,0,8">
-                    <TextBlock Text="ROUND" FontSize="10" FontWeight="Bold" Foreground="#FF697FA5" Margin="0,0,6,0" VerticalAlignment="Center" />
-                    <TextBlock x:Name="RoundScoresLabel" Text="NO SCORES RECORDED" FontSize="11" FontWeight="SemiBold" Foreground="#FFB6C8E8" VerticalAlignment="Center">
+                    <TextBlock Text="ROUND" FontSize="10" FontWeight="Bold" Foreground="#FF526174" Margin="0,0,6,0" VerticalAlignment="Center" />
+                    <TextBlock x:Name="RoundScoresLabel" Text="NO SCORES RECORDED" FontSize="11" FontWeight="SemiBold" Foreground="#FF475569" VerticalAlignment="Center">
                         <TextBlock.RenderTransform><TranslateTransform /></TextBlock.RenderTransform>
                     </TextBlock>
                 </StackPanel>
@@ -88,7 +88,7 @@
                     <Button Content="+5" ToolTip="Award 5 points" AutomationProperties.Name="Add five points" Style="{StaticResource ScoreButtonStyle}" Click="AddFiveButton_Click" />
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock x:Name="TeamTimerLabel" Text="00:00" Margin="0,0,10,0" VerticalAlignment="Center" FontFamily="Consolas" FontSize="15" FontWeight="Bold" Foreground="#FFB6C8E8" />
+                    <TextBlock x:Name="TeamTimerLabel" Text="00:00" Margin="0,0,10,0" VerticalAlignment="Center" FontFamily="Consolas" FontSize="15" FontWeight="Bold" Foreground="#FF176B45" />
                     <Button x:Name="TeamTimerButton" Content="TIME TEAM" Click="TeamTimerButton_Click" AutomationProperties.Name="Start or stop team response timer" Style="{StaticResource CompactButtonStyle}" />
                     <Button x:Name="ResetTeamTimerButton" Content="RESET" Margin="6,0,0,0" Click="ResetTeamTimerButton_Click" AutomationProperties.Name="Reset team response timer" ToolTip="Reset this team's response timer" Style="{StaticResource CompactButtonStyle}" />
                 </StackPanel>

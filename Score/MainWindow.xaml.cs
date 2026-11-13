@@ -18,7 +18,7 @@ namespace Score
         private int currentRound = 1;
         private int configuredRounds = 3;
         private int configuredTeamCount = 4;
-        private int[] totalScores = new int[4];
+        private long[] totalScores = new long[4];
         private List<int>[] roundScores = { new List<int>(), new List<int>(), new List<int>(), new List<int>() };
         private List<int>[] roundTeamElapsed = { new List<int>(), new List<int>(), new List<int>(), new List<int>() };
         private int[] currentRoundTeamElapsed = new int[4];
@@ -62,6 +62,7 @@ namespace Score
                 SynchronizeTeamCountSelector();
                 LoadScores();
                 LoadRoundHistory();
+                UpdateLeaderIndicators();
                 RestoreSessionState();
                 UpdateTotalLabels();
                 timerRefresh.Tick += TimerRefresh_Tick;
@@ -87,7 +88,7 @@ namespace Score
         private void InitializeTeamState(int teamCount)
         {
             configuredTeamCount = Math.Max(2, Math.Min(12, teamCount));
-            totalScores = new int[configuredTeamCount];
+            totalScores = new long[configuredTeamCount];
             currentRoundTeamElapsed = new int[configuredTeamCount];
             totalTeamElapsed = new int[configuredTeamCount];
             roundScores = Enumerable.Range(0, configuredTeamCount).Select(index => new List<int>()).ToArray();
@@ -97,7 +98,7 @@ namespace Score
         private void BuildTeamCards()
         {
             TeamCardsGrid.Children.Clear();
-            var colors = new[] { "#FFEF6A9B", "#FF54B5FF", "#FF69D4A1", "#FFF4C95D", "#FFB28CFF", "#FFFF8A65", "#FF63D7D2", "#FFC5D86D", "#FFFF91B8", "#FF9DB7FF", "#FFFFC266", "#FFB7A3FF" };
+            var colors = new[] { "#FF9B1C54", "#FF005A9C", "#FF176B45", "#FF765000", "#FF593C8F", "#FFA33E00", "#FF006B70", "#FF526900", "#FF9B315C", "#FF3C54A5", "#FF805100", "#FF5A4398" };
             var cardHeight = configuredTeamCount <= 4 ? 340 : configuredTeamCount <= 8 ? 300 : 260;
             for (var i = 0; i < configuredTeamCount; i++)
             {
@@ -274,7 +275,6 @@ namespace Score
                     card.ScoreValue = storedScores.TryGetValue(card.DatabaseTeamName, out score) ? score : 0;
                 }
             }
-            UpdateLeaderIndicators();
         }
 
         private void LoadRoundHistory()
@@ -513,7 +513,7 @@ namespace Score
             var cards = Cards;
             var standings = cards.Select((card, index) => totalScores[index] + card.ScoreValue).ToArray();
             var highest = standings.Max();
-            var hasLeader = highest > 0;
+            var hasLeader = standings.Any(value => value != 0);
             for (var i = 0; i < cards.Length; i++)
             {
                 var rank = 1 + standings.Count(value => value > standings[i]);
@@ -606,7 +606,7 @@ namespace Score
         {
             RoundResultsRows.Children.Clear();
             var standings = Enumerable.Range(0, cards.Length)
-                .OrderByDescending(index => totalScores[index])
+                .OrderByDescending(index => totalScores[index] + (includeCurrentRound ? cards[index].ScoreValue : 0))
                 .ThenByDescending(index => cards[index].ScoreValue)
                 .ToArray();
             for (var position = 0; position < standings.Length; position++)
@@ -618,13 +618,13 @@ namespace Score
                 row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(120) });
                 row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(150) });
                 row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(150) });
-                var surface = new Border { Padding = new Thickness(12, 9, 12, 9), Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 20, 36, 58)), BorderBrush = cards[index].ScoreColor, BorderThickness = new Thickness(position == 0 ? 2 : 1), CornerRadius = new CornerRadius(8), Child = row };
-                AddResultCell(row, position == 0 ? "1" : (position + 1).ToString(), 0, System.Windows.Media.Brushes.White, true, TextAlignment.Left);
-                AddResultCell(row, cards[index].TeamName, 1, System.Windows.Media.Brushes.White, true, TextAlignment.Left);
+                var surface = new Border { Padding = new Thickness(12, 9, 12, 9), Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 255, 255)), BorderBrush = cards[index].ScoreColor, BorderThickness = new Thickness(position == 0 ? 2 : 1), CornerRadius = new CornerRadius(8), Child = row };
+                AddResultCell(row, position == 0 ? "1" : (position + 1).ToString(), 0, System.Windows.Media.Brushes.DarkSlateGray, true, TextAlignment.Left);
+                AddResultCell(row, cards[index].TeamName, 1, System.Windows.Media.Brushes.DarkSlateGray, true, TextAlignment.Left);
                 AddResultCell(row, (cards[index].ScoreValue >= 0 ? "+" : string.Empty) + cards[index].ScoreValue + " pts", 2, cards[index].ScoreColor, true, TextAlignment.Right);
                 var displayedTotal = totalScores[index] + (includeCurrentRound ? cards[index].ScoreValue : 0);
-                AddResultCell(row, displayedTotal + " pts", 3, System.Windows.Media.Brushes.LightGreen, true, TextAlignment.Right);
-                AddResultCell(row, FormatElapsed(currentRoundTeamElapsed[index]), 4, System.Windows.Media.Brushes.LightGreen, false, TextAlignment.Right);
+                AddResultCell(row, displayedTotal + " pts", 3, System.Windows.Media.Brushes.DarkGreen, true, TextAlignment.Right);
+                AddResultCell(row, FormatElapsed(currentRoundTeamElapsed[index]), 4, System.Windows.Media.Brushes.DarkGreen, false, TextAlignment.Right);
                 RoundResultsRows.Children.Add(surface);
             }
         }
@@ -714,7 +714,7 @@ namespace Score
             FinalStandings.Visibility = Visibility.Visible;
             RoundResultsPanel.Visibility = Visibility.Collapsed;
             WinnerActionButton.Content = "CLOSE RESULTS";
-            LogEvent("FinalWinnerAnnounced", string.Join(" / ", winners.Select(card => card.TeamName)), 0, highest, "Final result announced");
+            LogEvent("FinalWinnerAnnounced", string.Join(" / ", winners.Select(card => card.TeamName)), 0, SafeLogScore(highest), "Final result announced");
             for (var i = 0; i < cards.Length; i++) cards[i].SetFinalWinner(totalScores[i] == highest);
             AnimateFinalResults();
         }
@@ -770,14 +770,14 @@ namespace Score
                 row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(150) });
                 row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
                 row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(140) });
-                var background = position == 0 ? System.Windows.Media.Color.FromArgb(255, 55, 49, 28) : System.Windows.Media.Color.FromArgb(255, 20, 36, 58);
+                var background = position == 0 ? System.Windows.Media.Color.FromRgb(255, 248, 225) : System.Windows.Media.Color.FromRgb(255, 255, 255);
                 var surface = new Border { Padding = new Thickness(12, 10, 12, 10), Background = new System.Windows.Media.SolidColorBrush(background), BorderBrush = cards[index].ScoreColor, BorderThickness = new Thickness(position == 0 ? 2 : 1), CornerRadius = new CornerRadius(8), Child = row };
                 var rankText = position == 0 ? "1  *" : (position + 1).ToString();
-                AddFinalCell(row, rankText, 0, position == 0 ? System.Windows.Media.Brushes.Gold : System.Windows.Media.Brushes.White, true, TextAlignment.Left);
-                AddFinalCell(row, cards[index].TeamName, 1, System.Windows.Media.Brushes.White, true, TextAlignment.Left);
+                AddFinalCell(row, rankText, 0, position == 0 ? System.Windows.Media.Brushes.DarkGoldenrod : System.Windows.Media.Brushes.DarkSlateGray, true, TextAlignment.Left);
+                AddFinalCell(row, cards[index].TeamName, 1, System.Windows.Media.Brushes.DarkSlateGray, true, TextAlignment.Left);
                 AddFinalCell(row, totalScores[index] + " pts", 2, cards[index].ScoreColor, true, TextAlignment.Right);
-                AddFinalCell(row, string.Join("   ", roundScores[index].Select((score, round) => "R" + (round + 1) + " " + (score >= 0 ? "+" : string.Empty) + score + " / " + FormatShortElapsed(round < roundTeamElapsed[index].Count ? roundTeamElapsed[index][round] : 0))), 3, System.Windows.Media.Brushes.LightSteelBlue, false, TextAlignment.Right);
-                AddFinalCell(row, FormatElapsed(totalTeamElapsed[index]), 4, System.Windows.Media.Brushes.LightGreen, false, TextAlignment.Right);
+                AddFinalCell(row, string.Join("   ", roundScores[index].Select((score, round) => "R" + (round + 1) + " " + (score >= 0 ? "+" : string.Empty) + score + " / " + FormatShortElapsed(round < roundTeamElapsed[index].Count ? roundTeamElapsed[index][round] : 0))), 3, System.Windows.Media.Brushes.SlateGray, false, TextAlignment.Right);
+                AddFinalCell(row, FormatElapsed(totalTeamElapsed[index]), 4, System.Windows.Media.Brushes.DarkGreen, false, TextAlignment.Right);
                 FinalStandingsRows.Children.Add(surface);
             }
         }
@@ -820,11 +820,7 @@ namespace Score
                 db.SaveChanges();
                 activeSession = newSession;
             }
-            Array.Clear(totalScores, 0, totalScores.Length);
-            Array.Clear(currentRoundTeamElapsed, 0, currentRoundTeamElapsed.Length);
-            Array.Clear(totalTeamElapsed, 0, totalTeamElapsed.Length);
-            foreach (var list in roundScores) list.Clear();
-            foreach (var list in roundTeamElapsed) list.Clear();
+            InitializeTeamState(configuredTeamCount);
             currentRound = 1;
             isFinalRoundComplete = false;
             isFinalAnnouncement = false;
@@ -833,11 +829,10 @@ namespace Score
             roundOvertimeAnnounced = false;
             setupLocked = false;
             WinnerOverlay.Visibility = Visibility.Collapsed;
-            foreach (var card in Cards) { card.ScoreValue = 0; card.SetScoringEnabled(false); card.SetEditingEnabled(true); card.SetFinalWinner(false); }
+            foreach (var card in Cards) { card.ScoreValue = 0; card.SetRoundScores(string.Empty); card.SetScoringEnabled(false); card.SetEditingEnabled(true); card.SetFinalWinner(false); }
             ResetTimerState();
             UpdateTimerControls();
             UpdateTotalLabels();
-            UpdateRoundScoreLabels();
             UpdateLeaderIndicators();
             RoundNumberLabel.Text = "ROUND 1 OF " + configuredRounds;
             LogEvent("SessionCreated", string.Empty, 0, 0, "New game started; previous session archived");
@@ -947,8 +942,8 @@ namespace Score
             var showConfiguredValues = globalTimer.State == QuizTimerState.Stopped && !setupLocked;
             GlobalTimerLabel.Text = showConfiguredValues ? FormatSelectedDuration(GlobalMinutesSelector) : globalTimer.Duration == TimeSpan.Zero ? "NO LIMIT" : FormatTimer(globalTimer);
             RoundTimerLabel.Text = showConfiguredValues ? FormatSelectedDuration(RoundMinutesSelector) : roundTimer.Duration == TimeSpan.Zero ? "NO LIMIT" : FormatTimer(roundTimer);
-            GlobalTimerLabel.Foreground = globalTimer.IsOvertime ? System.Windows.Media.Brushes.IndianRed : System.Windows.Media.Brushes.LightGreen;
-            RoundTimerLabel.Foreground = roundTimer.IsOvertime ? System.Windows.Media.Brushes.IndianRed : System.Windows.Media.Brushes.LightGreen;
+            GlobalTimerLabel.Foreground = globalTimer.IsOvertime ? System.Windows.Media.Brushes.Firebrick : System.Windows.Media.Brushes.DarkGreen;
+            RoundTimerLabel.Foreground = roundTimer.IsOvertime ? System.Windows.Media.Brushes.Firebrick : System.Windows.Media.Brushes.DarkGreen;
         }
 
         private string FormatSelectedDuration(ComboBox selector)
@@ -1142,7 +1137,7 @@ namespace Score
         private void UpdateCompetitionStatus()
         {
             CompetitionStatusLabel.Text = isFinalAnnouncement ? "FINAL RESULT" : isFinalRoundComplete ? "FINAL ROUND COMPLETE" : roundFinalized ? "ROUND RECORDED" : globalTimer.State == QuizTimerState.Paused ? "PAUSED" : roundTimer.IsOvertime ? "ROUND OVERTIME" : globalTimer.State == QuizTimerState.Running || globalTimer.State == QuizTimerState.Overtime ? "LIVE" : "READY TO START";
-            CompetitionStatusLabel.Foreground = globalTimer.State == QuizTimerState.Paused ? System.Windows.Media.Brushes.Gold : roundTimer.IsOvertime ? System.Windows.Media.Brushes.IndianRed : System.Windows.Media.Brushes.LightGreen;
+            CompetitionStatusLabel.Foreground = globalTimer.State == QuizTimerState.Paused ? System.Windows.Media.Brushes.DarkGoldenrod : roundTimer.IsOvertime ? System.Windows.Media.Brushes.Firebrick : System.Windows.Media.Brushes.DarkGreen;
         }
 
         private string GetCurrentSessionStatus()
@@ -1220,6 +1215,11 @@ namespace Score
             return value.TotalSeconds >= int.MaxValue ? int.MaxValue : (int)value.TotalSeconds;
         }
 
+        private int SafeLogScore(long score)
+        {
+            return score >= int.MaxValue ? int.MaxValue : score <= int.MinValue ? int.MinValue : (int)score;
+        }
+
         private void ExportLogButton_Click(object sender, RoutedEventArgs e)
         {
             var safeTitle = ExportSafety.SanitizeFileName(EventTitleEditor.Text, "quiz");
@@ -1247,7 +1247,7 @@ namespace Score
                 csv.AppendLine();
                 csv.AppendLine("ROUND-BY-ROUND RECORD");
                 csv.AppendLine("Round,Team,Round score,Cumulative score after round,Round elapsed seconds,Round elapsed time,Team response seconds,Team response time");
-                var cumulativeScores = new int[Cards.Length];
+                    var cumulativeScores = new long[Cards.Length];
                 foreach (var round in rounds)
                 {
                     var index = GetTeamIndex(round.DatabaseTeamName);

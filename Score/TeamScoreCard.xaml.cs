@@ -3,7 +3,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Media.Effects;
 
 namespace Score
 {
@@ -72,13 +71,13 @@ namespace Score
             RankLabel.Text = rank == 1 ? "1ST" : rank == 2 ? "2ND" : rank == 3 ? "3RD" : rank + "TH";
         }
 
-        public void SetTotalScore(int totalScore) { TotalScoreLabel.Text = "TOURNAMENT " + totalScore; }
+        public void SetTotalScore(long totalScore) { TotalScoreLabel.Text = "TOURNAMENT " + totalScore; }
 
         public void SetDangerState(bool isDanger)
         {
             DangerBadge.Visibility = isDanger ? Visibility.Visible : Visibility.Collapsed;
-            ScoreLabel.Foreground = isDanger ? Brushes.IndianRed : ScoreColor;
-            CardBorder.BorderBrush = isDanger ? Brushes.IndianRed : ScoreColor;
+            ScoreLabel.Foreground = isDanger ? Brushes.Firebrick : ScoreColor;
+            CardBorder.BorderBrush = isDanger ? Brushes.Firebrick : ScoreColor;
         }
 
         public void SetFinalWinner(bool isWinner)
@@ -101,22 +100,16 @@ namespace Score
                     transform.ScaleX = 1;
                     transform.ScaleY = 1;
                 }
-                var effect = new DropShadowEffect { Color = Colors.Black, BlurRadius = 13, ShadowDepth = 7, Direction = 315, Opacity = 0.85 };
-                ScoreLabel.Effect = effect;
                 return;
             }
             var liveTransform = new ScaleTransform(1, 1);
             ScoreLabel.RenderTransform = liveTransform;
             ScoreLabel.RenderTransformOrigin = new Point(0.5, 0.5);
-            var glow = new DropShadowEffect { Color = ScoreColor is SolidColorBrush ? ((SolidColorBrush)ScoreColor).Color : Colors.White, BlurRadius = 18, ShadowDepth = 0, Opacity = 0.72 };
-            ScoreLabel.Effect = glow;
             if (SystemParameters.ClientAreaAnimation)
             {
                 var pulse = new DoubleAnimation(1, 1.025, TimeSpan.FromSeconds(0.9)) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } };
                 liveTransform.BeginAnimation(ScaleTransform.ScaleXProperty, pulse);
                 liveTransform.BeginAnimation(ScaleTransform.ScaleYProperty, pulse);
-                var glowPulse = new DoubleAnimation(18, 32, TimeSpan.FromSeconds(1.1)) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever, EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } };
-                glow.BeginAnimation(DropShadowEffect.BlurRadiusProperty, glowPulse);
             }
         }
 
@@ -150,20 +143,20 @@ namespace Score
         public void SetTeamTimerDisplay(string displayText, bool isOvertime)
         {
             TeamTimerLabel.Text = displayText;
-            TeamTimerLabel.Foreground = isOvertime ? Brushes.IndianRed : Brushes.LightGreen;
+            TeamTimerLabel.Foreground = isOvertime ? Brushes.Firebrick : Brushes.DarkGreen;
         }
 
         public void SetTeamTimerRunning(bool isRunning)
         {
             isTeamTimerRunning = isRunning;
             TeamTimerButton.Content = isRunning ? "STOP TIME" : "TIME TEAM";
-            TeamTimerButton.Background = isRunning ? Brushes.IndianRed : new SolidColorBrush(Color.FromRgb(33, 102, 164));
+            TeamTimerButton.Background = isRunning ? new SolidColorBrush(Color.FromRgb(251, 228, 230)) : new SolidColorBrush(Color.FromRgb(220, 235, 250));
         }
 
         public void UpdateScore(int newScore, int change)
         {
             ScoreValue = newScore;
-            AnimateScore(change > 0 ? 1.18 : 0.84, change > 0 ? Colors.White : Colors.IndianRed);
+            AnimateScore(change > 0 ? 1.18 : 0.84, change > 0 ? Colors.White : Colors.Firebrick);
         }
 
         private void RequestScore(int points)
@@ -223,7 +216,7 @@ namespace Score
         {
             if (!SystemParameters.ClientAreaAnimation)
             {
-                ScoreLabel.Foreground = ScoreValue < 0 ? Brushes.IndianRed : ScoreColor;
+                ScoreLabel.Foreground = ScoreValue < 0 ? Brushes.Firebrick : ScoreColor;
                 return;
             }
             var originalBrush = ScoreLabel.Foreground as SolidColorBrush;
