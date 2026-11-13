@@ -10,5 +10,6 @@ namespace Score
         public int TeamElapsedSeconds { get; set; }
         public int ElapsedSeconds { get; set; }
         public bool IsFinalized { get; set; }
+        public bool IsTieBreakParticipant { get; set; }
     }
 }

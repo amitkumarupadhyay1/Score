@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Data.SQLite;
 
 namespace Score.Tests
 {
@@ -7,6 +8,7 @@ namespace Score.Tests
     {
         private static int failures;
 
+        [STAThread]
         private static int Main()
         {
             Run("CSV quotes ordinary text", () => Equal("\"Team Alpha\"", ExportSafety.ToCsvCell("Team Alpha")));
@@ -21,6 +23,7 @@ namespace Score.Tests
             Run("Timer pause is a real paused state even in overtime", TestOvertimePause);
             Run("Timer restore preserves elapsed time", TestRestore);
             Run("SQLite runtime creates, verifies, and backs up the database", TestDatabaseRuntime);
+            Run("Live quiz, recovery, export, and both New Game options", QuizWorkflowChecks.Run);
 
             Console.WriteLine(failures == 0 ? "All production checks passed." : failures + " production check(s) failed.");
             return failures == 0 ? 0 : 1;
@@ -59,8 +62,24 @@ namespace Score.Tests
                 True(File.Exists(AppPaths.DatabasePath), "The SQLite database was not created.");
                 True(new FileInfo(AppPaths.DatabasePath).Length > 0, "The SQLite database is empty.");
 
+                using (var connection = new SQLiteConnection("Data Source=" + AppPaths.DatabasePath + ";Pooling=False;"))
+                {
+                    connection.Open();
+                    using (var command = new SQLiteCommand("DROP INDEX UX_ScoreCounts_Team; INSERT INTO ScoreCounts (Team,ScoreValue) VALUES ('legacy-team',0),('legacy-team',20);", connection)) command.ExecuteNonQuery();
+                }
+
                 DatabaseMaintenance.Prepare();
                 True(Directory.GetFiles(AppPaths.BackupsDirectory, "ScoreDB-*.sqlite").Length == 1, "The rolling database backup was not created.");
+                using (var connection = new SQLiteConnection("Data Source=" + AppPaths.DatabasePath + ";Pooling=False;"))
+                {
+                    connection.Open();
+                    using (var command = new SQLiteCommand("SELECT ScoreValue FROM ScoreCounts WHERE Team='legacy-team'", connection)) Equal(20L, Convert.ToInt64(command.ExecuteScalar()));
+                    using (var command = new SQLiteCommand("SELECT COUNT(*) FROM ScoreCounts WHERE Team='legacy-team'", connection)) Equal(1L, Convert.ToInt64(command.ExecuteScalar()));
+                    var rejected = false;
+                    try { using (var command = new SQLiteCommand("INSERT INTO ScoreCounts (Team,ScoreValue) VALUES ('legacy-team',1)", connection)) command.ExecuteNonQuery(); }
+                    catch (SQLiteException) { rejected = true; }
+                    True(rejected, "Duplicate team scores were allowed after migration.");
+                }
             }
             finally
             {
@@ -79,7 +98,7 @@ namespace Score.Tests
             catch (Exception ex)
             {
                 failures++;
-                Console.Error.WriteLine("FAIL  " + name + ": " + ex.Message);
+                Console.Error.WriteLine("FAIL  " + name + ": " + ex);
             }
         }
 

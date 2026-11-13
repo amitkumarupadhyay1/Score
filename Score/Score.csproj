@@ -52,6 +52,7 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -61,6 +62,7 @@
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -78,7 +80,10 @@
     <Compile Include="ScoreCount.cs" />
     <Compile Include="ScoreDbContext.cs" />
     <Compile Include="QuizTimerService.cs" />
+    <Compile Include="MainWindow.QuizControls.cs" />
     <Compile Include="QuizChimes.cs" />
+    <Compile Include="ProjectorWindow.cs" />
+    <Compile Include="ProjectorPresentation.cs" />
     <Compile Include="QuizSession.cs" />
     <Compile Include="QuizRoundScore.cs" />
     <Compile Include="QuizEventLog.cs" />

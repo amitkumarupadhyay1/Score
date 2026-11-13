@@ -9,6 +9,12 @@ namespace Score
         private static SoundPlayer pointsAwarded;
         private static SoundPlayer roundFinished;
 
+        public static void Stop()
+        {
+            var player = pointsAwarded ?? roundFinished;
+            if (player != null) player.Stop();
+        }
+
         public static void PlayPointsAwarded()
         {
             Play(ref pointsAwarded, "PointsAwarded.wav");

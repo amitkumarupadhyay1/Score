@@ -10,15 +10,16 @@
             <GradientStop Color="#FFF4F6F8" Offset="0"/><GradientStop Color="#FFEFF2F5" Offset="0.48"/><GradientStop Color="#FFF4F6F8" Offset="1"/>
         </LinearGradientBrush>
     </Window.Background>
-    <Grid x:Name="RootLayout" Margin="12">
+    <Grid x:Name="RootLayout" Margin="12" Background="{Binding Background, RelativeSource={RelativeSource AncestorType=Window}}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <Border Grid.Row="0" Padding="14,8" CornerRadius="18" Background="#F8FFFFFF" BorderBrush="#FFD6DEE8" BorderThickness="1" Effect="{StaticResource HeaderGlowEffect}">
-            <Grid>
+            <Grid x:Name="HeaderLayout" SizeChanged="HeaderLayout_SizeChanged">
                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                <StackPanel>
+                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                <StackPanel x:Name="HeaderTitle">
                     <TextBox x:Name="EventTitleEditor" Text="QUIZ CHAMPIONSHIP" MaxLength="50" TextWrapping="Wrap" ToolTip="Event title" FontSize="21" FontWeight="Bold" Foreground="#FF172B4D" Background="Transparent" BorderThickness="0" Padding="0" KeyDown="EventTitleEditor_KeyDown" LostFocus="EventTitleEditor_LostFocus" />
                     <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
                         <TextBlock x:Name="RoundNumberLabel" Text="ROUND 1" FontSize="10" FontWeight="Bold" Foreground="#FF172B4D"/>
@@ -26,12 +27,12 @@
                         <TextBlock x:Name="CompetitionStatusLabel" Text="READY TO START" FontSize="10" FontWeight="Bold" Foreground="#FF172B4D"/>
                     </StackPanel>
                 </StackPanel>
-                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,0,0">
-                    <StackPanel.Resources>
+                <WrapPanel x:Name="HeaderControls" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,0,0">
+                    <WrapPanel.Resources>
                         <Style TargetType="Button" BasedOn="{StaticResource ToolbarButtonStyle}">
                             <Setter Property="Padding" Value="9,0"/>
                         </Style>
-                    </StackPanel.Resources>
+                    </WrapPanel.Resources>
                     <Grid Margin="0,0,12,0" VerticalAlignment="Center">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="87"/></Grid.ColumnDefinitions>
                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
@@ -45,14 +46,16 @@
                     <Button x:Name="ResumeTimerButton" Content="RESUME" Click="ResumeTimerButton_Click" Background="#FFDCEBFA" BorderBrush="#FFA8C5E3"/>
                     <Button x:Name="RestartTimerButton" Content="RESTART TIMERS" Click="RestartTimerButton_Click" Background="#FFE4EAF2" BorderBrush="#FFBAC8DA" ToolTip="Reset the event and round clocks, then start them again"/>
                     <Button x:Name="RoundSetupButton" MinWidth="96" Content="SHOW SETUP" Click="RoundSetupButton_Click" ToolTip="Show or hide round, time limit, and team settings"/>
+                    <Button x:Name="ChimeButton" MinWidth="72" Content="SOUND ON" Click="ChimeButton_Click" ToolTip="Turn scoring and round chimes on or off"/>
                     <Border Padding="10,5" CornerRadius="12" Background="#FFF1F4F7" BorderBrush="#FFCBD5E1" BorderThickness="1" VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal"><TextBlock x:Name="TeamCountLabel" Text="4" FontSize="18" FontWeight="Bold" Foreground="#FF172B4D"/><TextBlock Text=" TEAMS" Margin="5,0,0,0" VerticalAlignment="Center" FontSize="10" FontWeight="Bold" Foreground="#FF172B4D"/></StackPanel>
                     </Border>
-                </StackPanel>
+                </WrapPanel>
             </Grid>
         </Border>
 
-        <Border x:Name="RoundSetupPanel" Grid.Row="1" Margin="0,8,0,0" Padding="12,8" CornerRadius="14" Background="#F8FFFFFF" BorderBrush="#FFD6DEE8" BorderThickness="1" Visibility="Collapsed">
+        <StackPanel Grid.Row="1">
+        <Border x:Name="RoundSetupPanel" Margin="0,8,0,0" Padding="12,8" CornerRadius="14" Background="#F8FFFFFF" BorderBrush="#FFD6DEE8" BorderThickness="1" Visibility="Collapsed">
             <Grid>
                 <Grid.ColumnDefinitions><ColumnDefinition Width="2*"/><ColumnDefinition Width="1.4*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0" Margin="0,0,18,0">
@@ -101,23 +104,57 @@
             </Grid>
         </Border>
 
+        <WrapPanel Margin="4,5,4,0" Visibility="{Binding Visibility, ElementName=RoundSetupPanel}">
+            <TextBlock Text="PROJECTOR THEME" FontSize="10" FontWeight="Bold" Foreground="#FF172B4D" VerticalAlignment="Center" Margin="0,0,8,0"/>
+            <ComboBox x:Name="ProjectorThemeSelector" Width="145" Height="28" SelectedIndex="0" SelectionChanged="ProjectorThemeSelector_SelectionChanged" ToolTip="Projector theme, remembered for the next event" AutomationProperties.Name="Projector theme">
+                <ComboBoxItem Content="Dark"/><ComboBoxItem Content="High contrast"/><ComboBoxItem Content="Light"/>
+            </ComboBox>
+        </WrapPanel>
+        <Expander x:Name="QuestionPanel" Margin="4,5,4,0" Foreground="#FF172B4D">
+            <Expander.Header><TextBlock x:Name="QuestionSummary" Text="QUESTION TIMER · ready · 00:30" FontWeight="SemiBold"/></Expander.Header>
+            <WrapPanel Margin="4,4,4,0" VerticalAlignment="Center">
+                <TextBlock Text="Seconds" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                <ComboBox x:Name="QuestionSecondsSelector" Width="70" Height="32" IsEditable="True" Text="30" LostFocus="QuestionDuration_LostFocus" ToolTip="Question duration from 1 to 3600 seconds">
+                    <ComboBoxItem Content="15"/><ComboBoxItem Content="30"/><ComboBoxItem Content="45"/><ComboBoxItem Content="60"/>
+                </ComboBox>
+                <Button x:Name="QuestionStartButton" Content="START QUESTION" Click="QuestionStart_Click" Style="{StaticResource ToolbarButtonStyle}"/>
+                <Button x:Name="QuestionHoldButton" Content="HOLD" Click="QuestionHold_Click" Style="{StaticResource ToolbarButtonStyle}"/>
+                <Button x:Name="QuestionAddButton" Content="+10 SEC" Click="QuestionAdd_Click" Style="{StaticResource ToolbarButtonStyle}"/>
+                <Button x:Name="QuestionRestartButton" Content="RESTART QUESTION" Click="QuestionRestart_Click" Style="{StaticResource ToolbarButtonStyle}"/>
+                <Button x:Name="QuestionNextButton" Content="NEXT QUESTION" Click="QuestionNext_Click" Style="{StaticResource ToolbarButtonStyle}"/>
+                <CheckBox x:Name="QuestionLockCheckBox" Content="Lock scoring at time up" Margin="8,0,0,0" VerticalAlignment="Center" Click="QuestionLock_Click"/>
+            </WrapPanel>
+        </Expander>
+        </StackPanel>
+
         <ScrollViewer x:Name="TeamCardsViewport" Grid.Row="2" Grid.RowSpan="2" Margin="0,8,0,0" SizeChanged="TeamCardsViewport_SizeChanged" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly" CanContentScroll="False">
             <Grid x:Name="TeamCardsGrid" HorizontalAlignment="Stretch" VerticalAlignment="Top"/>
         </ScrollViewer>
 
         <Border Grid.Row="4" Margin="0,12,0,0" Padding="11,9" CornerRadius="14" Background="#F8FFFFFF" BorderBrush="#FFD6DEE8" BorderThickness="1">
-            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center"><TextBlock Text="LIVE ACTIVITY" FontSize="10" FontWeight="Bold" Foreground="#FF172B4D" Margin="0,0,9,0"/><TextBlock x:Name="EventFeedLabel" Text="Set the teams, add player names, then start the first round." FontSize="12" Foreground="#FF172B4D" TextTrimming="CharacterEllipsis"/></StackPanel>
-                <StackPanel Grid.Column="1" Orientation="Horizontal">
+            <StackPanel>
+                <Border x:Name="SaveWarningPanel" Visibility="Collapsed" Background="#FFFFEBC7" Padding="8,3" Margin="0,0,0,4">
+                    <DockPanel><Button x:Name="RetrySaveButton" Content="RETRY SAVE" Click="RetrySave_Click" DockPanel.Dock="Right"/>
+                        <TextBlock x:Name="SaveWarningLabel" TextWrapping="Wrap" Foreground="#FF8A2600" VerticalAlignment="Center"/>
+                    </DockPanel>
+                </Border>
+                <DockPanel VerticalAlignment="Center" Margin="0,0,8,0">
+                    <TextBlock DockPanel.Dock="Left" Text="LIVE ACTIVITY" FontSize="10" FontWeight="Bold" Foreground="#FF172B4D" Margin="0,0,9,0"/>
+                    <TextBlock x:Name="EventFeedLabel" Text="Set the teams, add player names, then start the first round." FontSize="12" Foreground="#FF172B4D" TextTrimming="CharacterEllipsis" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"/>
+                </DockPanel>
+                <WrapPanel Margin="0,4,0,0" HorizontalAlignment="Right">
                     <Button Content="UNDO LAST" Click="UndoLastScoreButton_Click" Style="{StaticResource ToolbarButtonStyle}" ToolTip="Reverse the latest score change and add an audit-log entry"/>
-                    <Button Content="FINISH ROUND" Click="FinishRoundButton_Click" Style="{StaticResource ToolbarButtonStyle}" Background="#FFD9F2E5" BorderBrush="#FFA8D9BD"/>
+                    <Button x:Name="FinishRoundButton" Content="FINISH ROUND" Click="FinishRoundButton_Click" Style="{StaticResource ToolbarButtonStyle}" Background="#FFD9F2E5" BorderBrush="#FFA8D9BD"/>
+                    <Button x:Name="ReviewScoresButton" Content="REVIEW SCORES" Click="ReviewScores_Click" Style="{StaticResource ToolbarButtonStyle}" ToolTip="Correct a current or completed round with a reason"/>
                     <Button Content="ROUND RESULT" Click="AnnounceWinnerButton_Click" Style="{StaticResource ToolbarButtonStyle}" Background="#FFEAE2F5" BorderBrush="#FFC8B6E0" ToolTip="Preview the current round ranking without finishing the round"/>
                     <Button Content="STANDINGS" Click="ShowStandingsButton_Click" Style="{StaticResource ToolbarButtonStyle}" Background="#FFDCEAF2" BorderBrush="#FFAFC8DB" ToolTip="View completed-round scores without stopping the current round"/>
                     <Button Content="EXPORT LOG" Click="ExportLogButton_Click" Style="{StaticResource ToolbarButtonStyle}"/>
                     <Button Content="ABOUT" Click="AboutButton_Click" Style="{StaticResource ToolbarButtonStyle}" Background="#FFDCEAF2" BorderBrush="#FFAFC8DB" ToolTip="View application and developer information"/>
-                    <Button Content="NEW GAME" Click="ResetButton_Click" Style="{StaticResource ToolbarButtonStyle}" Background="#FFFBE1E3" BorderBrush="#FFE5AEB4"/>
-                </StackPanel>
-            </Grid>
+                    <Button x:Name="ProjectorButton" Content="PROJECTOR LIVE" Click="ProjectorButton_Click" Style="{StaticResource ToolbarButtonStyle}" ToolTip="Show the audience live round scores"/>
+                    <Button x:Name="ProjectorStandingsButton" Content="PROJECTOR STANDINGS" Click="ProjectorStandingsButton_Click" Style="{StaticResource ToolbarButtonStyle}" ToolTip="Show ranked tournament totals to the audience"/>
+                    <Button x:Name="NewGameButton" Content="NEW GAME" Click="ResetButton_Click" Style="{StaticResource ToolbarButtonStyle}" Background="#FFFBE1E3" BorderBrush="#FFE5AEB4"/>
+                </WrapPanel>
+            </StackPanel>
         </Border>
 
         <Border x:Name="WinnerOverlay" Grid.Row="0" Grid.RowSpan="5" Visibility="Collapsed" Background="#550E1B2A" Panel.ZIndex="10" CornerRadius="18">
@@ -151,7 +188,17 @@
                         </Grid>
                         <StackPanel x:Name="FinalStandingsRows" Grid.Row="1"/>
                     </Grid>
-                    <Button x:Name="WinnerActionButton" Content="NEXT ROUND" Click="WinnerActionButton_Click" Style="{StaticResource ToolbarButtonStyle}" HorizontalAlignment="Center" Padding="24,0" Background="#FFFFE8A3" Foreground="#FF172B4D" BorderBrush="#FFFFD76A"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Button x:Name="WinnerActionButton" Content="NEXT ROUND" Click="WinnerActionButton_Click" Style="{StaticResource ToolbarButtonStyle}" Padding="24,0" Background="#FFFFE8A3" Foreground="#FF172B4D" BorderBrush="#FFFFD76A"/>
+                        <StackPanel x:Name="FinalGameActions" Orientation="Horizontal" Visibility="Collapsed">
+                            <Button x:Name="TieBreakButton" Content="TIE-BREAK" Click="TieBreak_Click" Style="{StaticResource ToolbarButtonStyle}" Visibility="Collapsed"/>
+                            <Button Content="REVIEW SCORES" Click="ReviewScores_Click" Style="{StaticResource ToolbarButtonStyle}"/>
+                            <Button x:Name="FinalExportButton" Content="EXPORT RESULTS" Click="ExportLogButton_Click" Style="{StaticResource ToolbarButtonStyle}"/>
+                            <Button x:Name="FinalNewGameButton" Content="NEW GAME" Click="ResetButton_Click" Style="{StaticResource ToolbarButtonStyle}" Background="#FFFBE1E3" BorderBrush="#FFE5AEB4"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <TextBlock x:Name="RoundSaveError" Visibility="Collapsed" Margin="0,10,0,0"
+                               Foreground="#FFA61B1B" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap"/>
                 </StackPanel>
                 </ScrollViewer>
             </Border>

@@ -27,6 +27,12 @@ The installer is per-user and does not require administrator access. Windows 10 
 4. Select **FINISH ROUND**, review the recorded result, and continue to the next round.
 5. Open **STANDINGS** at any time or **EXPORT LOG** to save the full competition record.
 
+Expand **QUESTION TIMER** for a separate 1–3600 second countdown. Start, hold, resume, add 10 seconds, restart, or advance the question without resetting the event and round clocks. A warning sounds near the end, followed by an expiry chime, unless sound is muted. Optional **Lock scoring at time up** blocks ordinary score buttons after expiry; adjudicated changes remain available through **REVIEW SCORES**. Pausing the event also holds the question. Resume the question explicitly when ready. The audience window shows the question clock and session status.
+
+Use **REVIEW SCORES** to replace a team's current or completed-round score. A reason is required, and the original value, corrected value and reason are recorded together. Undo applies to ordinary score changes after the latest correction; revise a correction through Review Scores. An appeal affecting earlier results after tie-breaks voids subsequent tie-break results for replay, with their previous values retained in the audit timeline. Finish an active tie-break before reviewing earlier rounds.
+
+When first place is tied at the end, **TIE-BREAK** starts an extra round for the tied leaders. Other teams cannot score in that round. Main competition totals remain unchanged; tie-break results determine the order among tied teams. Further tie-breaks are available if first place remains shared. Each extra round starts paused and recovers with the same eligible teams.
+
 The board respects the available viewport: it changes card columns and height automatically as teams are added, while overflow remains inside the scrollable board. Results with many teams scroll inside their overlay instead of growing beyond the screen.
 
 Useful shortcuts:
@@ -47,6 +53,8 @@ QuizScore Live is local-only; it does not require an account, server, or interne
 - Diagnostic log: `%LOCALAPPDATA%\QuizScore Live\Logs\QuizScoreLive.log`
 
 Scores and their matching audit entries are written in one database transaction. The database uses full SQLite synchronization, an integrity check at startup, a busy timeout, single-instance protection, and up to 14 daily backups. If the app was interrupted during a live game, it restores the session in a paused state so the operator can verify it before continuing.
+
+Timer snapshots are saved every 10 seconds and at timer actions. If a timer save fails, a persistent warning displays the last successful save, retries every 5 seconds, and offers **RETRY SAVE**. Mid-round exports include response times from the unfinished round and label its scores as provisional. Startup repairs duplicate legacy team score rows by retaining the newest record and prevents future duplicates; the daily database backup is taken before schema repairs.
 
 Upgrading or uninstalling the program does not intentionally delete the data folders above. Back up that folder before manually removing or transferring data.
 

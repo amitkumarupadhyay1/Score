@@ -130,6 +130,11 @@ namespace Score
                 var button = child as Button;
                 if (button != null) button.IsEnabled = isEnabled;
             }
+            SetResponseTimerEnabled(isEnabled);
+        }
+
+        public void SetResponseTimerEnabled(bool isEnabled)
+        {
             TeamTimerButton.IsEnabled = isEnabled;
             ResetTeamTimerButton.IsEnabled = isEnabled;
         }

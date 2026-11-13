@@ -20,15 +20,18 @@ namespace Score
                     Execute(connection, "PRAGMA busy_timeout=5000");
                     Execute(connection, "PRAGMA journal_mode=WAL");
                     Execute(connection, "PRAGMA synchronous=FULL");
+                    Execute(connection, "PRAGMA wal_checkpoint(TRUNCATE)");
+                    if (databaseAlreadyExisted) CreateDailyBackup();
+                    Execute(connection, "BEGIN IMMEDIATE");
                     EnsureSchema(connection);
                     RepairMultipleActiveSessions(connection);
+                    Execute(connection, "COMMIT");
                     var integrity = Convert.ToString(Scalar(connection, "PRAGMA quick_check"), CultureInfo.InvariantCulture);
                     if (!string.Equals(integrity, "ok", StringComparison.OrdinalIgnoreCase))
                         throw new InvalidDataException("SQLite integrity check failed: " + integrity);
                     Execute(connection, "PRAGMA wal_checkpoint(TRUNCATE)");
                 }
 
-                if (databaseAlreadyExisted) CreateDailyBackup();
             }
             catch (Exception ex)
             {
@@ -47,7 +50,20 @@ namespace Score
             AddColumnIfMissing(connection, "QuizSessions", "ConfiguredTeamCount", "INTEGER NOT NULL DEFAULT 4");
             AddColumnIfMissing(connection, "QuizSessions", "GlobalElapsedSeconds", "INTEGER NOT NULL DEFAULT 0");
             AddColumnIfMissing(connection, "QuizSessions", "RoundElapsedSeconds", "INTEGER NOT NULL DEFAULT 0");
+            AddColumnIfMissing(connection, "QuizSessions", "TeamResponseTicks", "TEXT");
             AddColumnIfMissing(connection, "QuizSessions", "LastUpdatedAtUtc", "DATETIME");
+            AddColumnIfMissing(connection, "QuizSessions", "UsesSessionSettings", "INTEGER NOT NULL DEFAULT 0");
+            AddColumnIfMissing(connection, "QuizSessions", "TieBreakTeams", "TEXT");
+            AddColumnIfMissing(connection, "QuizSessions", "QuestionNumber", "INTEGER NOT NULL DEFAULT 1");
+            AddColumnIfMissing(connection, "QuizSessions", "QuestionDurationSeconds", "INTEGER NOT NULL DEFAULT 30");
+            AddColumnIfMissing(connection, "QuizSessions", "QuestionElapsedTicks", "INTEGER NOT NULL DEFAULT 0");
+            AddColumnIfMissing(connection, "QuizSessions", "QuestionState", "TEXT");
+            AddColumnIfMissing(connection, "QuizSessions", "LockAtQuestionEnd", "INTEGER NOT NULL DEFAULT 0");
+            AddColumnIfMissing(connection, "QuizRoundScores", "IsTieBreakParticipant", "INTEGER NOT NULL DEFAULT 1");
+
+            // Match the record the scoreboard previously displayed, then prevent recurrence.
+            Execute(connection, "DELETE FROM ScoreCounts WHERE Team IS NOT NULL AND ScoreCountID NOT IN (SELECT MAX(ScoreCountID) FROM ScoreCounts WHERE Team IS NOT NULL GROUP BY Team)");
+            Execute(connection, "CREATE UNIQUE INDEX IF NOT EXISTS UX_ScoreCounts_Team ON ScoreCounts (Team)");
 
             Execute(connection, "CREATE INDEX IF NOT EXISTS IX_ScoreCounts_Team ON ScoreCounts (Team)");
             Execute(connection, "CREATE INDEX IF NOT EXISTS IX_QuizRoundScores_SessionRoundTeam ON QuizRoundScores (QuizSessionId, RoundNumber, DatabaseTeamName)");
