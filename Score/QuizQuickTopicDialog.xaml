@@ -1,0 +1,178 @@
+<Window x:Class="Score.QuizQuickTopicDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Quick AI / Topic Quiz Generator"
+        Width="580" Height="520"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="#FFF8FAFC"
+        FontFamily="Segoe UI">
+
+    <Window.Resources>
+        <Style x:Key="TopicCardBorder" TargetType="Border">
+            <Setter Property="Background" Value="#FFFFFFFF"/>
+            <Setter Property="BorderBrush" Value="#FFE2E8F0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
+
+        <Style x:Key="ActionButton" TargetType="Button">
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="Padding" Value="18,0"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#FFFFFFFF"/>
+            <Setter Property="Background" Value="#FF4F46E5"/>
+            <Setter Property="BorderBrush" Value="#FF4338CA"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="7" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#FF6366F1"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SecondaryButton" TargetType="Button">
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="Padding" Value="14,0"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Foreground" Value="#FF334155"/>
+            <Setter Property="Background" Value="#FFFFFFFF"/>
+            <Setter Property="BorderBrush" Value="#FFCBD5E1"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="7" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#FFF1F5F9"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#FF0F172A" Padding="20,16" BorderBrush="#FF1E293B" BorderThickness="0,0,0,1">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Background="#FF4F46E5" CornerRadius="6" Width="26" Height="26" Margin="0,0,10,0">
+                        <TextBlock Text="✦" FontSize="14" FontWeight="Bold" Foreground="#FFFFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="QUICK TOPIC GENERATOR" FontSize="13" FontWeight="Bold" Foreground="#FFFFFFFF" VerticalAlignment="Center"/>
+                </StackPanel>
+                <TextBlock Text="Generate a 5-question trivia round with 1 click. Includes rich MCQs, True/False, clues, and explanations." FontSize="11" Foreground="#FF94A3B8" Margin="0,4,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Topic Cards -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="20,16">
+            <StackPanel>
+                <TextBlock Text="SELECT A CURATED TOPIC PACK:" FontSize="11" FontWeight="Bold" Foreground="#FF64748B" Margin="0,0,0,10"/>
+
+                <!-- Science -->
+                <Border x:Name="TopicScienceCard" Style="{StaticResource TopicCardBorder}" Cursor="Hand" PreviewMouseLeftButtonDown="TopicCard_PreviewMouseLeftButtonDown">
+                    <RadioButton x:Name="TopicScienceRadio" GroupName="TopicPackGroup" IsChecked="True" VerticalContentAlignment="Center">
+                        <StackPanel Margin="6,0,0,0">
+                            <TextBlock Text="🔬  Science &amp; Technology" FontSize="13" FontWeight="Bold" Foreground="#FF0F172A"/>
+                            <TextBlock Text="Physics, Astronomy, Biology, Discoveries &amp; Cell Biology" FontSize="11" Foreground="#FF64748B" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </RadioButton>
+                </Border>
+
+                <!-- History -->
+                <Border x:Name="TopicHistoryCard" Style="{StaticResource TopicCardBorder}" Cursor="Hand" PreviewMouseLeftButtonDown="TopicCard_PreviewMouseLeftButtonDown">
+                    <RadioButton x:Name="TopicHistoryRadio" GroupName="TopicPackGroup" VerticalContentAlignment="Center">
+                        <StackPanel Margin="6,0,0,0">
+                            <TextBlock Text="🏛️  History &amp; Civilization" FontSize="13" FontWeight="Bold" Foreground="#FF0F172A"/>
+                            <TextBlock Text="Apollo Moon Landing, Rosetta Stone, Magna Carta &amp; World Leaders" FontSize="11" Foreground="#FF64748B" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </RadioButton>
+                </Border>
+
+                <!-- Geography -->
+                <Border x:Name="TopicGeographyCard" Style="{StaticResource TopicCardBorder}" Cursor="Hand" PreviewMouseLeftButtonDown="TopicCard_PreviewMouseLeftButtonDown">
+                    <RadioButton x:Name="TopicGeographyRadio" GroupName="TopicPackGroup" VerticalContentAlignment="Center">
+                        <StackPanel Margin="6,0,0,0">
+                            <TextBlock Text="🌍  World Geography &amp; Wonders" FontSize="13" FontWeight="Bold" Foreground="#FF0F172A"/>
+                            <TextBlock Text="World Capitals, Lake Baikal, Angel Falls &amp; Deserts" FontSize="11" Foreground="#FF64748B" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </RadioButton>
+                </Border>
+
+                <!-- Pop Culture -->
+                <Border x:Name="TopicPopCultureCard" Style="{StaticResource TopicCardBorder}" Cursor="Hand" PreviewMouseLeftButtonDown="TopicCard_PreviewMouseLeftButtonDown">
+                    <RadioButton x:Name="TopicPopCultureRadio" GroupName="TopicPackGroup" VerticalContentAlignment="Center">
+                        <StackPanel Margin="6,0,0,0">
+                            <TextBlock Text="🎬  Pop Culture &amp; Entertainment" FontSize="13" FontWeight="Bold" Foreground="#FF0F172A"/>
+                            <TextBlock Text="Cinema Oscars, Michael Jackson, Breaking Bad &amp; Mario" FontSize="11" Foreground="#FF64748B" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </RadioButton>
+                </Border>
+
+                <!-- Sports -->
+                <Border x:Name="TopicSportsCard" Style="{StaticResource TopicCardBorder}" Cursor="Hand" PreviewMouseLeftButtonDown="TopicCard_PreviewMouseLeftButtonDown">
+                    <RadioButton x:Name="TopicSportsRadio" GroupName="TopicPackGroup" VerticalContentAlignment="Center">
+                        <StackPanel Margin="6,0,0,0">
+                            <TextBlock Text="⚽  Sports &amp; Olympic Games" FontSize="13" FontWeight="Bold" Foreground="#FF0F172A"/>
+                            <TextBlock Text="Usain Bolt, FIFA World Cup, Wimbledon &amp; Olympic Records" FontSize="11" Foreground="#FF64748B" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </RadioButton>
+                </Border>
+
+                <!-- Literature -->
+                <Border x:Name="TopicLiteratureCard" Style="{StaticResource TopicCardBorder}" Cursor="Hand" PreviewMouseLeftButtonDown="TopicCard_PreviewMouseLeftButtonDown">
+                    <RadioButton x:Name="TopicLiteratureRadio" GroupName="TopicPackGroup" VerticalContentAlignment="Center">
+                        <StackPanel Margin="6,0,0,0">
+                            <TextBlock Text="📚  Literature &amp; Arts" FontSize="13" FontWeight="Bold" Foreground="#FF0F172A"/>
+                            <TextBlock Text="Frankenstein, Nineteen Eighty-Four, Van Gogh &amp; Tolkien" FontSize="11" Foreground="#FF64748B" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </RadioButton>
+                </Border>
+
+                <CheckBox x:Name="ReplaceExistingCheckBox" Content="Replace existing slides in this deck (uncheck to append to deck)" FontSize="11" Foreground="#FF475569" Margin="4,10,0,0"/>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Footer -->
+        <Border Grid.Row="2" Background="#FFFFFFFF" BorderBrush="#FFE2E8F0" BorderThickness="0,1,0,0" Padding="20,12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Round will be generated with 5 slides ready to play." FontSize="11" Foreground="#FF64748B" VerticalAlignment="Center"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Content="Cancel" Style="{StaticResource SecondaryButton}" Width="80" Margin="0,0,8,0" Click="CancelButton_Click"/>
+                    <Button x:Name="GenerateButton" Content="✦ Generate 5 Questions" Style="{StaticResource ActionButton}" Padding="16,0" Click="GenerateButton_Click"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

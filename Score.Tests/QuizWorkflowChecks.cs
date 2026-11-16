@@ -1,5 +1,6 @@
 using System;
 using System.Data.SQLite;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -7,11 +8,12 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
 namespace Score.Tests
 {
-    internal static class QuizWorkflowChecks
+    internal static partial class QuizWorkflowChecks
     {
         public static void Run()
         {
@@ -210,6 +212,8 @@ namespace Score.Tests
                 window.Show();
                 Equal(2, Find<ComboBox>(window, "ProjectorThemeSelector").SelectedIndex);
                 RunUpgradeScenarios(ref window, testHome);
+                VerifyQuizCreationAndBuzzerSystem();
+                Console.WriteLine("PASS  Quiz authoring studio, buzzer server, audio, console, and audience windows initialize cleanly");
                 ProjectorChecks.Run();
             }
             finally
@@ -387,149 +391,225 @@ namespace Score.Tests
             Console.WriteLine("PASS  New Game clears upgrade state and controls fit at minimum width");
         }
 
-        private static Button ScoreButton(TeamScoreCard card, string text)
+        private static void VerifyQuizCreationAndBuzzerSystem()
         {
-            return Find<StackPanel>(card, "ScoreActionsPanel").Children.OfType<Button>().Single(button => Equals(button.Content, text));
-        }
+            // 1. Verify QuizDeckBuilderWindow sizing & responsive top bar
+            var builder = new QuizDeckBuilderWindow();
+            Equal(920d, builder.MinWidth);
+            Equal(520d, builder.MinHeight);
+            Equal(1280d, builder.Width);
+            Equal(740d, builder.Height);
+            builder.ShowActivated = false;
+            builder.ShowInTaskbar = false;
+            builder.Show();
+            builder.Width = builder.MinWidth;
+            builder.Height = builder.MinHeight;
+            builder.UpdateLayout();
+            RequireFits(builder, Find<Button>(builder, "SaveDeckButton"));
+            RequireFits(builder, Find<Button>(builder, "NewDeckButton"));
+            RequireFits(builder, Find<Button>(builder, "QuickAiQuizButton"));
+            RequireFits(builder, Find<Button>(builder, "SmartPasteButton"));
+            RequireFits(builder, Find<Button>(builder, "ImportCsvButton"));
+            var validationBanner = Find<Border>(builder, "ValidationAlertBanner");
+            var instructionBanner = Find<Border>(builder, "InstructionNoticeBanner");
+            var dismissButton = Find<Button>(builder, "DismissAlertButton");
+            var deckLockedBanner = Find<Border>(builder, "DeckLockedBanner");
+            var unlockDeckButton = Find<Button>(builder, "UnlockDeckButton");
+            Require(validationBanner != null, "ValidationAlertBanner must exist.");
+            Require(instructionBanner != null, "InstructionNoticeBanner must exist.");
+            Require(dismissButton != null, "DismissAlertButton must exist.");
+            Require(deckLockedBanner != null, "DeckLockedBanner must exist.");
+            Require(unlockDeckButton != null, "UnlockDeckButton must exist.");
 
-        private static void ApplyReviewDialog(MainWindow window, string score, string reason)
-        {
-            Exception failure = null;
-            var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
-            timer.Tick += (sender, args) =>
+            // Deep verification: Validation alert behavior on missing prompt
+            Equal(Visibility.Collapsed, validationBanner.Visibility);
+            var saveSlideBtn = Find<Button>(builder, "SaveSlideButton");
+            var promptEditor = Find<TextBox>(builder, "SlideContentEditor");
+            var previousPrompt = promptEditor.Text;
+            promptEditor.Text = string.Empty;
+            Click(saveSlideBtn);
+            Equal(Visibility.Visible, validationBanner.Visibility);
+
+            // Test dismiss button
+            Click(dismissButton);
+            Equal(Visibility.Collapsed, validationBanner.Visibility);
+
+            // Restore prompt
+            promptEditor.Text = previousPrompt;
+
+            // Deep verification: Slide Type Discrimination & Dynamic Controls
+            var slideTypeSelector = Find<ComboBox>(builder, "SlideTypeSelector");
+            var card2 = Find<Border>(builder, "Card2AnswerKeys");
+            var card3 = Find<Border>(builder, "Card3ScoringRules");
+
+            // Toggle to Instruction
+            slideTypeSelector.SelectedItem = "Instruction";
+            Equal(Visibility.Collapsed, card2.Visibility);
+            Equal(Visibility.Collapsed, card3.Visibility);
+            Equal(Visibility.Visible, instructionBanner.Visibility);
+            Equal("✓ Save Instruction", saveSlideBtn.Content);
+
+            // Toggle to Timer
+            slideTypeSelector.SelectedItem = "Timer";
+            Equal(Visibility.Collapsed, card2.Visibility);
+            Equal(Visibility.Visible, card3.Visibility);
+            Equal(Visibility.Collapsed, instructionBanner.Visibility);
+            Equal("✓ Save Timer", saveSlideBtn.Content);
+
+            // Toggle to Media
+            slideTypeSelector.SelectedItem = "Media";
+            Equal(Visibility.Collapsed, card2.Visibility);
+            Equal(Visibility.Collapsed, card3.Visibility);
+            Equal("✓ Save Media Slide", saveSlideBtn.Content);
+
+            // Toggle to Scoreboard
+            slideTypeSelector.SelectedItem = "Scoreboard";
+            Equal(Visibility.Collapsed, card2.Visibility);
+            Equal(Visibility.Collapsed, card3.Visibility);
+            Equal("✓ Save Scoreboard", saveSlideBtn.Content);
+
+            // Toggle back to Question
+            slideTypeSelector.SelectedItem = "Question";
+            Equal(Visibility.Visible, card2.Visibility);
+            Equal(Visibility.Visible, card3.Visibility);
+            Equal(Visibility.Collapsed, instructionBanner.Visibility);
+            Equal("✓ Save Question", saveSlideBtn.Content);
+
+            // Verify Option Card click-to-select
+            var optBCard = Find<Border>(builder, "OptionBCard");
+            var optBCheck = Find<RadioButton>(builder, "OptionBCheck");
+            optBCard.RaiseEvent(new System.Windows.Input.MouseButtonEventArgs(
+                System.Windows.Input.Mouse.PrimaryDevice, 0, System.Windows.Input.MouseButton.Left)
             {
-                timer.Stop();
-                var dialog = Application.Current.Windows.OfType<Window>().FirstOrDefault(candidate => candidate.Owner == window);
-                try
+                RoutedEvent = UIElement.PreviewMouseLeftButtonDownEvent,
+                Source = optBCard
+            });
+            Equal(true, optBCheck.IsChecked);
+
+            builder.Close();
+
+            // Verify Quick Topic and Smart Paste Dialogs
+            var quickTopicDlg = new QuizQuickTopicDialog();
+            quickTopicDlg.Close();
+
+            var smartPasteDlg = new QuizSmartPasteDialog(1, 1);
+            smartPasteDlg.Close();
+
+            // 2. Verify QuizChimes soundpack
+            QuizChimes.IsMuted = false;
+            QuizChimes.PlayCorrect();
+            QuizChimes.PlayIncorrect();
+            QuizChimes.PlayBuzzer();
+            QuizChimes.PlayTickWarning();
+            QuizChimes.PlayBounce();
+            QuizChimes.Stop();
+            QuizChimes.IsMuted = true;
+            QuizChimes.PlayBuzzer(); // Muted, no exception
+            QuizChimes.IsMuted = false;
+
+            // 3. Verify QuizBuzzerServer & QR Code Generation
+            // QR Code Matrix ISO 18004 validation
+            var testMatrix = QuizBuzzerServer.GenerateQrMatrix("http://192.168.1.50:8088/");
+            Equal(29, testMatrix.GetLength(0));
+            // Format Info Copy 1: (8, 0) is f14 of 0x5412 (1)
+            Equal(true, testMatrix[8, 0]);
+            // Format Info Copy 2: (28, 8) is f0 of 0x5412 (0)
+            Equal(false, testMatrix[28, 8]);
+            // Dark module at (size - 8, 8) = (21, 8) must be true
+            Equal(true, testMatrix[21, 8]);
+            // Timing patterns
+            Equal(true, testMatrix[6, 8]);
+            Equal(true, testMatrix[8, 6]);
+
+            using (var server = new QuizBuzzerServer(8099))
+            {
+                server.GetTeamsCallback = () => new[] { "Team Falcon", "Team Eagle" };
+                string receivedTeam = null;
+                server.OnBuzzReceived += team => receivedTeam = team;
+                server.Start();
+                Equal(true, server.IsRunning);
+                Require(server.LocalUrl.StartsWith("http://"), "LocalUrl must be an HTTP URL.");
+                Require(server.LocalUrl.Contains(":8099"), "LocalUrl must contain port 8099.");
+
+                // QR Code generation
+                var qrBitmap = QuizBuzzerServer.GenerateQrBitmap(server.LocalUrl, 6, 4);
+                Require(qrBitmap != null && qrBitmap.PixelWidth > 100 && qrBitmap.PixelHeight > 100, "QR Code bitmap was not generated.");
+
+                // HTTP GET /
+                using (var client = new System.Net.WebClient())
                 {
-                    Require(dialog != null, "Review Scores did not open a dialog.");
-                    var controls = VisualDescendants(dialog).OfType<FrameworkElement>().ToArray();
-                    ((TextBox)controls.Single(control => control.Name == "CorrectionScore")).Text = score;
-                    ((TextBox)controls.Single(control => control.Name == "CorrectionReason")).Text = reason;
-                    Click((Button)controls.Single(control => control.Name == "ApplyCorrection"));
-                    Require(!dialog.IsVisible, "Saving a valid correction did not close the review dialog.");
+                    client.Encoding = System.Text.Encoding.UTF8;
+                    var html = client.DownloadString("http://localhost:8099/");
+                    Require(html.Contains("QUIZSCORE LIVE"), "Mobile buzzer HTML must contain QUIZSCORE LIVE.");
+                    Require(html.Contains("BUZZ IN!"), "Mobile buzzer HTML must contain the BUZZ IN button.");
+
+                    // HTTP GET /api/teams and /api/teams/
+                    var teamsJson = client.DownloadString("http://localhost:8099/api/teams");
+                    Require(teamsJson.Contains("Team Falcon"), "Teams API must return configured teams.");
+                    var teamsJsonSlash = client.DownloadString("http://localhost:8099/api/teams/");
+                    Require(teamsJsonSlash.Contains("Team Falcon"), "Teams API with trailing slash must return configured teams.");
+
+                    // HTTP POST /api/buzz with JSON
+                    client.Headers[System.Net.HttpRequestHeader.ContentType] = "application/json";
+                    var buzzResponse = client.UploadString("http://localhost:8099/api/buzz", "{\"team\":\"Team Falcon\"}");
+                    Require(buzzResponse.Contains("\"status\":\"ok\""), "Buzz API response must indicate success.");
+                    Equal("Team Falcon", receivedTeam);
+
+                    // HTTP POST /api/buzz/ with trailing slash and form data
+                    client.Headers[System.Net.HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
+                    var formBuzzResponse = client.UploadString("http://localhost:8099/api/buzz/", "team=Team+Eagle");
+                    Require(formBuzzResponse.Contains("\"status\":\"ok\""), "Form buzz response must indicate success.");
+                    Equal("Team Eagle", receivedTeam);
+
+                    // HTTP GET /api/buzz?team=...
+                    var getBuzzResponse = client.DownloadString("http://localhost:8099/api/buzz?team=Team+Hawk");
+                    Require(getBuzzResponse.Contains("\"status\":\"ok\""), "GET buzz query response must indicate success.");
+                    Equal("Team Hawk", receivedTeam);
                 }
-                catch (Exception ex) { failure = ex; if (dialog != null) dialog.Close(); }
-            };
-            timer.Start();
-            Click(Find<Button>(window, "ReviewScoresButton"));
-            timer.Stop();
-            if (failure != null) throw failure;
-        }
 
-        private static void Capture(MainWindow window, string fileName)
-        {
-            var frame = new DispatcherFrame();
-            var renderWait = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(600) };
-            renderWait.Tick += (sender, args) => { renderWait.Stop(); frame.Continue = false; };
-            renderWait.Start();
-            Dispatcher.PushFrame(frame);
-            window.Dispatcher.Invoke(DispatcherPriority.ApplicationIdle, new Action(() => { }));
-            window.UpdateLayout();
-            var card = Cards(window)[0];
-            var score = Find<TextBlock>(card, "ScoreLabel");
-            Equal("0", score.Text);
-            Equal(80d, score.FontSize);
-            var bounds = score.TransformToAncestor(card).TransformBounds(new Rect(score.RenderSize));
-            Require(bounds.Top >= 0 && bounds.Bottom <= card.ActualHeight && bounds.Left >= 0 && bounds.Right <= card.ActualWidth, "Large score text does not fit its card.");
-            var root = Find<Grid>(window, "RootLayout");
-            var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap((int)root.ActualWidth, (int)root.ActualHeight, 96, 96, PixelFormats.Pbgra32);
-            bitmap.Render(root);
-            var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
-            encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
-            using (var file = File.Create(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, fileName))) encoder.Save(file);
-        }
-
-        private static SQLiteConnection OpenDatabase()
-        {
-            var connection = new SQLiteConnection("Data Source=" + AppPaths.DatabasePath + ";Pooling=False;");
-            connection.Open();
-            return connection;
-        }
-
-        private static void Execute(SQLiteConnection connection, string sql)
-        {
-            using (var command = new SQLiteCommand(sql, connection)) command.ExecuteNonQuery();
-        }
-
-        private static long QueryNumber(SQLiteConnection connection, string sql)
-        {
-            using (var command = new SQLiteCommand(sql, connection)) return Convert.ToInt64(command.ExecuteScalar());
-        }
-
-        private static void SelectNewGameOption(MainWindow window, Button button, string option)
-        {
-            Exception failure = null;
-            var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
-            timer.Tick += (sender, args) =>
-            {
-                timer.Stop();
-                var dialog = Application.Current.Windows.OfType<Window>().FirstOrDefault(candidate => candidate.Owner == window);
-                var choice = dialog == null ? null : VisualDescendants(dialog).OfType<Button>().FirstOrDefault(candidate => candidate.Name == option);
-                if (choice != null) Click(choice);
-                else
-                {
-                    failure = new InvalidOperationException("Could not select " + option + " in the New Game dialog.");
-                    if (dialog != null) dialog.Close();
-                }
-            };
-            timer.Start();
-            Click(button);
-            timer.Stop();
-            if (failure != null) throw failure;
-        }
-
-        private static TeamScoreCard[] Cards(MainWindow window)
-        {
-            return Find<Grid>(window, "TeamCardsGrid").Children.OfType<TeamScoreCard>().ToArray();
-        }
-
-        private static void AwardFive(TeamScoreCard card)
-        {
-            Click(Find<StackPanel>(card, "ScoreActionsPanel").Children.OfType<Button>().Single(button => Equals(button.Content, "+5")));
-        }
-
-        private static System.Collections.Generic.IEnumerable<DependencyObject> VisualDescendants(DependencyObject parent)
-        {
-            for (var index = 0; index < VisualTreeHelper.GetChildrenCount(parent); index++)
-            {
-                var child = VisualTreeHelper.GetChild(parent, index);
-                yield return child;
-                foreach (var descendant in VisualDescendants(child)) yield return descendant;
+                server.Stop();
+                Equal(false, server.IsRunning);
             }
+
+            // Port conflict fallback test
+            var dummyListener = new System.Net.Sockets.TcpListener(System.Net.IPAddress.Any, 8094);
+            try
+            {
+                dummyListener.Start();
+                using (var fallbackServer = new QuizBuzzerServer(8094))
+                {
+                    fallbackServer.Start();
+                    Equal(true, fallbackServer.IsRunning);
+                    Equal(8095, fallbackServer.Port);
+                    fallbackServer.Stop();
+                }
+            }
+            finally
+            {
+                dummyListener.Stop();
+            }
+
+            // 4. Verify QuizMasterConsoleWindow toolbar buttons
+            var consoleWindow = new QuizMasterConsoleWindow();
+            var soundButton = Find<Button>(consoleWindow, "SoundToggleButton");
+            var mobileButton = Find<Button>(consoleWindow, "MobileBuzzerButton");
+            Require(soundButton != null, "SoundToggleButton must exist.");
+            Require(mobileButton != null, "MobileBuzzerButton must exist.");
+
+            // Test sound toggle
+            QuizChimes.IsMuted = false;
+            Click(soundButton);
+            Equal(true, QuizChimes.IsMuted);
+            Equal("🔇 MUTE", soundButton.Content);
+            Click(soundButton);
+            Equal(false, QuizChimes.IsMuted);
+            Equal("🔊 SOUND ON", soundButton.Content);
+
+            consoleWindow.Close();
+
+            var audienceWindow = new QuizAudienceWindow();
+            audienceWindow.Close();
         }
 
-        private static string ResultCell(Panel results, int row, int column)
-        {
-            return ((Grid)((Border)results.Children[row]).Child).Children.OfType<TextBlock>().Single(cell => Grid.GetColumn(cell) == column).Text;
-        }
-
-        private static T Find<T>(FrameworkElement element, string name) where T : class
-        {
-            return (T)element.FindName(name);
-        }
-
-        private static void Click(Button button)
-        {
-            Require(button.IsEnabled, "Button is disabled: " + button.Content);
-            button.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
-        }
-
-        private static void Equal(object expected, object actual)
-        {
-            Require(Equals(expected, actual), "Expected " + expected + " but found " + actual + ".");
-        }
-
-        private static void RequireFits(Window window, FrameworkElement control)
-        {
-            window.UpdateLayout();
-            var bounds = control.TransformToAncestor(window).TransformBounds(new Rect(control.RenderSize));
-            Require(control.IsVisible && bounds.Left >= 0 && bounds.Right <= window.ActualWidth && bounds.Top >= 0 && bounds.Bottom <= window.ActualHeight, control.Name + " is clipped at the minimum window size.");
-        }
-
-        private static void Require(bool condition, string message)
-        {
-            if (!condition) throw new InvalidOperationException(message);
-        }
     }
 }

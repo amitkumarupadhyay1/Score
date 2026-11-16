@@ -46,6 +46,37 @@ namespace Score
             Execute(connection, "CREATE TABLE IF NOT EXISTS QuizSessions (QuizSessionId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, Title TEXT, ConfiguredTeamCount INTEGER NOT NULL DEFAULT 4, ConfiguredRounds INTEGER NOT NULL, CurrentRound INTEGER NOT NULL, Status TEXT, GlobalDurationSeconds INTEGER NOT NULL DEFAULT 0, RoundDurationSeconds INTEGER NOT NULL DEFAULT 0, GlobalElapsedSeconds INTEGER NOT NULL DEFAULT 0, RoundElapsedSeconds INTEGER NOT NULL DEFAULT 0, StartedAtUtc DATETIME, PausedAtUtc DATETIME, CompletedAtUtc DATETIME, LastUpdatedAtUtc DATETIME, IsActive INTEGER NOT NULL)");
             Execute(connection, "CREATE TABLE IF NOT EXISTS QuizRoundScores (QuizRoundScoreId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, QuizSessionId INTEGER NOT NULL, DatabaseTeamName TEXT, RoundNumber INTEGER NOT NULL, ScoreValue INTEGER NOT NULL, TeamElapsedSeconds INTEGER NOT NULL, ElapsedSeconds INTEGER NOT NULL, IsFinalized INTEGER NOT NULL)");
             Execute(connection, "CREATE TABLE IF NOT EXISTS QuizEventLogs (QuizEventLogId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, QuizSessionId INTEGER NOT NULL, OccurredAtUtc TEXT NOT NULL, EventType TEXT, Team TEXT, RoundNumber INTEGER NOT NULL, ScoreChange INTEGER NOT NULL, ScoreAfter INTEGER NOT NULL, ElapsedSeconds INTEGER NOT NULL, Details TEXT)");
+            Execute(connection, "CREATE TABLE IF NOT EXISTS QuizDecks (QuizDeckId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, Title TEXT, Description TEXT, Theme TEXT, CreatedAtUtc DATETIME, UpdatedAtUtc DATETIME, IsActive INTEGER NOT NULL)");
+            Execute(connection, "CREATE TABLE IF NOT EXISTS DeckSlides (DeckSlideId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, QuizDeckId INTEGER NOT NULL, SlideType TEXT, QuestionType TEXT, RoundType TEXT, SlideOrder INTEGER NOT NULL, Title TEXT, ContentText TEXT, MediaPath TEXT, MediaType TEXT, CorrectAnswer TEXT, OptionsJson TEXT, Points INTEGER NOT NULL DEFAULT 0, PenaltyPoints INTEGER NOT NULL DEFAULT 0, TimeLimitSeconds INTEGER NOT NULL DEFAULT 0, IsActive INTEGER NOT NULL, HintsJson TEXT, AlternateAnswers TEXT, Explanation TEXT, BonusPoints INTEGER NOT NULL DEFAULT 0, AllowPass INTEGER NOT NULL DEFAULT 1, RoundName TEXT, MediaDisplayMode INTEGER NOT NULL DEFAULT 0)");
+            Execute(connection, "CREATE TABLE IF NOT EXISTS QuizDeckSessions (QuizDeckSessionId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, QuizDeckId INTEGER NOT NULL, StartedAtUtc DATETIME, CompletedAtUtc DATETIME, Status TEXT, CurrentSlideIndex INTEGER NOT NULL DEFAULT 0, QuizMasterNotes TEXT, TimerStartedAtUtc DATETIME, TimerElapsedSeconds INTEGER NOT NULL DEFAULT 0, TimerState TEXT, AnswerRevealed INTEGER NOT NULL DEFAULT 0, ActiveTeamOnFloor TEXT, PassCount INTEGER NOT NULL DEFAULT 0, BuzzQueueJson TEXT, ClueRevealStep INTEGER NOT NULL DEFAULT 0)");
+            Execute(connection, "CREATE TABLE IF NOT EXISTS QuizResponses (QuizResponseId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, QuizDeckSessionId INTEGER NOT NULL, DeckSlideId INTEGER NOT NULL, TeamName TEXT, AnswerText TEXT, AnsweredAtUtc DATETIME, ResponseTimeSeconds INTEGER NOT NULL DEFAULT 0, IsCorrect INTEGER NOT NULL DEFAULT 0, PointsAwarded INTEGER NOT NULL DEFAULT 0, BuzzOrder INTEGER NOT NULL DEFAULT 0, SlideTitleSnapshot TEXT, SlideTypeSnapshot TEXT, SlideOrderSnapshot INTEGER NOT NULL DEFAULT 0, IsPassAttempt INTEGER NOT NULL DEFAULT 0, AdjudicationNotes TEXT)");
+            Execute(connection, "CREATE TABLE IF NOT EXISTS QuizAuditEntries (QuizAuditEntryId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, QuizDeckSessionId INTEGER NOT NULL, OccurredAtUtc TEXT NOT NULL, EventType TEXT, TeamName TEXT, SlideNumber INTEGER NOT NULL, OldPoints INTEGER NOT NULL DEFAULT 0, NewPoints INTEGER NOT NULL DEFAULT 0, Reason TEXT)");
+            Execute(connection, "CREATE TABLE IF NOT EXISTS QuizDeckSessionTeams (QuizDeckSessionTeamId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, QuizDeckSessionId INTEGER NOT NULL, TeamName TEXT NOT NULL)");
+            AddColumnIfMissing(connection, "DeckSlides", "QuestionType", "TEXT");
+            AddColumnIfMissing(connection, "DeckSlides", "RoundType", "TEXT");
+            AddColumnIfMissing(connection, "DeckSlides", "PenaltyPoints", "INTEGER NOT NULL DEFAULT 0");
+            AddColumnIfMissing(connection, "DeckSlides", "HintsJson", "TEXT");
+            AddColumnIfMissing(connection, "DeckSlides", "AlternateAnswers", "TEXT");
+            AddColumnIfMissing(connection, "DeckSlides", "Explanation", "TEXT");
+            AddColumnIfMissing(connection, "DeckSlides", "BonusPoints", "INTEGER NOT NULL DEFAULT 0");
+            AddColumnIfMissing(connection, "DeckSlides", "AllowPass", "INTEGER NOT NULL DEFAULT 1");
+            AddColumnIfMissing(connection, "DeckSlides", "RoundName", "TEXT");
+            AddColumnIfMissing(connection, "DeckSlides", "MediaDisplayMode", "INTEGER NOT NULL DEFAULT 0");
+
+            AddColumnIfMissing(connection, "QuizDeckSessions", "TimerStartedAtUtc", "DATETIME");
+            AddColumnIfMissing(connection, "QuizDeckSessions", "TimerElapsedSeconds", "INTEGER NOT NULL DEFAULT 0");
+            AddColumnIfMissing(connection, "QuizDeckSessions", "TimerState", "TEXT");
+            AddColumnIfMissing(connection, "QuizDeckSessions", "AnswerRevealed", "INTEGER NOT NULL DEFAULT 0");
+            AddColumnIfMissing(connection, "QuizDeckSessions", "ActiveTeamOnFloor", "TEXT");
+            AddColumnIfMissing(connection, "QuizDeckSessions", "PassCount", "INTEGER NOT NULL DEFAULT 0");
+            AddColumnIfMissing(connection, "QuizDeckSessions", "BuzzQueueJson", "TEXT");
+            AddColumnIfMissing(connection, "QuizDeckSessions", "ClueRevealStep", "INTEGER NOT NULL DEFAULT 0");
+
+            AddColumnIfMissing(connection, "QuizResponses", "SlideTitleSnapshot", "TEXT");
+            AddColumnIfMissing(connection, "QuizResponses", "SlideTypeSnapshot", "TEXT");
+            AddColumnIfMissing(connection, "QuizResponses", "SlideOrderSnapshot", "INTEGER NOT NULL DEFAULT 0");
+            AddColumnIfMissing(connection, "QuizResponses", "IsPassAttempt", "INTEGER NOT NULL DEFAULT 0");
+            AddColumnIfMissing(connection, "QuizResponses", "AdjudicationNotes", "TEXT");
 
             AddColumnIfMissing(connection, "QuizSessions", "ConfiguredTeamCount", "INTEGER NOT NULL DEFAULT 4");
             AddColumnIfMissing(connection, "QuizSessions", "GlobalElapsedSeconds", "INTEGER NOT NULL DEFAULT 0");
@@ -85,6 +116,9 @@ namespace Score
         {
             Execute(connection, "UPDATE QuizSessions SET IsActive = 0 WHERE IsActive = 1 AND QuizSessionId <> (SELECT MAX(QuizSessionId) FROM QuizSessions WHERE IsActive = 1)");
             Execute(connection, "CREATE UNIQUE INDEX IF NOT EXISTS UX_QuizSessions_OneActive ON QuizSessions (IsActive) WHERE IsActive = 1");
+
+            // Ensure multiple/stale QuizDeckSessions do not deadlock the studio
+            Execute(connection, "UPDATE QuizDeckSessions SET Status = 'Completed', CompletedAtUtc = CURRENT_TIMESTAMP WHERE (Status = 'Running' OR Status = 'Paused') AND QuizDeckSessionId <> (SELECT IFNULL(MAX(QuizDeckSessionId), 0) FROM QuizDeckSessions WHERE Status = 'Running' OR Status = 'Paused')");
         }
 
         private static void CreateDailyBackup()

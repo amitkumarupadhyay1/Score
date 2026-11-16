@@ -50,10 +50,22 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Filename: "{app}\{#MyAppExeName}"; Description: "Launch {#MyAppName}"; Flags: nowait postinstall skipifsilent
 
 [Code]
+function IsDotNet472OrLaterInstalled(): Boolean;
+var
+  ReleaseValue: Cardinal;
+begin
+  if IsWin64 then
+    Result := RegQueryDWordValue(HKLM64, 'SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full', 'Release', ReleaseValue)
+      and (ReleaseValue >= 461808)
+  else
+    Result := RegQueryDWordValue(HKLM32, 'SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full', 'Release', ReleaseValue)
+      and (ReleaseValue >= 461808);
+end;
+
 function InitializeSetup(): Boolean;
 begin
   Result := True;
-  if not IsDotNetDetected('4.7.2', 0) then
+  if not IsDotNet472OrLaterInstalled() then
   begin
     MsgBox('QuizScore Live requires .NET Framework 4.7.2 or later. Please install it from Microsoft, then run this installer again.', mbInformation, MB_OK);
     Result := False;

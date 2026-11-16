@@ -1,0 +1,144 @@
+<Window x:Class="Score.QuizAudienceWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Quiz Live Stage Presentation"
+        WindowState="Maximized"
+        WindowStartupLocation="CenterScreen"
+        Background="#FF0B132B">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Header: Deck Title, Round, and Giant Countdown Clock -->
+        <Border Grid.Row="0" Background="#FF1C2541" Padding="34,18">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                    <TextBlock x:Name="AudienceDeckTitle" Text="QUIZ CHAMPIONSHIP" FontSize="36" FontWeight="Bold" Foreground="#FFFFFFFF" />
+                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                        <Border x:Name="AudienceRoundBorder" Background="#FF3A506B" CornerRadius="4" Padding="8,2" Margin="0,0,8,0">
+                            <TextBlock x:Name="AudienceRoundName" Text="ROUND 1" FontSize="14" FontWeight="Bold" Foreground="#FF6FFFE9" />
+                        </Border>
+                        <Border x:Name="AudiencePointsBorder" Background="#FF1B4332" CornerRadius="4" Padding="8,2">
+                            <TextBlock x:Name="AudiencePointsLabel" Text="10 POINTS" FontSize="14" FontWeight="Bold" Foreground="#FF95D5B2" />
+                        </Border>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Stage Countdown Timer -->
+                <Border Grid.Column="1" Background="#FF0B132B" CornerRadius="12" Padding="24,6" Margin="30,0,0,0">
+                    <TextBlock x:Name="AudienceTimerLabel" Text="00:00" FontFamily="Consolas" FontSize="64" FontWeight="Bold" Foreground="#FF6FFFE9" VerticalAlignment="Center" />
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Main Presentation Area -->
+        <Border Grid.Row="1" Background="#FF0B132B" Padding="30,20">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Question / Content Card -->
+                <Border Grid.Column="0" Background="#FFFFFFFF" CornerRadius="20" Padding="36" Margin="10" Effect="{StaticResource PanelGlowEffect}">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <TextBlock x:Name="AudienceSlideType" Text="QUESTION" FontSize="16" FontWeight="Bold" Foreground="#FF0284C7" Margin="0,0,0,12" />
+                            <TextBlock x:Name="AudienceSlideTitle" Text="Welcome to the Quiz" FontSize="38" FontWeight="Bold" Foreground="#FF0F172A" TextWrapping="Wrap" Margin="0,0,0,14" />
+                            <TextBlock x:Name="AudienceSlideContent" FontSize="26" Foreground="#FF334155" TextWrapping="Wrap" LineHeight="38" Margin="0,0,0,20" />
+
+                            <!-- Options (MCQ / MultiSelect) -->
+                            <ItemsControl x:Name="AudienceOptions" Margin="0,0,0,16">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="#FFF8FAFC" BorderBrush="#FFE2E8F0" BorderThickness="1" CornerRadius="10" Padding="16,10" Margin="0,0,0,8">
+                                            <TextBlock Text="{Binding}" FontSize="24" FontWeight="SemiBold" Foreground="#FF1E293B" TextWrapping="Wrap" />
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <!-- Progressive Clues / Hints Box (When revealed) -->
+                            <Border x:Name="AudienceCluesPanel" Background="#FFFEF9C3" BorderBrush="#FFFACC15" BorderThickness="1" CornerRadius="10" Padding="16" Margin="0,0,0,16" Visibility="Collapsed">
+                                <StackPanel>
+                                    <TextBlock Text="💡 CLUES REVEALED" FontSize="14" FontWeight="Bold" Foreground="#FF854D0E" Margin="0,0,0,8" />
+                                    <ItemsControl x:Name="AudienceCluesList">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding}" FontSize="20" FontWeight="SemiBold" Foreground="#FF713F12" Margin="0,2,0,4" TextWrapping="Wrap" />
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Answer Reveal Banner -->
+                            <Border x:Name="AudienceAnswerContainer" Background="#FFDCFCE7" BorderBrush="#FF86EFAC" BorderThickness="2" CornerRadius="12" Padding="20,14" Margin="0,10,0,0" Visibility="Collapsed">
+                                <StackPanel>
+                                    <TextBlock Text="CORRECT ANSWER" FontSize="14" FontWeight="Bold" Foreground="#FF15803D" Margin="0,0,0,4" />
+                                    <TextBlock x:Name="AudienceAnswerText" FontSize="32" FontWeight="Bold" Foreground="#FF166534" TextWrapping="Wrap" />
+                                    <TextBlock x:Name="AudienceExplanationText" FontSize="18" Foreground="#FF14532D" FontStyle="Italic" TextWrapping="Wrap" Margin="0,6,0,0" />
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+
+                <!-- Media Display Panel -->
+                <Border Grid.Column="1" x:Name="AudienceMediaPanel" Background="#FF1C2541" CornerRadius="20" Margin="14,10,10,10" Width="440" Visibility="Collapsed">
+                    <Grid Margin="12">
+                        <Image x:Name="AudienceImage" Stretch="Uniform" Visibility="Collapsed" />
+                        <MediaElement x:Name="AudienceMediaPlayer" LoadedBehavior="Manual" UnloadedBehavior="Stop" Stretch="Uniform" Visibility="Collapsed" />
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Big Buzz / Pass Indicator Overlay Banner -->
+        <Border Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,20,0,0">
+            <Border x:Name="AudienceBuzzBorder" Background="#FFE11D48" CornerRadius="14" Padding="28,10" Visibility="Collapsed" Effect="{StaticResource HeaderGlowEffect}">
+                <TextBlock x:Name="AudienceBuzzIndicator" Text="TEAM 1 BUZZED IN" FontSize="26" FontWeight="Bold" Foreground="#FFFFFFFF" />
+            </Border>
+        </Border>
+
+        <!-- Footer: Live Tournament Scoreboard -->
+        <Border Grid.Row="2" Background="#FF1C2541" Padding="28,14">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock x:Name="AudienceStatusText" Foreground="#FFFBBF24" FontSize="14" FontWeight="Bold" Margin="0,0,0,4" />
+                    <TextBlock Text="LIVE LEADERBOARD" FontSize="12" FontWeight="Bold" Foreground="#FF94A3B8" Margin="0,0,0,6" />
+                    <ItemsControl x:Name="AudienceScoreboard">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="#FF0B132B" CornerRadius="8" Padding="12,6" Margin="0,0,12,6">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Team}" FontSize="16" FontWeight="SemiBold" Foreground="#FFFFFFFF" />
+                                        <TextBlock Text="{Binding Score}" FontSize="18" FontFamily="Consolas" FontWeight="Bold" Foreground="#FF6FFFE9" Margin="10,0,0,0" />
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+
+                <TextBlock Grid.Column="1" Text="QuizScore Live" FontSize="14" FontWeight="Bold" Foreground="#FF475569" VerticalAlignment="Bottom" />
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="QuizWorkflowChecks.cs" />
+    <Compile Include="QuizWorkflowChecks.Helpers.cs" />
     <Compile Include="ProjectorChecks.cs" />
   </ItemGroup>
   <ItemGroup>

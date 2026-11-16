@@ -395,10 +395,42 @@ namespace Score
             var audienceScreen = Screen.AllScreens.FirstOrDefault(screen => screen.DeviceName != hostScreen.DeviceName);
             if (audienceScreen == null) { WindowStartupLocation = WindowStartupLocation.CenterScreen; Show(); return; }
             WindowStartupLocation = WindowStartupLocation.Manual;
-            var area = audienceScreen.Bounds;
-            SourceInitialized += (sender, args) => SetWindowPos(new WindowInteropHelper(this).Handle, IntPtr.Zero, area.Left, area.Top, area.Width, area.Height, 0x0014);
+            SourceInitialized += (sender, args) =>
+            {
+                var handle = new WindowInteropHelper(this).Handle;
+                // Use the monitor handle to get the true physical working area,
+                // which is immune to DPI virtualisation on the primary display.
+                var monitor = MonitorFromPoint(new POINT { X = audienceScreen.Bounds.Left + 1, Y = audienceScreen.Bounds.Top + 1 }, 2 /* MONITOR_DEFAULTTONEAREST */);
+                var info = new MONITORINFO { Size = Marshal.SizeOf(typeof(MONITORINFO)) };
+                if (GetMonitorInfo(monitor, ref info))
+                    SetWindowPos(handle, IntPtr.Zero, info.Monitor.Left, info.Monitor.Top, info.Monitor.Right - info.Monitor.Left, info.Monitor.Bottom - info.Monitor.Top, 0x0014);
+                else
+                    SetWindowPos(handle, IntPtr.Zero, audienceScreen.Bounds.Left, audienceScreen.Bounds.Top, audienceScreen.Bounds.Width, audienceScreen.Bounds.Height, 0x0014);
+            };
             Show();
         }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct POINT { public int X; public int Y; }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct RECT { public int Left, Top, Right, Bottom; }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct MONITORINFO
+        {
+            public int Size;
+            public RECT Monitor;
+            public RECT WorkArea;
+            public uint Flags;
+        }
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr MonitorFromPoint(POINT pt, uint flags);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFO lpmi);
 
         protected override void OnKeyDown(KeyEventArgs e)
         {

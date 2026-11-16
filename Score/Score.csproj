@@ -16,6 +16,7 @@
     <WarningLevel>4</WarningLevel>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
   </PropertyGroup>
@@ -81,12 +82,28 @@
     <Compile Include="ScoreDbContext.cs" />
     <Compile Include="QuizTimerService.cs" />
     <Compile Include="MainWindow.QuizControls.cs" />
+    <Compile Include="MainWindow.Settings.cs" />
+    <Compile Include="MainWindow.Timers.cs" />
+    <Compile Include="MainWindow.Presentation.cs" />
+    <Compile Include="MainWindow.SessionAudit.cs" />
     <Compile Include="QuizChimes.cs" />
     <Compile Include="ProjectorWindow.cs" />
     <Compile Include="ProjectorPresentation.cs" />
     <Compile Include="QuizSession.cs" />
     <Compile Include="QuizRoundScore.cs" />
     <Compile Include="QuizEventLog.cs" />
+    <Compile Include="QuizDeck.cs" />
+    <Compile Include="DeckSlide.cs" />
+    <Compile Include="QuizDeckSession.cs" />
+    <Compile Include="QuizResponse.cs" />
+    <Compile Include="QuizAuditEntry.cs" />
+    <Compile Include="QuizDeckSessionTeam.cs" />
+    <Compile Include="QuizImportExportService.cs" />
+    <Compile Include="QuizAIGeneratorService.cs" />
+    <Compile Include="QuizCuratedTopics.cs" />
+    <Compile Include="QuizBuzzerServer.cs" />
+    <Compile Include="QuizQrCodeEncoder.cs" />
+    <Compile Include="QuizBuzzerWebAssets.cs" />
     <Compile Include="AppPaths.cs" />
     <Compile Include="AppDiagnostics.cs" />
     <Compile Include="DatabaseMaintenance.cs" />
@@ -102,7 +119,16 @@
     <Compile Include="Migrations\202608221720004_add_team_elapsed_time.Designer.cs">
       <DependentUpon>202608221720004_add_team_elapsed_time.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\20261113100000_add_quiz_deck_module.cs" />
+    <Compile Include="Migrations\20261113100000_add_quiz_deck_module.Designer.cs">
+      <DependentUpon>20261113100000_add_quiz_deck_module.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\20261113110000_enhance_quiz_deck_features.cs" />
     <Page Include="MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="QuizDeckBuilderWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -116,6 +142,74 @@
     </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="QuizDeckBuilderWindow.xaml.cs">
+      <DependentUpon>QuizDeckBuilderWindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="QuizDeckBuilderWindow.Editor.cs">
+      <DependentUpon>QuizDeckBuilderWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="QuizDeckBuilderWindow.Preview.cs">
+      <DependentUpon>QuizDeckBuilderWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="QuizDeckBuilderWindow.Exchange.cs">
+      <DependentUpon>QuizDeckBuilderWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="QuizScoringEngine.cs" />
+    <Compile Include="QuizMasterConsoleWindow.xaml.cs">
+      <DependentUpon>QuizMasterConsoleWindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="QuizMasterConsoleWindow.Scoring.cs">
+      <DependentUpon>QuizMasterConsoleWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="QuizMasterConsoleWindow.Tools.cs">
+      <DependentUpon>QuizMasterConsoleWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="TeamEntryDialog.xaml.cs">
+      <DependentUpon>TeamEntryDialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Page Include="QuizMasterConsoleWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="TeamEntryDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="QuizAudienceWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="QuizAudienceWindow.xaml.cs">
+      <DependentUpon>QuizAudienceWindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Page Include="QuizBuzzerDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="QuizBuzzerDialog.xaml.cs">
+      <DependentUpon>QuizBuzzerDialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Page Include="QuizQuickTopicDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="QuizQuickTopicDialog.xaml.cs">
+      <DependentUpon>QuizQuickTopicDialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Page Include="QuizSmartPasteDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="QuizSmartPasteDialog.xaml.cs">
+      <DependentUpon>QuizSmartPasteDialog.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="TeamScoreCard.xaml.cs">
@@ -145,6 +239,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202608221720004_add_team_elapsed_time.resx">
       <DependentUpon>202608221720004_add_team_elapsed_time.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\20261113100000_add_quiz_deck_module.resx">
+      <DependentUpon>20261113100000_add_quiz_deck_module.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
