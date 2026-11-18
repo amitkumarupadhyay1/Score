@@ -278,5 +278,44 @@ namespace Score
             historyWin.ShowDialog();
             LoadDecksAndRefresh();
         }
+
+        private void SampleDeckToolbarButton_Click(object sender, RoutedEventArgs e)
+        {
+            var result = MessageBox.Show(
+                "Load the complete General Knowledge Championship showcase sample quiz into your Quiz Library?",
+                "Load Showcase Quiz",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+
+            if (result != MessageBoxResult.Yes) return;
+
+            try
+            {
+                using (var db = new ScoreDbContext())
+                {
+                    var sampleDeck = new QuizDeck
+                    {
+                        Title = QuizSampleDeckSeeder.SampleDeckTitle,
+                        Description = "Complete sample quiz showcasing MCQ, True/False, Short Answer, Buzzer, Clues, and Tie-Breakers. Fully editable and deletable.",
+                        Theme = "Stage",
+                        CreatedAtUtc = DateTime.UtcNow,
+                        UpdatedAtUtc = DateTime.UtcNow,
+                        IsActive = true
+                    };
+                    db.QuizDecks.Add(sampleDeck);
+                    db.SaveChanges();
+
+                    var slides = QuizSampleDeckSeeder.CreateSampleSlides(sampleDeck.QuizDeckId);
+                    db.DeckSlides.AddRange(slides);
+                    db.SaveChanges();
+                }
+                LoadDecksAndRefresh();
+            }
+            catch (Exception ex)
+            {
+                AppDiagnostics.WriteException("Could not load sample deck from library.", ex);
+                MessageBox.Show("Failed to load sample quiz: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 }

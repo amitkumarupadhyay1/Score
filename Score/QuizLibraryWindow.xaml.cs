@@ -53,11 +53,6 @@ namespace Score
             {
                 using (var db = new ScoreDbContext())
                 {
-                    if (!db.QuizDecks.Any(d => d.IsActive))
-                    {
-                        QuizSampleDeckSeeder.EnsureSampleDeck(db);
-                    }
-
                     var decks = db.QuizDecks.Where(d => d.IsActive).ToList();
                     var deckIds = decks.Select(d => d.QuizDeckId).ToList();
 

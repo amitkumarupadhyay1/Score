@@ -108,7 +108,7 @@
 
         <WrapPanel Margin="4,5,4,0" Visibility="{Binding Visibility, ElementName=RoundSetupPanel}">
             <TextBlock Text="PROJECTOR THEME" FontSize="10" FontWeight="Bold" Foreground="#FF172B4D" VerticalAlignment="Center" Margin="0,0,8,0"/>
-            <ComboBox x:Name="ProjectorThemeSelector" Width="145" Height="28" SelectedIndex="0" SelectionChanged="ProjectorThemeSelector_SelectionChanged" ToolTip="Projector theme, remembered for the next event" AutomationProperties.Name="Projector theme">
+            <ComboBox x:Name="ProjectorThemeSelector" Width="145" Height="28" SelectedIndex="0" Style="{StaticResource ToolbarComboStyle}" SelectionChanged="ProjectorThemeSelector_SelectionChanged" ToolTip="Projector theme, remembered for the next event" AutomationProperties.Name="Projector theme">
                 <ComboBoxItem Content="Dark"/><ComboBoxItem Content="High contrast"/><ComboBoxItem Content="Light"/>
             </ComboBox>
         </WrapPanel>

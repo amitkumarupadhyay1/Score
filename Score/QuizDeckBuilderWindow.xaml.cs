@@ -124,8 +124,16 @@ namespace Score
             var decks = _db.QuizDecks.Where(d => d.IsActive).OrderBy(d => d.Title).ToList();
             if (decks.Count == 0)
             {
-                QuizSampleDeckSeeder.EnsureSampleDeck(_db);
-                decks = _db.QuizDecks.Where(d => d.IsActive).OrderBy(d => d.Title).ToList();
+                var blankDeck = new QuizDeck
+                {
+                    Title = "New Quiz Deck",
+                    Theme = "Classic",
+                    CreatedAtUtc = DateTime.UtcNow,
+                    IsActive = true
+                };
+                _db.QuizDecks.Add(blankDeck);
+                _db.SaveChanges();
+                decks = new List<QuizDeck> { blankDeck };
             }
 
             var targetDeck = _initialDeckId.HasValue
@@ -248,6 +256,91 @@ namespace Score
             RefreshSlideList();
             UpdateLockBanner();
             StatusText.Text = "New blank quiz deck created.";
+        }
+
+        private void LoadSampleDeckButton_Click(object sender, RoutedEventArgs e)
+        {
+            var result = MessageBox.Show("Load the complete General Knowledge Championship showcase sample quiz into Quiz Studio?", "Load Showcase Quiz", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (result != MessageBoxResult.Yes) return;
+
+            try
+            {
+                var sampleDeck = new QuizDeck
+                {
+                    Title = QuizSampleDeckSeeder.SampleDeckTitle,
+                    Description = "Complete sample quiz showcasing MCQ, True/False, Short Answer, Buzzer, Clues, and Tie-Breakers. Fully editable and deletable.",
+                    Theme = "Stage",
+                    CreatedAtUtc = DateTime.UtcNow,
+                    UpdatedAtUtc = DateTime.UtcNow,
+                    IsActive = true
+                };
+                _db.QuizDecks.Add(sampleDeck);
+                _db.SaveChanges();
+
+                var slides = QuizSampleDeckSeeder.CreateSampleSlides(sampleDeck.QuizDeckId);
+                _db.DeckSlides.AddRange(slides);
+                _db.SaveChanges();
+
+                RefreshDeckSelector(sampleDeck);
+                LoadSelectedDeck(sampleDeck);
+                StatusText.Text = "Showcase sample quiz loaded.";
+            }
+            catch (Exception ex)
+            {
+                AppDiagnostics.WriteException("Could not load sample deck in studio.", ex);
+                MessageBox.Show("Failed to load sample quiz: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void DeleteDeckButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentDeck == null) return;
+
+            if (HasActiveSession(_currentDeck.QuizDeckId))
+            {
+                MessageBox.Show("This quiz deck cannot be deleted because it is currently running in an active live session.\n\nPlease finish or close the active session first.", "Deck In Use", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var confirm = MessageBox.Show(string.Format("Are you sure you want to permanently delete quiz deck '{0}' and all its questions?", _currentDeck.Title), "Delete Quiz Deck", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            if (confirm != MessageBoxResult.Yes) return;
+
+            try
+            {
+                var deckId = _currentDeck.QuizDeckId;
+                var deckToDelete = _db.QuizDecks.FirstOrDefault(d => d.QuizDeckId == deckId);
+                if (deckToDelete != null)
+                {
+                    deckToDelete.IsActive = false;
+
+                    var slides = _db.DeckSlides.Where(s => s.QuizDeckId == deckId).ToList();
+                    foreach (var s in slides) s.IsActive = false;
+
+                    var sessionIds = _db.QuizDeckSessions.Where(s => s.QuizDeckId == deckId).Select(s => s.QuizDeckSessionId).ToList();
+                    if (sessionIds.Count > 0)
+                    {
+                        var responses = _db.QuizResponses.Where(r => sessionIds.Contains(r.QuizDeckSessionId)).ToList();
+                        _db.QuizResponses.RemoveRange(responses);
+
+                        var audit = _db.QuizAuditEntries.Where(a => sessionIds.Contains(a.QuizDeckSessionId)).ToList();
+                        _db.QuizAuditEntries.RemoveRange(audit);
+
+                        var sessions = _db.QuizDeckSessions.Where(s => sessionIds.Contains(s.QuizDeckSessionId)).ToList();
+                        _db.QuizDeckSessions.RemoveRange(sessions);
+                    }
+
+                    _db.SaveChanges();
+                    AppDiagnostics.Write("Deleted deck " + deckId + " from Quiz Studio.");
+                }
+
+                LoadOrCreateDeck();
+                StatusText.Text = "Quiz deck deleted.";
+            }
+            catch (Exception ex)
+            {
+                AppDiagnostics.WriteException("Failed to delete deck in studio.", ex);
+                MessageBox.Show("Failed to delete deck: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void SaveDeckButton_Click(object sender, RoutedEventArgs e)

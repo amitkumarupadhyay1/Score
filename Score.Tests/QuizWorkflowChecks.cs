@@ -29,8 +29,12 @@ namespace Score.Tests
                 AppDomain.CurrentDomain.SetData("DataDirectory", AppPaths.DataDirectory);
                 NativeSqliteLoader.EnsureLoaded();
                 DatabaseMaintenance.Prepare();
-                app = new App();
-                app.InitializeComponent();
+                app = (App)Application.Current;
+                if (app == null)
+                {
+                    app = new App();
+                    app.InitializeComponent();
+                }
                 app.ShutdownMode = ShutdownMode.OnExplicitShutdown;
                 window = new MainWindow();
                 Find<ComboBox>(window, "GlobalMinutesSelector").SelectedIndex = 5;
@@ -407,6 +411,8 @@ namespace Score.Tests
             builder.UpdateLayout();
             RequireFits(builder, Find<Button>(builder, "SaveDeckButton"));
             RequireFits(builder, Find<Button>(builder, "NewDeckButton"));
+            RequireFits(builder, Find<Button>(builder, "DeleteDeckButton"));
+            RequireFits(builder, Find<Button>(builder, "LoadSampleDeckButton"));
             RequireFits(builder, Find<Button>(builder, "QuickAiQuizButton"));
             RequireFits(builder, Find<Button>(builder, "SmartPasteButton"));
             RequireFits(builder, Find<Button>(builder, "ImportCsvButton"));
@@ -425,6 +431,11 @@ namespace Score.Tests
             Equal(Visibility.Collapsed, validationBanner.Visibility);
             var saveSlideBtn = Find<Button>(builder, "SaveSlideButton");
             var promptEditor = Find<TextBox>(builder, "SlideContentEditor");
+            var addSlideBtn = Find<Button>(builder, "AddSlideButton");
+            if (string.IsNullOrWhiteSpace(promptEditor.Text))
+            {
+                Click(addSlideBtn);
+            }
             var previousPrompt = promptEditor.Text;
             promptEditor.Text = string.Empty;
             Click(saveSlideBtn);

@@ -86,6 +86,14 @@
                            FontSize="11" FontWeight="SemiBold" Foreground="#FF64748B"
                            VerticalAlignment="Center" Margin="0,0,6,0"/>
 
+                <!-- Showcase Sample Quiz button -->
+                <Button x:Name="SampleDeckToolbarButton" DockPanel.Dock="Right"
+                        Style="{StaticResource ToolbarButtonStyle}"
+                        Click="SampleDeckToolbarButton_Click"
+                        Margin="0,0,10,0" Padding="12,0"
+                        Content="✦ SAMPLE QUIZ"
+                        ToolTip="Load showcase sample quiz into library"/>
+
                 <!-- Past Sessions History button -->
                 <Button x:Name="HistoryToolbarButton" DockPanel.Dock="Right"
                         Style="{StaticResource ToolbarButtonStyle}"
@@ -164,10 +172,16 @@
                            Text="Click 'CREATE NEW QUIZ' to create your first quiz deck."
                            FontSize="12" Foreground="#FF64748B"
                            HorizontalAlignment="Center" Margin="0,0,0,16"/>
-                <Button Style="{StaticResource CreateButton}"
-                        Click="CreateNewButton_Click"
-                        Content="➕  CREATE FIRST QUIZ"
-                        HorizontalAlignment="Center"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button Style="{StaticResource CreateButton}"
+                            Click="CreateNewButton_Click"
+                            Content="➕  CREATE FIRST QUIZ"
+                            Margin="0,0,10,0"/>
+                    <Button Style="{StaticResource ToolbarButtonStyle}"
+                            Click="SampleDeckToolbarButton_Click"
+                            Content="✦ LOAD SHOWCASE SAMPLE QUIZ"
+                            Height="36" Padding="16,0" Background="#FF4F46E5" Foreground="#FFFFFFFF" BorderBrush="#FF4338CA"/>
+                </StackPanel>
             </StackPanel>
 
             <!-- Card gallery -->

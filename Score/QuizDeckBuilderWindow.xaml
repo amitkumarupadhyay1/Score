@@ -10,41 +10,30 @@
 
     <Window.Resources>
         <!-- Modern Card Surface -->
-        <Style x:Key="StudioCard" TargetType="Border">
-            <Setter Property="Background" Value="#FFFFFFFF"/>
-            <Setter Property="BorderBrush" Value="#FFE2E8F0"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="10"/>
-            <Setter Property="Padding" Value="18,16"/>
-            <Setter Property="Margin" Value="0,0,0,16"/>
-        </Style>
-
+        <Style x:Key="StudioCard" TargetType="Border"><Setter Property="Background" Value="#FFFFFFFF"/><Setter Property="BorderBrush" Value="#FFE2E8F0"/><Setter Property="BorderThickness" Value="1"/><Setter Property="CornerRadius" Value="10"/><Setter Property="Padding" Value="18,16"/><Setter Property="Margin" Value="0,0,0,16"/></Style>
         <!-- Section Card Header -->
-        <Style x:Key="SectionHeader" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="#FF64748B"/>
-            <Setter Property="Margin" Value="0,0,0,14"/>
-        </Style>
-
+        <Style x:Key="SectionHeader" TargetType="TextBlock"><Setter Property="FontSize" Value="11"/><Setter Property="FontWeight" Value="Bold"/><Setter Property="Foreground" Value="#FF64748B"/><Setter Property="Margin" Value="0,0,0,14"/></Style>
         <!-- Modern Input Label -->
-        <Style x:Key="InputLabel" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="#FF475569"/>
-            <Setter Property="Margin" Value="0,0,0,6"/>
+        <Style x:Key="InputLabel" TargetType="TextBlock"><Setter Property="FontSize" Value="11"/><Setter Property="FontWeight" Value="SemiBold"/><Setter Property="Foreground" Value="#FF475569"/><Setter Property="Margin" Value="0,0,0,6"/></Style>
+        <Style x:Key="DarkToolbarComboStyle" TargetType="ComboBox">
+            <Setter Property="Height" Value="28"/><Setter Property="Padding" Value="8,0"/><Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Foreground" Value="#FFFFFFFF"/><Setter Property="Background" Value="#FF1E293B"/><Setter Property="BorderBrush" Value="#FF334155"/><Setter Property="BorderThickness" Value="1"/><Setter Property="FontSize" Value="12"/><Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Foreground" Value="#FF0F172A"/><Setter Property="Background" Value="#FFFFFFFF"/><Setter Property="Padding" Value="10,6"/><Setter Property="FontSize" Value="12"/><Setter Property="FontWeight" Value="Normal"/><Setter Property="VerticalContentAlignment" Value="Center"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected" Value="True"><Setter Property="Foreground" Value="#FFFFFFFF"/><Setter Property="Background" Value="#FF4F46E5"/><Setter Property="FontWeight" Value="SemiBold"/></Trigger>
+                            <Trigger Property="IsHighlighted" Value="True"><Setter Property="Foreground" Value="#FF3730A3"/><Setter Property="Background" Value="#FFE0E7FF"/></Trigger>
+                            <Trigger Property="IsEnabled" Value="False"><Setter Property="Foreground" Value="#FF94A3B8"/><Setter Property="Background" Value="#FFF1F5F9"/></Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <!-- Modern Text Box -->
-        <Style x:Key="ModernTextBox" TargetType="TextBox">
-            <Setter Property="Height" Value="36"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Foreground" Value="#FF0F172A"/>
-            <Setter Property="Background" Value="#FFFFFFFF"/>
-            <Setter Property="BorderBrush" Value="#FFCBD5E1"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="10,0"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Style x:Key="ModernTextBox" TargetType="TextBox"><Setter Property="Height" Value="36"/><Setter Property="FontSize" Value="13"/><Setter Property="Foreground" Value="#FF0F172A"/><Setter Property="Background" Value="#FFFFFFFF"/><Setter Property="BorderBrush" Value="#FFCBD5E1"/><Setter Property="BorderThickness" Value="1"/><Setter Property="Padding" Value="10,0"/><Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
@@ -52,13 +41,8 @@
                             <ScrollViewer x:Name="PART_ContentHost" Focusable="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
                         </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="BorderBrush" Value="#FF94A3B8"/>
-                            </Trigger>
-                            <Trigger Property="IsFocused" Value="True">
-                                <Setter TargetName="border" Property="BorderBrush" Value="#FF4F46E5"/>
-                                <Setter TargetName="border" Property="BorderThickness" Value="1.5"/>
-                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="border" Property="BorderBrush" Value="#FF94A3B8"/></Trigger>
+                            <Trigger Property="IsFocused" Value="True"><Setter TargetName="border" Property="BorderBrush" Value="#FF4F46E5"/><Setter TargetName="border" Property="BorderThickness" Value="1.5"/></Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
@@ -66,37 +50,25 @@
         </Style>
 
         <!-- Modern Multi-line Text Box -->
-        <Style x:Key="ModernMultiLineTextBox" TargetType="TextBox" BasedOn="{StaticResource ModernTextBox}">
-            <Setter Property="Height" Value="75"/>
-            <Setter Property="Padding" Value="10,8"/>
-            <Setter Property="VerticalContentAlignment" Value="Top"/>
-            <Setter Property="AcceptsReturn" Value="True"/>
-            <Setter Property="TextWrapping" Value="Wrap"/>
-        </Style>
+        <Style x:Key="ModernMultiLineTextBox" TargetType="TextBox" BasedOn="{StaticResource ModernTextBox}"><Setter Property="Height" Value="75"/><Setter Property="Padding" Value="10,8"/><Setter Property="VerticalContentAlignment" Value="Top"/><Setter Property="AcceptsReturn" Value="True"/><Setter Property="TextWrapping" Value="Wrap"/></Style>
 
         <!-- Modern ComboBox -->
-        <Style x:Key="ModernComboBox" TargetType="ComboBox">
-            <Setter Property="Height" Value="36"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Foreground" Value="#FF0F172A"/>
-            <Setter Property="Background" Value="#FFFFFFFF"/>
-            <Setter Property="BorderBrush" Value="#FFCBD5E1"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="10,0"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Style x:Key="ModernComboBox" TargetType="ComboBox"><Setter Property="Height" Value="36"/><Setter Property="FontSize" Value="13"/><Setter Property="Foreground" Value="#FF0F172A"/><Setter Property="Background" Value="#FFFFFFFF"/><Setter Property="BorderBrush" Value="#FFCBD5E1"/><Setter Property="BorderThickness" Value="1"/><Setter Property="Padding" Value="10,0"/><Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Foreground" Value="#FF0F172A"/><Setter Property="Background" Value="#FFFFFFFF"/><Setter Property="Padding" Value="8,6"/><Setter Property="FontSize" Value="12"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected" Value="True"><Setter Property="Foreground" Value="#FFFFFFFF"/><Setter Property="Background" Value="#FF4F46E5"/></Trigger>
+                            <Trigger Property="IsHighlighted" Value="True"><Setter Property="Foreground" Value="#FF3730A3"/><Setter Property="Background" Value="#FFE0E7FF"/></Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <!-- Primary Action Button (Indigo) -->
-        <Style x:Key="PrimaryActionButton" TargetType="Button">
-            <Setter Property="Height" Value="36"/>
-            <Setter Property="Padding" Value="18,0"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="#FFFFFFFF"/>
-            <Setter Property="Background" Value="#FF4F46E5"/>
-            <Setter Property="BorderBrush" Value="#FF4338CA"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Cursor" Value="Hand"/>
+        <Style x:Key="PrimaryActionButton" TargetType="Button"><Setter Property="Height" Value="36"/><Setter Property="Padding" Value="18,0"/><Setter Property="FontSize" Value="12"/><Setter Property="FontWeight" Value="SemiBold"/><Setter Property="Foreground" Value="#FFFFFFFF"/><Setter Property="Background" Value="#FF4F46E5"/><Setter Property="BorderBrush" Value="#FF4338CA"/><Setter Property="BorderThickness" Value="1"/><Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -104,16 +76,9 @@
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#FF6366F1"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#FF3730A3"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="border" Property="Background" Value="#FFCBD5E1"/>
-                                <Setter TargetName="border" Property="BorderBrush" Value="#FFCBD5E1"/>
-                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="border" Property="Background" Value="#FF6366F1"/></Trigger>
+                            <Trigger Property="IsPressed" Value="True"><Setter TargetName="border" Property="Background" Value="#FF3730A3"/></Trigger>
+                            <Trigger Property="IsEnabled" Value="False"><Setter TargetName="border" Property="Background" Value="#FFCBD5E1"/><Setter TargetName="border" Property="BorderBrush" Value="#FFCBD5E1"/></Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
@@ -121,16 +86,7 @@
         </Style>
 
         <!-- Secondary Outline Button -->
-        <Style x:Key="SecondaryButton" TargetType="Button">
-            <Setter Property="Height" Value="32"/>
-            <Setter Property="Padding" Value="12,0"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="FontWeight" Value="Medium"/>
-            <Setter Property="Foreground" Value="#FF334155"/>
-            <Setter Property="Background" Value="#FFFFFFFF"/>
-            <Setter Property="BorderBrush" Value="#FFCBD5E1"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Cursor" Value="Hand"/>
+        <Style x:Key="SecondaryButton" TargetType="Button"><Setter Property="Height" Value="32"/><Setter Property="Padding" Value="12,0"/><Setter Property="FontSize" Value="12"/><Setter Property="FontWeight" Value="Medium"/><Setter Property="Foreground" Value="#FF334155"/><Setter Property="Background" Value="#FFFFFFFF"/><Setter Property="BorderBrush" Value="#FFCBD5E1"/><Setter Property="BorderThickness" Value="1"/><Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -138,13 +94,8 @@
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#FFF1F5F9"/>
-                                <Setter TargetName="border" Property="BorderBrush" Value="#FF94A3B8"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#FFE2E8F0"/>
-                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="border" Property="Background" Value="#FFF1F5F9"/><Setter TargetName="border" Property="BorderBrush" Value="#FF94A3B8"/></Trigger>
+                            <Trigger Property="IsPressed" Value="True"><Setter TargetName="border" Property="Background" Value="#FFE2E8F0"/></Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
@@ -152,16 +103,7 @@
         </Style>
 
         <!-- Dark Header Pill Button -->
-        <Style x:Key="HeaderPillButton" TargetType="Button">
-            <Setter Property="Height" Value="32"/>
-            <Setter Property="Padding" Value="12,0"/>
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="#FFE2E8F0"/>
-            <Setter Property="Background" Value="#FF1E293B"/>
-            <Setter Property="BorderBrush" Value="#FF334155"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Cursor" Value="Hand"/>
+        <Style x:Key="HeaderPillButton" TargetType="Button"><Setter Property="Height" Value="32"/><Setter Property="Padding" Value="12,0"/><Setter Property="FontSize" Value="11"/><Setter Property="FontWeight" Value="SemiBold"/><Setter Property="Foreground" Value="#FFE2E8F0"/><Setter Property="Background" Value="#FF1E293B"/><Setter Property="BorderBrush" Value="#FF334155"/><Setter Property="BorderThickness" Value="1"/><Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -169,10 +111,7 @@
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#FF334155"/>
-                                <Setter TargetName="border" Property="BorderBrush" Value="#FF475569"/>
-                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="border" Property="Background" Value="#FF334155"/><Setter TargetName="border" Property="BorderBrush" Value="#FF475569"/></Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
@@ -201,7 +140,7 @@
                     <Border Background="#FF1E293B" CornerRadius="7" Padding="10,3" Margin="0,0,10,0" BorderBrush="#FF334155" BorderThickness="1">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="Deck:" FontSize="11" Foreground="#FF94A3B8" VerticalAlignment="Center" Margin="0,0,8,0" />
-                            <ComboBox x:Name="DeckSelector" Width="170" Height="26" DisplayMemberPath="Title" SelectedValuePath="QuizDeckId" SelectionChanged="DeckSelector_SelectionChanged" Background="Transparent" Foreground="#FFFFFFFF" BorderThickness="0" VerticalContentAlignment="Center" />
+                            <ComboBox x:Name="DeckSelector" Width="170" Height="26" DisplayMemberPath="Title" SelectedValuePath="QuizDeckId" SelectionChanged="DeckSelector_SelectionChanged" Style="{StaticResource DarkToolbarComboStyle}" BorderThickness="0" />
                         </StackPanel>
                     </Border>
 
@@ -212,9 +151,11 @@
                 <!-- Right: Deck & Exchange Controls -->
                 <WrapPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,3,0,3">
                     <TextBlock Text="Theme:" FontSize="11" Foreground="#FF94A3B8" VerticalAlignment="Center" Margin="0,0,6,0" />
-                    <ComboBox x:Name="DeckThemeSelector" Width="95" Height="30" Margin="0,0,10,0" VerticalContentAlignment="Center" />
+                    <ComboBox x:Name="DeckThemeSelector" Width="95" Height="28" Margin="0,0,10,0" Style="{StaticResource DarkToolbarComboStyle}" />
                     <Button x:Name="SaveDeckButton" Content="Save Deck" Style="{StaticResource HeaderPillButton}" Background="#FF059669" BorderBrush="#FF10B981" Foreground="#FFFFFFFF" Margin="0,0,8,0" Click="SaveDeckButton_Click" />
-                    <Button x:Name="NewDeckButton" Content="+ New Deck" Style="{StaticResource HeaderPillButton}" Margin="0,0,10,0" Click="NewDeckButton_Click" />
+                    <Button x:Name="NewDeckButton" Content="+ New Deck" Style="{StaticResource HeaderPillButton}" Margin="0,0,8,0" Click="NewDeckButton_Click" />
+                    <Button x:Name="DeleteDeckButton" Content="🗑 Delete Deck" Style="{StaticResource HeaderPillButton}" Background="#FF7F1D1D" BorderBrush="#FFB91C1C" Foreground="#FFFFFFFF" Margin="0,0,8,0" Click="DeleteDeckButton_Click" ToolTip="Permanently delete the active quiz deck" />
+                    <Button x:Name="LoadSampleDeckButton" Content="✦ Load Sample" Style="{StaticResource HeaderPillButton}" Margin="0,0,10,0" Click="LoadSampleDeckButton_Click" ToolTip="Load showcase sample quiz into studio" />
 
                     <Button x:Name="QuickAiQuizButton" Content="✦ Quick AI / Topic Quiz" Style="{StaticResource HeaderPillButton}" Background="#FF4F46E5" BorderBrush="#FF6366F1" Foreground="#FFFFFFFF" Margin="0,0,8,0" Click="QuickAiQuizButton_Click" ToolTip="Instantly generate a 5-question trivia round from curated topics" />
                     <Button x:Name="SmartPasteButton" Content="📋 Smart AI Paste" Style="{StaticResource HeaderPillButton}" Margin="0,0,14,0" Click="SmartPasteButton_Click" ToolTip="Paste questions copied from ChatGPT, Claude, Gemini or documents" />
@@ -264,9 +205,9 @@
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <Button x:Name="MoveUpButton" Grid.Column="0" Content="▲ Move Up" Style="{StaticResource SecondaryButton}" Height="28" Margin="0,0,4,0" Click="MoveUpButton_Click" IsEnabled="False" />
-                            <Button x:Name="MoveDownButton" Grid.Column="1" Content="▼ Move Down" Style="{StaticResource SecondaryButton}" Height="28" Margin="0,0,6,0" Click="MoveDownButton_Click" IsEnabled="False" />
-                            <Button x:Name="DeleteSlideButton" Grid.Column="2" Content="Delete" Style="{StaticResource SecondaryButton}" Height="28" Background="#FFFEE2E2" BorderBrush="#FFFCA5A5" Foreground="#FFB91C1C" Click="DeleteSlideButton_Click" IsEnabled="False" />
+                            <Button x:Name="MoveUpButton" Grid.Column="0" Content="▲ Up" Style="{StaticResource SecondaryButton}" Height="28" Margin="0,0,4,0" Padding="8,0" Click="MoveUpButton_Click" IsEnabled="False" />
+                            <Button x:Name="MoveDownButton" Grid.Column="1" Content="▼ Down" Style="{StaticResource SecondaryButton}" Height="28" Margin="0,0,4,0" Padding="8,0" Click="MoveDownButton_Click" IsEnabled="False" />
+                            <Button x:Name="DeleteSlideButton" Grid.Column="2" Content="🗑 Delete" Style="{StaticResource SecondaryButton}" Height="28" Background="#FFFEE2E2" BorderBrush="#FFFCA5A5" Foreground="#FFB91C1C" Padding="8,0" Click="DeleteSlideButton_Click" IsEnabled="False" />
                         </Grid>
                     </Border>
 

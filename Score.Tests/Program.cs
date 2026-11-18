@@ -12,6 +12,12 @@ namespace Score.Tests
         [STAThread]
         private static int Main()
         {
+            if (System.Windows.Application.Current == null)
+            {
+                var app = new App();
+                app.InitializeComponent();
+                app.ShutdownMode = System.Windows.ShutdownMode.OnExplicitShutdown;
+            }
             Run("CSV quotes ordinary text", () => Equal("\"Team Alpha\"", ExportSafety.ToCsvCell("Team Alpha")));
             Run("CSV escapes quotes", () => Equal("\"A \"\"Team\"\"\"", ExportSafety.ToCsvCell("A \"Team\"")));
             Run("CSV neutralizes formulas", () => Equal("\"'=2+2\"", ExportSafety.ToCsvCell("=2+2")));
@@ -27,6 +33,7 @@ namespace Score.Tests
             Run("Quiz import and export handles sample templates and question parsing", TestQuizImportExport);
             Run("Smart AI topic packs, paste importer, and slide discrimination", TestQuizAiFeatures);
             Run("SQLite runtime creates, verifies, and backs up the database", TestDatabaseRuntime);
+            Run("Production quality, clean slate, ComboBox contrast, and theme checks", ProductionQualityChecks.Run);
             Run("Live quiz, recovery, export, and both New Game options", QuizWorkflowChecks.Run);
 
             Console.WriteLine(failures == 0 ? "All production checks passed." : failures + " production check(s) failed.");
