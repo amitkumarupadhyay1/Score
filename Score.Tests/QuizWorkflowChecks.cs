@@ -628,6 +628,15 @@ namespace Score.Tests
 
             VerifyHostConducting(consoleWindow);
 
+            // Test Host Focus Mode & Panel Collapse
+            consoleWindow.ToggleLeftPanel();
+            consoleWindow.ToggleRightPanel();
+            consoleWindow.ToggleFocusMode();
+            consoleWindow.ApplyTheme("Emerald Arena");
+            Equal("Emerald Arena", QuizThemePalette.GetPalette("Emerald").Name);
+            Equal("Royal Velvet", QuizThemePalette.GetPalette("Neon").Name);
+            Equal("Daylight Contrast", QuizThemePalette.GetPalette("Light").Name);
+
             consoleWindow.Close();
 
             var targetedConsole = new QuizMasterConsoleWindow(1);
@@ -642,8 +651,17 @@ namespace Score.Tests
             Require(createButton != null, "CreateNewButton must exist in QuizLibraryWindow.");
             libraryWindow.Close();
 
+            var historyDialog = new QuizSessionHistoryDialog();
+            historyDialog.Close();
+
+            Equal(10, QuizSampleDeckSeeder.CreateSampleSlides(1).Count);
+
             var audienceWindow = new QuizAudienceWindow();
             VerifyAudienceWindow(audienceWindow);
+            audienceWindow.ApplyTheme("Emerald Arena");
+            audienceWindow.AnimateSlideTransition();
+            audienceWindow.StartTimerPulse();
+            audienceWindow.StopTimerPulse();
             audienceWindow.Close();
         }
 

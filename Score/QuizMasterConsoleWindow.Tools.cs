@@ -60,11 +60,32 @@ namespace Score
                 return;
             }
 
-            if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control && e.Key == Key.Z)
+            if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
             {
-                UndoScoreButton_Click(sender, e);
-                e.Handled = true;
-                return;
+                if (e.Key == Key.Z)
+                {
+                    UndoScoreButton_Click(sender, e);
+                    e.Handled = true;
+                    return;
+                }
+                if (e.Key == Key.OemOpenBrackets)
+                {
+                    ToggleLeftPanel();
+                    e.Handled = true;
+                    return;
+                }
+                if (e.Key == Key.OemCloseBrackets)
+                {
+                    ToggleRightPanel();
+                    e.Handled = true;
+                    return;
+                }
+                if (e.Key == Key.F)
+                {
+                    ToggleFocusMode();
+                    e.Handled = true;
+                    return;
+                }
             }
 
             switch (e.Key)
@@ -342,104 +363,7 @@ namespace Score
             dialog.ShowDialog();
         }
 
-        private void UpdateTimerDisplay()
-        {
-            if (_questionTimer.State == QuizTimerState.Stopped || _questionTimer.State == QuizTimerState.Completed)
-            {
-                // Show full duration in standby, 00:00 when completed
-                if (_questionTimer.State == QuizTimerState.Stopped && _currentSlide != null && _currentSlide.TimeLimitSeconds > 0)
-                    ConsoleTimerLabel.Text = TimeSpan.FromSeconds(_currentSlide.TimeLimitSeconds).ToString(@"mm\:ss");
-                else
-                    ConsoleTimerLabel.Text = "00:00";
-            }
-            else
-            {
-                // Show REMAINING countdown (not elapsed) — matches audience screen
-                var remaining = _questionTimer.Remaining;
-                ConsoleTimerLabel.Text = $"{(int)remaining.TotalMinutes:D2}:{remaining.Seconds:D2}";
-            }
-        }
 
-        private void TimerRefresh_Tick(object sender, EventArgs e)
-        {
-            _questionTimer.RefreshState();
-            UpdateTimerDisplay();
-            if (_questionTimer.IsOvertime)
-                ConsoleTimerLabel.Foreground = Brushes.Crimson;
-            else
-                ConsoleTimerLabel.Foreground = (Brush)new BrushConverter().ConvertFromString("#FF38BDF8");
-
-            if (_questionTimer.State == QuizTimerState.Running && _questionTimer.Duration > TimeSpan.Zero)
-            {
-                var remaining = (int)Math.Ceiling(_questionTimer.Remaining.TotalSeconds);
-                if (remaining <= 5 && remaining > 0 && remaining != _lastWarningSecond)
-                {
-                    _lastWarningSecond = remaining;
-                    QuizChimes.PlayTickWarning();
-                }
-                else if (remaining == 0 && _lastWarningSecond != 0)
-                {
-                    _lastWarningSecond = 0;
-                    QuizChimes.PlayBuzzer();
-                }
-            }
-        }
-
-        private void TimerStartButton_Click(object sender, RoutedEventArgs e)
-        {
-            ToggleTimer(true);
-        }
-
-        private void TimerPauseButton_Click(object sender, RoutedEventArgs e)
-        {
-            ToggleTimer(false);
-        }
-
-        private void ToggleTimer(bool start)
-        {
-            if (_currentSlide == null) return;
-            if (start)
-            {
-                if (_questionTimer.State == QuizTimerState.Stopped && _currentSlide.TimeLimitSeconds > 0)
-                {
-                    _questionTimer.Start(TimeSpan.FromSeconds(_currentSlide.TimeLimitSeconds));
-                    if (_currentSession != null)
-                    {
-                        _currentSession.TimerElapsedSeconds = 0;
-                        _currentSession.TimerStartedAtUtc = DateTime.UtcNow;
-                        _currentSession.TimerState = "Running";
-                    }
-                    _timerRefresh.Start();
-                }
-                else if (_questionTimer.State == QuizTimerState.Paused)
-                {
-                    if (_currentSession != null)
-                    {
-                        _currentSession.TimerElapsedSeconds = (int)_questionTimer.Elapsed.TotalSeconds;
-                        _currentSession.TimerStartedAtUtc = DateTime.UtcNow;
-                        _currentSession.TimerState = "Running";
-                    }
-                    _questionTimer.Resume();
-                    _timerRefresh.Start();
-                }
-            }
-            else
-            {
-                _questionTimer.Pause();
-                _timerRefresh.Stop();
-                if (_currentSession != null)
-                {
-                    _currentSession.TimerElapsedSeconds = (int)_questionTimer.Elapsed.TotalSeconds;
-                    _currentSession.TimerStartedAtUtc = null;
-                    _currentSession.TimerState = "Paused";
-                }
-                UpdateTimerDisplay();
-            }
-            if (_currentSession != null)
-            {
-                _db.SaveChanges();
-            }
-        }
 
         private void UpdateClueDisplay(string[] hints)
         {

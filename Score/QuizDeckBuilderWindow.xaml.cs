@@ -124,17 +124,8 @@ namespace Score
             var decks = _db.QuizDecks.Where(d => d.IsActive).OrderBy(d => d.Title).ToList();
             if (decks.Count == 0)
             {
-                var deck = new QuizDeck
-                {
-                    Title = "New Championship Quiz",
-                    Theme = "Classic",
-                    CreatedAtUtc = DateTime.UtcNow,
-                    IsActive = true
-                };
-                _db.QuizDecks.Add(deck);
-                _db.SaveChanges();
-                SeedStarterQuestions(deck.QuizDeckId);
-                decks.Add(deck);
+                QuizSampleDeckSeeder.EnsureSampleDeck(_db);
+                decks = _db.QuizDecks.Where(d => d.IsActive).OrderBy(d => d.Title).ToList();
             }
 
             var targetDeck = _initialDeckId.HasValue
@@ -165,83 +156,7 @@ namespace Score
             UpdateLockBanner();
         }
 
-        private List<DeckSlide> SeedStarterQuestions(int deckId)
-        {
-            var samples = new List<DeckSlide>
-            {
-                new DeckSlide
-                {
-                    QuizDeckId = deckId,
-                    SlideOrder = 1,
-                    SlideType = "Question",
-                    QuestionType = QuizScoringEngine.QuestionMultipleChoice,
-                    RoundType = QuizScoringEngine.RoundStandard,
-                    RoundName = "Geography",
-                    Title = "Capitals of the World",
-                    ContentText = "Which city serves as the federal capital of Australia?",
-                    OptionsJson = "Sydney\nCanberra\nMelbourne\nBrisbane",
-                    CorrectAnswer = "Canberra",
-                    AlternateAnswers = "City of Canberra",
-                    Points = 10,
-                    PenaltyPoints = 0,
-                    BonusPoints = 5,
-                    TimeLimitSeconds = 30,
-                    AllowPass = true,
-                    HintsJson = "It was selected in 1908 as a compromise between Sydney and Melbourne.\nIt is situated in the Australian Capital Territory (ACT).",
-                    Explanation = "Canberra was chosen as the site for Australia's capital in 1908 and was founded on 12 March 1913.",
-                    IsActive = true
-                },
-                new DeckSlide
-                {
-                    QuizDeckId = deckId,
-                    SlideOrder = 2,
-                    SlideType = "Question",
-                    QuestionType = QuizScoringEngine.QuestionTrueFalse,
-                    RoundType = QuizScoringEngine.RoundStandard,
-                    RoundName = "Science",
-                    Title = "Speed of Light",
-                    ContentText = "Light travels faster through water than it does through a vacuum.",
-                    OptionsJson = "True\nFalse",
-                    CorrectAnswer = "False",
-                    Points = 10,
-                    PenaltyPoints = 5,
-                    BonusPoints = 5,
-                    TimeLimitSeconds = 20,
-                    AllowPass = true,
-                    HintsJson = "Think about optical density and refraction.",
-                    Explanation = "Light travels fastest in a vacuum (approx 300,000 km/s). It slows down when moving through denser mediums such as water or glass.",
-                    IsActive = true
-                },
-                new DeckSlide
-                {
-                    QuizDeckId = deckId,
-                    SlideOrder = 3,
-                    SlideType = "Question",
-                    QuestionType = QuizScoringEngine.QuestionShortAnswer,
-                    RoundType = QuizScoringEngine.RoundBuzzer,
-                    RoundName = "Art & History",
-                    Title = "Renaissance Masterpiece",
-                    ContentText = "Who painted the celebrated masterpiece 'The Mona Lisa'?",
-                    CorrectAnswer = "Leonardo da Vinci",
-                    AlternateAnswers = "Da Vinci; Leonardo; Leonardo di ser Piero da Vinci",
-                    Points = 15,
-                    PenaltyPoints = 5,
-                    BonusPoints = 7,
-                    TimeLimitSeconds = 30,
-                    AllowPass = false,
-                    HintsJson = "He was a Florentine polymath active during the Italian High Renaissance.\nHe also painted 'The Last Supper' and sketched the 'Vitruvian Man'.",
-                    Explanation = "Painted in the early 16th century, the portrait of Lisa Gherardini now hangs in the Louvre Museum in Paris.",
-                    IsActive = true
-                }
-            };
 
-            foreach (var slide in samples)
-            {
-                _db.DeckSlides.Add(slide);
-            }
-            _db.SaveChanges();
-            return samples;
-        }
 
         private void DeckSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {

@@ -27,17 +27,16 @@ namespace Score
         {
             try
             {
-                using (var db = new ScoreDbContext())
+                var mainWin = Application.Current?.Windows.OfType<MainWindow>().FirstOrDefault();
+                if (mainWin != null && mainWin.Cards != null && mainWin.Cards.Length >= 2)
                 {
-                    var deskTeams = db.ScoreCounts
-                        .OrderBy(s => s.ScoreCountID)
-                        .Select(s => s.Team)
-                        .Where(t => !string.IsNullOrEmpty(t))
+                    var friendly = mainWin.Cards
+                        .Select(c => c.TeamName)
+                        .Where(t => !string.IsNullOrWhiteSpace(t))
                         .ToList();
-
-                    if (deskTeams.Count >= 2)
+                    if (friendly.Count >= 2)
                     {
-                        TeamNamesEditor.Text = string.Join(Environment.NewLine, deskTeams);
+                        TeamNamesEditor.Text = string.Join(Environment.NewLine, friendly);
                         return;
                     }
                 }
@@ -51,6 +50,20 @@ namespace Score
         {
             try
             {
+                var mainWin = Application.Current?.Windows.OfType<MainWindow>().FirstOrDefault();
+                if (mainWin != null && mainWin.Cards != null && mainWin.Cards.Length >= 2)
+                {
+                    var friendly = mainWin.Cards
+                        .Select(c => c.TeamName)
+                        .Where(t => !string.IsNullOrWhiteSpace(t))
+                        .ToList();
+                    if (friendly.Count > 0)
+                    {
+                        TeamNamesEditor.Text = string.Join(Environment.NewLine, friendly);
+                        return;
+                    }
+                }
+
                 using (var db = new ScoreDbContext())
                 {
                     var deskTeams = db.ScoreCounts
@@ -61,7 +74,19 @@ namespace Score
 
                     if (deskTeams.Count > 0)
                     {
-                        TeamNamesEditor.Text = string.Join(Environment.NewLine, deskTeams);
+                        // Clean legacy raw database keys (e.g. JBA 1, YVM 1, TEAM-01) into friendly team names
+                        var cleaned = deskTeams.Select((t, i) =>
+                        {
+                            if (t.StartsWith("JBA", StringComparison.OrdinalIgnoreCase) ||
+                                t.StartsWith("YVM", StringComparison.OrdinalIgnoreCase) ||
+                                t.StartsWith("TEAM-", StringComparison.OrdinalIgnoreCase))
+                            {
+                                return $"Team {i + 1}";
+                            }
+                            return t;
+                        }).ToList();
+
+                        TeamNamesEditor.Text = string.Join(Environment.NewLine, cleaned);
                     }
                     else
                     {

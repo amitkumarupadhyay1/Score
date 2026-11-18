@@ -53,6 +53,11 @@ namespace Score
             {
                 using (var db = new ScoreDbContext())
                 {
+                    if (!db.QuizDecks.Any(d => d.IsActive))
+                    {
+                        QuizSampleDeckSeeder.EnsureSampleDeck(db);
+                    }
+
                     var decks = db.QuizDecks.Where(d => d.IsActive).ToList();
                     var deckIds = decks.Select(d => d.QuizDeckId).ToList();
 
@@ -421,6 +426,61 @@ namespace Score
             };
             preflightButton.Click += (s, e) => RunPreflightCheck(deckId);
             stack.Children.Add(preflightButton);
+
+            var cardActionsGrid = new Grid { Margin = new Thickness(0, 6, 0, 0) };
+            cardActionsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            cardActionsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            cardActionsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+            var previewBtn = new Button
+            {
+                Height = 26,
+                Content = "👁 PREVIEW",
+                FontSize = 10,
+                FontWeight = FontWeights.SemiBold,
+                Margin = new Thickness(0, 0, 3, 0),
+                Background = (Brush)brushConv.ConvertFromString("#F8FAFC"),
+                BorderBrush = (Brush)brushConv.ConvertFromString("#CBD5E1"),
+                Foreground = (Brush)brushConv.ConvertFromString("#334155"),
+                ToolTip = "Preview all questions and answers in this quiz"
+            };
+            previewBtn.Click += (s, e) => PreviewDeck(deckId, item.Title);
+            Grid.SetColumn(previewBtn, 0);
+            cardActionsGrid.Children.Add(previewBtn);
+
+            var cloneBtn = new Button
+            {
+                Height = 26,
+                Content = "📋 CLONE",
+                FontSize = 10,
+                FontWeight = FontWeights.SemiBold,
+                Margin = new Thickness(3, 0, 3, 0),
+                Background = (Brush)brushConv.ConvertFromString("#F8FAFC"),
+                BorderBrush = (Brush)brushConv.ConvertFromString("#CBD5E1"),
+                Foreground = (Brush)brushConv.ConvertFromString("#334155"),
+                ToolTip = "Duplicate this quiz deck"
+            };
+            cloneBtn.Click += (s, e) => DuplicateDeck(deckId, item.Title);
+            Grid.SetColumn(cloneBtn, 1);
+            cardActionsGrid.Children.Add(cloneBtn);
+
+            var deleteBtn = new Button
+            {
+                Height = 26,
+                Content = "🗑 DELETE",
+                FontSize = 10,
+                FontWeight = FontWeights.Bold,
+                Margin = new Thickness(3, 0, 0, 0),
+                Background = (Brush)brushConv.ConvertFromString("#FEF2F2"),
+                BorderBrush = (Brush)brushConv.ConvertFromString("#FECACA"),
+                Foreground = (Brush)brushConv.ConvertFromString("#DC2626"),
+                ToolTip = "Permanently delete this quiz and its questions"
+            };
+            deleteBtn.Click += (s, e) => DeleteDeck(deckId, item.Title);
+            Grid.SetColumn(deleteBtn, 2);
+            cardActionsGrid.Children.Add(deleteBtn);
+
+            stack.Children.Add(cardActionsGrid);
 
             card.Child = stack;
 

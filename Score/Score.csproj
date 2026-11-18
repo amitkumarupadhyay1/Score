@@ -175,6 +175,15 @@
     <Compile Include="QuizMasterConsoleWindow.UndoEngine.cs">
       <DependentUpon>QuizMasterConsoleWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="QuizMasterConsoleWindow.Panels.cs">
+      <DependentUpon>QuizMasterConsoleWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="QuizMasterConsoleWindow.Themes.cs">
+      <DependentUpon>QuizMasterConsoleWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="QuizMasterConsoleWindow.TimerControls.cs">
+      <DependentUpon>QuizMasterConsoleWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="TeamEntryDialog.xaml.cs">
       <DependentUpon>TeamEntryDialog.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -196,6 +205,12 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="QuizAudienceWindow.Media.cs">
+      <DependentUpon>QuizAudienceWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="QuizAudienceWindow.Themes.cs">
+      <DependentUpon>QuizAudienceWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="QuizAudienceWindow.Animations.cs">
       <DependentUpon>QuizAudienceWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="QuizBuzzerDialog.xaml">
@@ -230,6 +245,19 @@
       <DependentUpon>QuizLibraryWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="QuizLibraryWindow.Actions.cs">
+      <DependentUpon>QuizLibraryWindow.xaml</DependentUpon>
+    </Compile>
+    <Page Include="QuizSessionHistoryDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="QuizSessionHistoryDialog.xaml.cs">
+      <DependentUpon>QuizSessionHistoryDialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="QuizThemePalette.cs" />
+    <Compile Include="QuizSampleDeckSeeder.cs" />
     <Compile Include="TeamScoreCard.xaml.cs">
       <DependentUpon>TeamScoreCard.xaml</DependentUpon>
       <SubType>Code</SubType>

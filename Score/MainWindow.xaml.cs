@@ -107,7 +107,7 @@ namespace Score
             AppDiagnostics.Write(message);
         }
 
-        private TeamScoreCard[] Cards { get { return TeamCardsGrid.Children.OfType<TeamScoreCard>().ToArray(); } }
+        internal TeamScoreCard[] Cards { get { return TeamCardsGrid.Children.OfType<TeamScoreCard>().ToArray(); } }
 
         private void InitializeTeamState(int teamCount)
         {

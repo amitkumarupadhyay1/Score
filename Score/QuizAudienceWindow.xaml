@@ -14,7 +14,7 @@
     <Grid Background="#FF0B132B">
         <!-- Scale to fit 1920x1080 design canvas cleanly on 4K, 1080p, and 4:3 / 16:10 projectors -->
         <Viewbox Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <Grid Width="1920" Height="1080" Background="#FF0B132B">
+            <Grid x:Name="AudienceStageRootGrid" Width="1920" Height="1080" Background="#FF0B132B">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
@@ -22,7 +22,7 @@
                 </Grid.RowDefinitions>
 
                 <!-- Header: Deck Title, Round, and Giant Countdown Clock -->
-                <Border Grid.Row="0" Background="#FF1C2541" Padding="48,22">
+                <Border x:Name="AudienceHeaderBorder" Grid.Row="0" Background="#FF1C2541" Padding="48,22">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
@@ -40,9 +40,11 @@
                             </StackPanel>
                         </StackPanel>
 
-                        <!-- Stage Giant Countdown Timer (80-96pt) -->
-                        <Border Grid.Column="1" Background="#FF0B132B" CornerRadius="16" Padding="32,8" Margin="30,0,0,0">
-                            <TextBlock x:Name="AudienceTimerLabel" Text="00:00" FontFamily="Consolas" FontSize="88" FontWeight="Bold" Foreground="#FF6FFFE9" VerticalAlignment="Center" />
+                        <!-- Stage Giant Countdown Timer (Scalable Viewbox) -->
+                        <Border x:Name="AudienceTimerBorder" Grid.Column="1" Background="#FF0B132B" CornerRadius="16" Padding="24,6" Margin="24,0,0,0" MinWidth="220" Height="84" VerticalAlignment="Center">
+                            <Viewbox Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="240" MaxHeight="72">
+                                <TextBlock x:Name="AudienceTimerLabel" Text="00:00" FontFamily="Consolas" FontSize="64" FontWeight="Bold" Foreground="#FF6FFFE9" VerticalAlignment="Center" />
+                            </Viewbox>
                         </Border>
                     </Grid>
                 </Border>
@@ -56,7 +58,7 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- Question / Content Card -->
-                        <Border Grid.Column="0" Background="#FFFFFFFF" CornerRadius="24" Padding="44" Margin="10" Effect="{StaticResource PanelGlowEffect}">
+                        <Border x:Name="AudienceQuestionContentBorder" Grid.Column="0" Background="#FFFFFFFF" CornerRadius="24" Padding="44" Margin="10" Effect="{StaticResource PanelGlowEffect}">
                             <ScrollViewer x:Name="AudienceQuestionContentScroll" VerticalScrollBarVisibility="Auto">
                                 <StackPanel>
                                     <TextBlock x:Name="AudienceSlideType" Text="QUESTION" FontSize="22" FontWeight="Bold" Foreground="#FF0284C7" Margin="0,0,0,12" />
@@ -135,7 +137,7 @@
                 </Border>
 
                 <!-- Footer: Live Tournament Scoreboard -->
-                <Border Grid.Row="2" Background="#FF1C2541" Padding="36,18">
+                <Border x:Name="AudienceScoreboardBorder" Grid.Row="2" Background="#FF1C2541" Padding="36,18">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />

@@ -163,6 +163,7 @@ namespace Score
             UpdateSoundButtonState();
             EnsureBuzzerServerStarted();
             UpdateSessionBadge();
+            InitializeThemeSelector();
         }
 
         private void LoadDeckSelector()

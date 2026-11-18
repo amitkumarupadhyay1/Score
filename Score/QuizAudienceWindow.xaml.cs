@@ -189,11 +189,14 @@ namespace Score
             {
                 AudienceAnswerText.Text = slide.CorrectAnswer;
                 AudienceAnswerContainer.Visibility = Visibility.Visible;
+                AnimateAnswerReveal();
             }
             else
             {
                 AudienceAnswerContainer.Visibility = Visibility.Collapsed;
             }
+
+            AnimateSlideTransition();
 
             _timerDurationSeconds = Math.Max(0, slide.TimeLimitSeconds);
             if (session != null)
@@ -601,14 +604,18 @@ namespace Score
             if (remaining <= 5 && remaining > 0)
             {
                 AudienceTimerLabel.Foreground = TimerWarningBrush;
+                if (_timerState == "Running") StartTimerPulse();
+                else StopTimerPulse();
             }
             else if (remaining == 0)
             {
                 AudienceTimerLabel.Foreground = TimerExpiredBrush;
+                StopTimerPulse();
             }
             else
             {
                 AudienceTimerLabel.Foreground = TimerNormalBrush;
+                StopTimerPulse();
             }
         }
 
