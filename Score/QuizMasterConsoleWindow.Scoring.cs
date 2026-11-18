@@ -56,24 +56,74 @@ namespace Score
 
             UpdateFloorBanner();
             RefreshTeams();
+            PushSlideStateToAudience();
             ConsoleStatusText.Text = $"Question passed to {nextTeam} (Bounce #{_passCount}).";
+        }
+
+        private void ConsoleTeamList_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            if (_refreshingTeamList || ConsoleTeamList.SelectedItem == null) return;
+            var selectedTeam = ConsoleTeamList.SelectedValue as string;
+            if (string.IsNullOrWhiteSpace(selectedTeam))
+            {
+                dynamic item = ConsoleTeamList.SelectedItem;
+                try { selectedTeam = item?.Team as string; } catch { }
+            }
+            if (!string.IsNullOrWhiteSpace(selectedTeam))
+            {
+                if (_currentBuzzingTeam != null)
+                {
+                    _currentBuzzingTeam = selectedTeam;
+                }
+                if (_currentSession != null)
+                {
+                    _currentSession.ActiveTeamOnFloor = selectedTeam;
+                    _db.SaveChanges();
+                }
+                UpdateFloorBanner();
+                PushSlideStateToAudience();
+            }
         }
 
         private void AcceptBuzzButton_Click(object sender, RoutedEventArgs e)
         {
             if (!EnsureSessionActive()) return;
-            RegisterBuzz(ConsoleTeamList.SelectedValue as string);
+            var targetTeam = ConsoleTeamList.SelectedValue as string;
+            if (string.IsNullOrWhiteSpace(targetTeam) && _teams.Count > 0)
+            {
+                targetTeam = _teams[0];
+            }
+            if (!string.IsNullOrWhiteSpace(targetTeam))
+            {
+                RegisterBuzz(targetTeam);
+            }
         }
 
         private void RegisterBuzz(string teamName)
         {
             if (_currentSession == null || _currentSlide == null || string.IsNullOrWhiteSpace(teamName)) return;
 
+            var isQuestion = string.Equals(_currentSlide.SlideType ?? "Question", "Question", StringComparison.OrdinalIgnoreCase);
+            if (!isQuestion)
+            {
+                ConsoleStatusText.Text = "Buzzers disabled: Current slide is not a live question.";
+                return;
+            }
+
+            if (_hasCorrectBuzzForSlide)
+            {
+                ConsoleStatusText.Text = "Buzzers disabled: Question has already been answered correctly.";
+                return;
+            }
+
             if (_buzzedTeams.Contains(teamName))
             {
                 ConsoleStatusText.Text = teamName + " has already buzzed on this question.";
                 return;
             }
+
+            // Auto-pause timer when accepting buzz so countdown warning ticks stop while the host speaks
+            ToggleTimer(false);
 
             QuizChimes.PlayBuzzer();
 
@@ -99,6 +149,9 @@ namespace Score
             _db.SaveChanges();
 
             RefreshTeams();
+            UpdateFloorBanner();
+            PushSlideStateToAudience();
+            _audienceWindow?.PushBuzzAlert(teamName, _buzzOrderCounter);
             ConsoleStatusText.Text = $"Buzz #{_buzzOrderCounter} registered: {teamName}";
         }
 
@@ -125,6 +178,9 @@ namespace Score
                 ConsoleStatusText.Text = "Select a team before scoring an answer.";
                 return;
             }
+
+            // Auto-pause timer when scoring Correct/Wrong so countdown warning ticks stop while the host speaks
+            ToggleTimer(false);
 
             var answer = ConsoleAnswerEditor.Text ?? string.Empty;
             var responseTime = (int)_questionTimer.Elapsed.TotalSeconds;
@@ -182,6 +238,10 @@ namespace Score
                 _hasCorrectBuzzForSlide = true;
                 _currentBuzzingTeam = null;
                 _buzzQueue.Clear();
+                if (_buzzerServer != null)
+                {
+                    _buzzerServer.IsBuzzerArmed = false;
+                }
             }
             else
             {
@@ -192,9 +252,15 @@ namespace Score
                 {
                     _currentSession.ActiveTeamOnFloor = _currentBuzzingTeam;
                 }
+                else
+                {
+                    _currentSession.ActiveTeamOnFloor = null;
+                }
             }
 
             RefreshTeams();
+            UpdateFloorBanner();
+            PushSlideStateToAudience();
             ConsoleStatusText.Text = isCorrect ? $"Correct: {teamName} +{points} pts" : $"Incorrect: {teamName} {points} pts";
             ConsoleAnswerEditor.Clear();
         }
@@ -204,8 +270,19 @@ namespace Score
             if (_currentSession == null || _currentSlide == null) return;
             _currentSession.AnswerRevealed = !_currentSession.AnswerRevealed;
             _db.SaveChanges();
-            RevealAnswerButton.Content = _currentSession.AnswerRevealed ? "HIDE ANSWER" : "REVEAL ON STAGE (R)";
+            UpdateRevealButtonState();
             ConsoleStatusText.Text = _currentSession.AnswerRevealed ? "Answer revealed on audience screen." : "Answer hidden.";
+            PushSlideStateToAudience();
+        }
+
+        private void QuickOptionButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (!EnsureSessionActive()) return;
+            if (sender is System.Windows.Controls.Button btn && btn.Content != null)
+            {
+                ConsoleAnswerEditor.Text = btn.Content.ToString();
+                SubmitAnswerButton_Click(sender, e);
+            }
         }
 
         private void SubmitAnswerButton_Click(object sender, RoutedEventArgs e)
@@ -237,7 +314,7 @@ namespace Score
 
         private void ApplyOverrideButton_Click(object sender, RoutedEventArgs e)
         {
-            var teamName = _currentBuzzingTeam ?? ConsoleTeamList.SelectedValue as string;
+            var teamName = (ConsoleTeamList.SelectedValue as string) ?? _currentBuzzingTeam;
             if (string.IsNullOrWhiteSpace(teamName) ||
                 !int.TryParse(OverrideTotalEditor.Text, out var newTotal) ||
                 string.IsNullOrWhiteSpace(OverrideReasonEditor.Text))

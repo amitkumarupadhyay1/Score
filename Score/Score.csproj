@@ -104,6 +104,7 @@
     <Compile Include="QuizBuzzerServer.cs" />
     <Compile Include="QuizQrCodeEncoder.cs" />
     <Compile Include="QuizBuzzerWebAssets.cs" />
+    <Compile Include="QuizPreflightValidator.cs" />
     <Compile Include="AppPaths.cs" />
     <Compile Include="AppDiagnostics.cs" />
     <Compile Include="DatabaseMaintenance.cs" />
@@ -210,6 +211,14 @@
     </Page>
     <Compile Include="QuizSmartPasteDialog.xaml.cs">
       <DependentUpon>QuizSmartPasteDialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Page Include="QuizLibraryWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="QuizLibraryWindow.xaml.cs">
+      <DependentUpon>QuizLibraryWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="TeamScoreCard.xaml.cs">

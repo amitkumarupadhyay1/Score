@@ -159,5 +159,125 @@ namespace Score.Tests
         {
             if (!condition) throw new InvalidOperationException(message);
         }
+
+        internal static void VerifyAudienceWindow(QuizAudienceWindow window)
+        {
+            Require(window.WindowStyle == WindowStyle.None, "WindowStyle must be None for borderless stage presentation.");
+            Require(window.ResizeMode == ResizeMode.NoResize, "ResizeMode must be NoResize for stage presentation.");
+
+            var blackout = Find<Grid>(window, "BlackoutOverlay");
+            Require(blackout != null, "BlackoutOverlay Grid must exist.");
+            Equal(Visibility.Collapsed, blackout.Visibility);
+
+            window.ToggleBlackout();
+            Equal(Visibility.Visible, blackout.Visibility);
+            window.ToggleBlackout(false);
+            Equal(Visibility.Collapsed, blackout.Visibility);
+            window.ToggleBlackout(true);
+            Equal(Visibility.Visible, blackout.Visibility);
+            window.ToggleBlackout(false);
+
+            var buzzBorder = Find<Border>(window, "AudienceBuzzBorder");
+            var buzzIndicator = Find<TextBlock>(window, "AudienceBuzzIndicator");
+            Require(buzzBorder != null, "AudienceBuzzBorder must exist.");
+            Equal(Visibility.Collapsed, buzzBorder.Visibility);
+
+            window.PushBuzzAlert("Team Gamma", 2);
+            Equal(Visibility.Visible, buzzBorder.Visibility);
+            Require(buzzIndicator.Text.Contains("TEAM GAMMA"), "Buzz indicator text must contain team name.");
+            Require(buzzIndicator.Text.Contains("#2"), "Buzz indicator must show buzz order.");
+
+            window.DismissBuzzAlert();
+            Equal(Visibility.Collapsed, buzzBorder.Visibility);
+
+            var slide = new DeckSlide
+            {
+                SlideType = "Question",
+                QuestionType = QuizScoringEngine.QuestionMultipleChoice,
+                Title = "Auditorium Stage Test",
+                ContentText = "What is the capital of France?",
+                OptionsJson = "London\nParis\nBerlin\nRome",
+                CorrectAnswer = "Paris",
+                Explanation = "Secret host notes about Paris: do NOT show to audience!",
+                Points = 20,
+                TimeLimitSeconds = 45,
+                HintsJson = "Hint 1: European city\nHint 2: Eiffel tower"
+            };
+
+            var session = new QuizDeckSession
+            {
+                QuizDeckSessionId = 999,
+                QuizDeckId = 1,
+                CurrentSlideIndex = 0,
+                Status = "Running"
+            };
+
+            // Before reveal
+            window.PushSlideState(slide, session, false, "Team Alpha", 1);
+            var answerContainer = Find<Border>(window, "AudienceAnswerContainer");
+            Equal(Visibility.Collapsed, answerContainer.Visibility);
+            var cluesPanel = Find<Border>(window, "AudienceCluesPanel");
+            Equal(Visibility.Visible, cluesPanel.Visibility);
+
+            var options = Find<ItemsControl>(window, "AudienceOptions");
+            var itemsBefore = options.ItemsSource as System.Collections.Generic.List<AudienceOptionItem>;
+            Require(itemsBefore != null && itemsBefore.Count == 4, "Must parse 4 options.");
+            Require(itemsBefore[1].CheckmarkVisibility == Visibility.Collapsed, "Option checkmark must not be visible before reveal.");
+
+            // After reveal
+            window.PushSlideState(slide, session, true, "Team Alpha", 1);
+            Equal(Visibility.Visible, answerContainer.Visibility);
+            var answerText = Find<TextBlock>(window, "AudienceAnswerText");
+            Equal("Paris", answerText.Text);
+
+            var itemsAfter = options.ItemsSource as System.Collections.Generic.List<AudienceOptionItem>;
+            Require(itemsAfter != null && itemsAfter.Count == 4, "Must have 4 options.");
+            Equal(Visibility.Visible, itemsAfter[1].CheckmarkVisibility);
+            Equal("✔ CORRECT", itemsAfter[1].Checkmark);
+            Equal(FontWeights.Bold, itemsAfter[1].FontWeight);
+            Equal(Visibility.Collapsed, itemsAfter[0].CheckmarkVisibility);
+
+            var teams = new System.Collections.Generic.List<QuizDeckSessionTeam>
+            {
+                new QuizDeckSessionTeam { TeamName = "Team Alpha" },
+                new QuizDeckSessionTeam { TeamName = "Team Beta" }
+            };
+            var scores = new System.Collections.Generic.Dictionary<string, int>
+            {
+                { "Team Alpha", 50 },
+                { "Team Beta", 30 }
+            };
+            window.PushScoreboard(teams, scores);
+            var scoreboard = Find<ItemsControl>(window, "AudienceScoreboard");
+            Require(scoreboard.ItemsSource != null, "Scoreboard ItemsSource must be populated.");
+        }
+
+        internal static void VerifyHostConducting(QuizMasterConsoleWindow window)
+        {
+            var openProjector = Find<Button>(window, "OpenProjectorButton");
+            Require(openProjector != null, "OpenProjectorButton must exist.");
+
+            var nextBtn = Find<Button>(window, "NextSlideButton");
+            var prevBtn = Find<Button>(window, "PrevSlideButton");
+            var revealBtn = Find<Button>(window, "RevealAnswerButton");
+            var correctBtn = Find<Button>(window, "MarkCorrectButton");
+            var incorrectBtn = Find<Button>(window, "MarkIncorrectButton");
+            var acceptBuzzBtn = Find<Button>(window, "AcceptBuzzButton");
+            Require(nextBtn != null, "NextSlideButton must exist.");
+            Require(prevBtn != null, "PrevSlideButton must exist.");
+            Require(revealBtn != null, "RevealAnswerButton must exist.");
+            Require(correctBtn != null, "MarkCorrectButton must exist.");
+            Require(incorrectBtn != null, "MarkIncorrectButton must exist.");
+            Require(acceptBuzzBtn != null, "AcceptBuzzButton must exist.");
+
+            // Test projector button creates audience window singleton
+            Click(openProjector);
+            var aud1 = Application.Current.Windows.OfType<QuizAudienceWindow>().FirstOrDefault();
+            Require(aud1 != null, "Audience window must be opened.");
+            Click(openProjector); // Should bring to front, not create duplicate
+            var audCount = Application.Current.Windows.OfType<QuizAudienceWindow>().Count();
+            Equal(1, audCount);
+            aud1.Close();
+        }
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -20,18 +21,25 @@ namespace Score
         private volatile bool _isRunning;
         private readonly object _lock = new object();
 
+        public volatile bool IsBuzzerArmed = true;
+        public string LastBuzzedTeam { get; private set; }
+        public long LastBuzzStopwatchTicks { get; private set; }
+        public long LastBuzzUtcTicks { get; private set; }
+
         public int Port { get; private set; }
         public string LocalIp { get; }
         public string LocalUrl => $"http://{LocalIp}:{Port}/";
         public bool IsRunning => _isRunning;
 
         public event Action<string> OnBuzzReceived;
+        public event Action<string, long, long> OnBuzzReceivedDetailed;
+        public event Action<string, long> OnBuzzReceivedWithTimestamp;
         public Func<IEnumerable<string>> GetTeamsCallback { get; set; }
 
         public QuizBuzzerServer(int port = DefaultPort)
         {
             Port = port;
-            LocalIp = DetectLocalIp();
+            LocalIp = GetLocalIpAddress();
         }
 
         public void Start()
@@ -182,7 +190,9 @@ namespace Score
                     try
                     {
                         var context = _httpListener.GetContext();
-                        ThreadPool.QueueUserWorkItem(_ => ProcessHttpContext(context));
+                        long swTicks = Stopwatch.GetTimestamp();
+                        long utcTicks = DateTime.UtcNow.Ticks;
+                        ThreadPool.QueueUserWorkItem(_ => ProcessHttpContext(context, swTicks, utcTicks));
                     }
                     catch (HttpListenerException)
                     {
@@ -202,7 +212,9 @@ namespace Score
                     try
                     {
                         var client = _tcpListener.AcceptTcpClient();
-                        ThreadPool.QueueUserWorkItem(_ => ProcessTcpClient(client));
+                        long swTicks = Stopwatch.GetTimestamp();
+                        long utcTicks = DateTime.UtcNow.Ticks;
+                        ThreadPool.QueueUserWorkItem(_ => ProcessTcpClient(client, swTicks, utcTicks));
                     }
                     catch (SocketException)
                     {
@@ -217,7 +229,7 @@ namespace Score
             }
         }
 
-        private void ProcessHttpContext(HttpListenerContext context)
+        private void ProcessHttpContext(HttpListenerContext context, long swTicks, long utcTicks)
         {
             try
             {
@@ -263,6 +275,19 @@ namespace Score
 
                 if (path.Equals("/api/buzz", StringComparison.OrdinalIgnoreCase))
                 {
+                    if (!IsBuzzerArmed)
+                    {
+                        res.StatusCode = 423;
+                        res.StatusDescription = "Locked";
+                        var lockedJson = "{\"status\":\"locked\",\"error\":\"Buzzers are disarmed/locked.\"}";
+                        byte[] lockedBytes = Encoding.UTF8.GetBytes(lockedJson);
+                        res.ContentType = "application/json; charset=utf-8";
+                        res.ContentLength64 = lockedBytes.Length;
+                        res.OutputStream.Write(lockedBytes, 0, lockedBytes.Length);
+                        res.Close();
+                        return;
+                    }
+
                     string team = null;
 
                     if (req.HttpMethod == "POST")
@@ -280,10 +305,10 @@ namespace Score
 
                     if (!string.IsNullOrWhiteSpace(team))
                     {
-                        TriggerBuzz(team.Trim());
+                        TriggerBuzz(team.Trim(), swTicks, utcTicks);
                     }
 
-                    var json = "{\"status\":\"ok\",\"team\":\"" + EscapeJson(team ?? string.Empty) + "\"}";
+                    var json = "{\"status\":\"ok\",\"team\":\"" + EscapeJson(team ?? string.Empty) + "\",\"timestamp\":" + utcTicks + "}";
                     byte[] bytes = Encoding.UTF8.GetBytes(json);
                     res.ContentType = "application/json; charset=utf-8";
                     res.ContentLength64 = bytes.Length;
@@ -301,7 +326,7 @@ namespace Score
             }
         }
 
-        private void ProcessTcpClient(TcpClient client)
+        private void ProcessTcpClient(TcpClient client, long swTicks, long utcTicks)
         {
             using (client)
             {
@@ -391,6 +416,12 @@ namespace Score
 
                     if (path.Equals("/api/buzz", StringComparison.OrdinalIgnoreCase))
                     {
+                        if (!IsBuzzerArmed)
+                        {
+                            WriteTcpResponse(stream, "423 Locked", "application/json; charset=utf-8", "{\"status\":\"locked\",\"error\":\"Buzzers are disarmed/locked.\"}");
+                            return;
+                        }
+
                         string team = null;
                         if (method == "POST")
                         {
@@ -411,10 +442,10 @@ namespace Score
 
                         if (!string.IsNullOrWhiteSpace(team))
                         {
-                            TriggerBuzz(team.Trim());
+                            TriggerBuzz(team.Trim(), swTicks, utcTicks);
                         }
 
-                        var json = "{\"status\":\"ok\",\"team\":\"" + EscapeJson(team ?? string.Empty) + "\"}";
+                        var json = "{\"status\":\"ok\",\"team\":\"" + EscapeJson(team ?? string.Empty) + "\",\"timestamp\":" + utcTicks + "}";
                         WriteTcpResponse(stream, "200 OK", "application/json; charset=utf-8", json);
                         return;
                     }
@@ -450,9 +481,20 @@ namespace Score
 
         private void TriggerBuzz(string teamName)
         {
+            TriggerBuzz(teamName, Stopwatch.GetTimestamp(), DateTime.UtcNow.Ticks);
+        }
+
+        private void TriggerBuzz(string teamName, long swTicks, long utcTicks)
+        {
             try
             {
+                LastBuzzedTeam = teamName;
+                LastBuzzStopwatchTicks = swTicks;
+                LastBuzzUtcTicks = utcTicks;
+
                 OnBuzzReceived?.Invoke(teamName);
+                OnBuzzReceivedDetailed?.Invoke(teamName, swTicks, utcTicks);
+                OnBuzzReceivedWithTimestamp?.Invoke(teamName, swTicks);
             }
             catch (Exception ex)
             {
@@ -524,80 +566,78 @@ namespace Score
             return s.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\r", "").Replace("\n", " ");
         }
 
-        public static string DetectLocalIp()
+        public static string GetLocalIpAddress()
         {
-            // 1. Try kernel routing table query via UDP connect
+            string hotspotCandidate = null, physicalCandidate = null;
+
+            // 1. Scan network interfaces (prioritize 192.168.137.1 and Wi-Fi Direct / Hotspots)
             try
             {
-                using (var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0))
+                foreach (var nic in System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces())
                 {
-                    socket.Connect("8.8.8.8", 65530);
-                    if (socket.LocalEndPoint is IPEndPoint ep && !IPAddress.IsLoopback(ep.Address))
-                    {
-                        return ep.Address.ToString();
-                    }
-                }
-            }
-            catch { }
+                    if (nic.OperationalStatus != System.Net.NetworkInformation.OperationalStatus.Up) continue;
 
-            // 2. Try active physical network adapters (prioritize Wi-Fi and Ethernet, avoid virtual switches)
-            try
-            {
-                var nics = System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces()
-                    .Where(n => n.OperationalStatus == System.Net.NetworkInformation.OperationalStatus.Up &&
-                                (n.NetworkInterfaceType == System.Net.NetworkInformation.NetworkInterfaceType.Wireless80211 ||
-                                 n.NetworkInterfaceType == System.Net.NetworkInformation.NetworkInterfaceType.Ethernet) &&
-                                !n.Description.ToLowerInvariant().Contains("virtual") &&
-                                !n.Description.ToLowerInvariant().Contains("hyper-v") &&
-                                !n.Description.ToLowerInvariant().Contains("wsl") &&
-                                !n.Name.ToLowerInvariant().Contains("vethernet") &&
-                                !n.Name.ToLowerInvariant().Contains("virtualbox"))
-                    .ToList();
+                    string desc = (nic.Description ?? string.Empty).ToLowerInvariant();
+                    string name = (nic.Name ?? string.Empty).ToLowerInvariant();
+                    bool isHotspot = desc.Contains("wi-fi direct") || desc.Contains("hotspot") ||
+                                     desc.Contains("microsoft wi-fi direct virtual adapter") ||
+                                     name.Contains("wi-fi direct") || name.Contains("hotspot");
 
-                foreach (var nic in nics)
-                {
-                    var props = nic.GetIPProperties();
-                    foreach (var addr in props.UnicastAddresses)
+                    bool isVirtualSwitch = (desc.Contains("hyper-v") || desc.Contains("wsl") ||
+                                            name.Contains("vethernet") || name.Contains("virtualbox") ||
+                                            name.Contains("vmware") ||
+                                            ((desc.Contains("virtual") || name.Contains("virtual")) && !isHotspot));
+
+                    foreach (var addr in nic.GetIPProperties().UnicastAddresses)
                     {
-                        if (addr.Address.AddressFamily == AddressFamily.InterNetwork &&
-                            !IPAddress.IsLoopback(addr.Address) &&
-                            !addr.Address.ToString().StartsWith("169.254."))
+                        if (addr.Address.AddressFamily != AddressFamily.InterNetwork || IPAddress.IsLoopback(addr.Address)) continue;
+                        string ip = addr.Address.ToString();
+                        if (ip.StartsWith("169.254.")) continue;
+                        if (ip == "192.168.137.1") return ip; // Windows default Mobile Hotspot IP
+                        if (isHotspot && hotspotCandidate == null) hotspotCandidate = ip;
+                        if (!isVirtualSwitch && physicalCandidate == null &&
+                            (nic.NetworkInterfaceType == System.Net.NetworkInformation.NetworkInterfaceType.Wireless80211 ||
+                             nic.NetworkInterfaceType == System.Net.NetworkInformation.NetworkInterfaceType.Ethernet))
                         {
-                            return addr.Address.ToString();
+                            physicalCandidate = ip;
                         }
                     }
                 }
             }
             catch { }
 
+            // 2. Kernel routing table query via UDP connect (when connected to external router/gateway)
+            try
+            {
+                using (var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0))
+                {
+                    socket.Connect("8.8.8.8", 65530);
+                    if (socket.LocalEndPoint is IPEndPoint ep && !IPAddress.IsLoopback(ep.Address))
+                        return ep.Address.ToString();
+                }
+            }
+            catch { }
+
+            if (hotspotCandidate != null) return hotspotCandidate;
+            if (physicalCandidate != null) return physicalCandidate;
+
             // 3. Fallback to DNS Host Addresses
             try
             {
                 var host = Dns.GetHostEntry(Dns.GetHostName());
-                foreach (var ip in host.AddressList)
+                foreach (var ip in host.AddressList.Where(a => a.AddressFamily == AddressFamily.InterNetwork && !IPAddress.IsLoopback(a)))
                 {
-                    if (ip.AddressFamily == AddressFamily.InterNetwork &&
-                        !IPAddress.IsLoopback(ip) &&
-                        !ip.ToString().StartsWith("169.254.") &&
-                        !ip.ToString().StartsWith("172."))
-                    {
-                        return ip.ToString();
-                    }
-                }
-                foreach (var ip in host.AddressList)
-                {
-                    if (ip.AddressFamily == AddressFamily.InterNetwork &&
-                        !IPAddress.IsLoopback(ip) &&
-                        !ip.ToString().StartsWith("169.254."))
-                    {
-                        return ip.ToString();
-                    }
+                    string s = ip.ToString();
+                    if (s == "192.168.137.1") return s;
+                    if (!s.StartsWith("169.254.") && !s.StartsWith("172.")) return s;
                 }
             }
             catch { }
 
             return "127.0.0.1";
         }
+
+        public static string DetectLocalIp() => GetLocalIpAddress();
 
 
         public static BitmapSource GenerateQrBitmap(string text, int scale = 7, int quietZone = 4)

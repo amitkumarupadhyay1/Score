@@ -147,13 +147,17 @@ namespace Score
     </div>
 
     <div class=""card"">
-        <label class=""label"" for=""teamSelect"">Select Your Team</label>
+        <div style=""display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;"">
+            <label class=""label"" for=""teamSelect"" style=""margin-bottom:0;"">Your Team</label>
+            <button id=""unlockTeamBtn"" type=""button"" style=""background:none; border:none; color:#818CF8; font-size:11px; font-weight:700; cursor:pointer; display:none;"">UNLOCK / CHANGE</button>
+        </div>
         <select id=""teamSelect"">
             <option value=""Team 1"">Team 1</option>
             <option value=""Team 2"">Team 2</option>
             <option value=""Team 3"">Team 3</option>
             <option value=""Team 4"">Team 4</option>
         </select>
+        <div id=""teamLockNotice"" style=""display:none; font-size:11px; color:#10B981; font-weight:600; margin-top:6px;"">🔒 Locked to your team for this session</div>
     </div>
 
     <div class=""buzzer-container"">
@@ -169,10 +173,49 @@ namespace Score
         const btn = document.getElementById('buzzerBtn');
         const teamSelect = document.getElementById('teamSelect');
         const statusBadge = document.getElementById('statusBadge');
+        const unlockTeamBtn = document.getElementById('unlockTeamBtn');
+        const teamLockNotice = document.getElementById('teamLockNotice');
         let isBuzzed = false;
         let lastBuzzTime = 0;
+        let wakeLock = null;
 
-        // Restore chosen team from localStorage
+        // Screen Wake Lock API to prevent phone from locking/sleeping during quiz
+        async function requestWakeLock() {
+            try {
+                if ('wakeLock' in navigator) {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    wakeLock.addEventListener('release', () => { wakeLock = null; });
+                }
+            } catch (e) {}
+        }
+        requestWakeLock();
+        document.addEventListener('visibilitychange', () => {
+            if (wakeLock === null && document.visibilityState === 'visible') {
+                requestWakeLock();
+            }
+        });
+        window.addEventListener('click', () => { if (!wakeLock) requestWakeLock(); }, { once: true });
+        window.addEventListener('touchstart', () => { if (!wakeLock) requestWakeLock(); }, { once: true });
+
+        function lockTeam(team) {
+            if (!team) return;
+            localStorage.setItem('quiz_team', team);
+            teamSelect.disabled = true;
+            if (unlockTeamBtn) unlockTeamBtn.style.display = 'inline-block';
+            if (teamLockNotice) teamLockNotice.style.display = 'block';
+        }
+
+        function unlockTeam() {
+            if (confirm('Change team? This will reset your current team assignment.')) {
+                teamSelect.disabled = false;
+                if (unlockTeamBtn) unlockTeamBtn.style.display = 'none';
+                if (teamLockNotice) teamLockNotice.style.display = 'none';
+                localStorage.removeItem('quiz_team');
+            }
+        }
+        if (unlockTeamBtn) unlockTeamBtn.addEventListener('click', unlockTeam);
+
+        // Restore chosen team from localStorage so contestants cannot hijack another team's buzz mid-round
         const savedTeam = localStorage.getItem('quiz_team');
         if (savedTeam) {
             let found = false;
@@ -190,10 +233,13 @@ namespace Score
                 opt.selected = true;
                 teamSelect.appendChild(opt);
             }
+            lockTeam(savedTeam);
         }
 
         teamSelect.addEventListener('change', () => {
-            localStorage.setItem('quiz_team', teamSelect.value);
+            if (teamSelect.value) {
+                lockTeam(teamSelect.value);
+            }
             resetStatus();
         });
 
@@ -202,7 +248,7 @@ namespace Score
             .then(r => r.json())
             .then(teams => {
                 if (teams && teams.length > 0) {
-                    const current = teamSelect.value || savedTeam;
+                    const current = localStorage.getItem('quiz_team') || teamSelect.value;
                     teamSelect.innerHTML = '';
                     teams.forEach(t => {
                         const opt = document.createElement('option');
@@ -211,6 +257,10 @@ namespace Score
                         if (t === current) opt.selected = true;
                         teamSelect.appendChild(opt);
                     });
+                    if (current) {
+                        teamSelect.value = current;
+                        lockTeam(current);
+                    }
                 }
             })
             .catch(() => {});
@@ -254,10 +304,6 @@ namespace Score
 
             btn.classList.add('pressed');
             setTimeout(() => btn.classList.remove('pressed'), 140);
-
-            if (navigator.vibrate) {
-                try { navigator.vibrate([70]); } catch(err) {}
-            }
             playHapticBeep();
 
             btn.classList.add('buzzed-state');
@@ -270,8 +316,23 @@ namespace Score
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ team: team })
             })
-            .then(r => r.json())
+            .then(r => {
+                if (r.status === 423) {
+                    statusBadge.textContent = '🔒 BUZZER LOCKED BY HOST';
+                    statusBadge.className = 'status-badge';
+                    btn.classList.remove('buzzed-state');
+                    btn.textContent = 'BUZZ IN!';
+                    setTimeout(resetStatus, 2500);
+                    return null;
+                }
+                return r.json();
+            })
             .then(res => {
+                if (!res) return;
+                // Haptic feedback upon successful buzz
+                if (navigator.vibrate) {
+                    try { navigator.vibrate([80, 40, 80]); } catch(err) {}
+                }
                 statusBadge.textContent = '✓ BUZZ REGISTERED FOR ' + team.toUpperCase();
                 setTimeout(resetStatus, 3000);
             })

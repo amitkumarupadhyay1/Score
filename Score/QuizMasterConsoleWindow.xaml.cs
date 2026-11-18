@@ -32,9 +32,13 @@ namespace Score
         private int _passCount = 0;
         private int _lastWarningSecond = -1;
         private QuizBuzzerServer _buzzerServer;
+        private QuizAudienceWindow _audienceWindow;
+        private bool _refreshingTeamList;
 
         private DeckSlide _currentSlide => _slideList != null && _currentSlideIndex >= 0 && _currentSlideIndex < _slideList.Count
             ? _slideList[_currentSlideIndex] : null;
+
+        private int? _initialDeckId;
 
         public QuizMasterConsoleWindow()
         {
@@ -42,47 +46,53 @@ namespace Score
             _timerRefresh.Tick += TimerRefresh_Tick;
             Loaded += QuizMasterConsoleWindow_Loaded;
             Closing += QuizMasterConsoleWindow_Closing;
+            if (ConsoleTeamList != null)
+                ConsoleTeamList.SelectionChanged += ConsoleTeamList_SelectionChanged;
         }
+
+        public QuizMasterConsoleWindow(int deckId) : this() => _initialDeckId = deckId;
 
         private void UpdateSessionBadge()
         {
             var isLive = _currentSession != null && (_currentSession.Status == "Running" || _currentSession.Status == "Paused");
+            var conv = new BrushConverter();
             if (ConsoleSessionBadge != null)
             {
-                ConsoleSessionBadge.Background = isLive
-                    ? (Brush)new BrushConverter().ConvertFromString("#FF065F46")
-                    : (Brush)new BrushConverter().ConvertFromString("#FF1E293B");
-                ConsoleSessionBadge.BorderBrush = isLive
-                    ? (Brush)new BrushConverter().ConvertFromString("#FF047857")
-                    : (Brush)new BrushConverter().ConvertFromString("#FF334155");
+                ConsoleSessionBadge.Background = (Brush)conv.ConvertFromString(isLive ? "#FF065F46" : "#FF1E293B");
+                ConsoleSessionBadge.BorderBrush = (Brush)conv.ConvertFromString(isLive ? "#FF047857" : "#FF334155");
             }
             if (ConsoleSessionDot != null)
             {
                 ConsoleSessionDot.Text = isLive ? "●" : "○";
-                ConsoleSessionDot.Foreground = isLive
-                    ? (Brush)new BrushConverter().ConvertFromString("#FF34D399")
-                    : (Brush)new BrushConverter().ConvertFromString("#FF94A3B8");
+                ConsoleSessionDot.Foreground = (Brush)conv.ConvertFromString(isLive ? "#FF34D399" : "#FF94A3B8");
             }
             if (ConsoleSessionBadgeText != null)
             {
                 ConsoleSessionBadgeText.Text = isLive ? "LIVE QUIZ" : "STANDBY";
-                ConsoleSessionBadgeText.Foreground = isLive
-                    ? (Brush)new BrushConverter().ConvertFromString("#FFFFFFFF")
-                    : (Brush)new BrushConverter().ConvertFromString("#FF94A3B8");
+                ConsoleSessionBadgeText.Foreground = (Brush)conv.ConvertFromString(isLive ? "#FFFFFFFF" : "#FF94A3B8");
             }
+
+            // Toggle button visibility: hide START when live, hide FINISH when standby
+            if (StartQuizButton != null)
+                StartQuizButton.Visibility = isLive ? Visibility.Collapsed : Visibility.Visible;
+            if (EndQuizButton != null)
+                EndQuizButton.Visibility = isLive ? Visibility.Visible : Visibility.Collapsed;
+
+            // Lock deck switching during live quiz
+            if (ConsoleDeckSelector != null)
+                ConsoleDeckSelector.IsEnabled = !isLive;
         }
 
         private void QuizMasterConsoleWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             try
             {
-                _buzzerServer?.Dispose();
-                _buzzerServer = null;
-
                 if (_currentSession != null && (_currentSession.Status == "Running" || _currentSession.Status == "Paused"))
                 {
                     if (IsHeadlessTestEnvironment())
                     {
+                        _buzzerServer?.Dispose();
+                        _buzzerServer = null;
                         _currentSession.Status = "Completed";
                         _currentSession.CompletedAtUtc = DateTime.UtcNow;
                         _db.SaveChanges();
@@ -103,6 +113,8 @@ namespace Score
 
                         if (res == MessageBoxResult.Yes)
                         {
+                            _buzzerServer?.Dispose();
+                            _buzzerServer = null;
                             _currentSession.Status = "Completed";
                             _currentSession.CompletedAtUtc = DateTime.UtcNow;
                             _currentSession.TimerStartedAtUtc = null;
@@ -111,6 +123,27 @@ namespace Score
                         }
                     }
                 }
+                else
+                {
+                    _buzzerServer?.Dispose();
+                    _buzzerServer = null;
+                }
+            }
+            catch { }
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+            try
+            {
+                _buzzerServer?.Dispose();
+                _buzzerServer = null;
+                if (_audienceWindow != null && _audienceWindow.IsLoaded)
+                {
+                    _audienceWindow.Close();
+                }
+                _audienceWindow = null;
             }
             catch { }
         }
@@ -132,56 +165,6 @@ namespace Score
             UpdateSessionBadge();
         }
 
-        private void EnsureBuzzerServerStarted()
-        {
-            try
-            {
-                if (_buzzerServer == null)
-                {
-                    _buzzerServer = new QuizBuzzerServer();
-                    _buzzerServer.GetTeamsCallback = () => _teams;
-                    _buzzerServer.OnBuzzReceived += (team) =>
-                    {
-                        Dispatcher.Invoke(() => RegisterBuzz(team));
-                    };
-                    _buzzerServer.Start();
-                }
-            }
-            catch (Exception ex)
-            {
-                AppDiagnostics.WriteException("Could not auto-start QuizBuzzerServer.", ex);
-            }
-        }
-
-        private void SoundToggleButton_Click(object sender, RoutedEventArgs e)
-        {
-            QuizChimes.IsMuted = !QuizChimes.IsMuted;
-            UpdateSoundButtonState();
-        }
-
-        private void UpdateSoundButtonState()
-        {
-            if (QuizChimes.IsMuted)
-            {
-                SoundToggleButton.Content = "🔇 MUTE";
-                SoundToggleButton.Background = (Brush)new BrushConverter().ConvertFromString("#FF64748B");
-                SoundToggleButton.BorderBrush = (Brush)new BrushConverter().ConvertFromString("#FF475569");
-            }
-            else
-            {
-                SoundToggleButton.Content = "🔊 SOUND ON";
-                SoundToggleButton.Background = (Brush)new BrushConverter().ConvertFromString("#FF059669");
-                SoundToggleButton.BorderBrush = (Brush)new BrushConverter().ConvertFromString("#FF047857");
-            }
-        }
-
-        private void MobileBuzzerButton_Click(object sender, RoutedEventArgs e)
-        {
-            EnsureBuzzerServerStarted();
-            var dialog = new QuizBuzzerDialog(_buzzerServer) { Owner = this };
-            dialog.ShowDialog();
-        }
-
         private void LoadDeckSelector()
         {
             var decks = _db.QuizDecks.Where(d => d.IsActive).OrderBy(d => d.Title).ToList();
@@ -192,9 +175,12 @@ namespace Score
             }
             _loadingDeckSelector = true;
             ConsoleDeckSelector.ItemsSource = decks;
-            ConsoleDeckSelector.SelectedItem = decks[0];
+            var targetDeck = _initialDeckId.HasValue
+                ? decks.FirstOrDefault(d => d.QuizDeckId == _initialDeckId.Value) ?? decks[0]
+                : decks[0];
+            ConsoleDeckSelector.SelectedItem = targetDeck;
             _loadingDeckSelector = false;
-            LoadDeck(decks[0]);
+            LoadDeck(targetDeck);
         }
 
         private void LoadDeck(QuizDeck deck)
@@ -263,45 +249,49 @@ namespace Score
 
         private void RefreshTeams()
         {
-            ConsoleTeamList.ItemsSource = null;
-            var teamItems = _teams.Select((t, index) => new
+            _refreshingTeamList = true;
+            try
             {
-                QuickKey = index < 9 ? $"[{index + 1}]" : "   ",
-                Team = t,
-                Score = _teamScores.TryGetValue(t, out var sc) ? sc : 0,
-                Status = _currentBuzzingTeam == t ? "ANSWERING" :
-                         _buzzQueue.Contains(t) ? $"QUEUED #{_buzzQueue.IndexOf(t) + 1}" :
-                         _buzzedTeams.Contains(t) ? "BUZZED" : string.Empty
-            }).ToList();
-            ConsoleTeamList.SelectedValuePath = "Team";
-            ConsoleTeamList.ItemsSource = teamItems;
-            if (_currentBuzzingTeam != null)
-                ConsoleTeamList.SelectedValue = _currentBuzzingTeam;
-            else if (teamItems.Count > 0 && ConsoleTeamList.SelectedIndex < 0)
-                ConsoleTeamList.SelectedIndex = 0;
+                ConsoleTeamList.ItemsSource = null;
+                var teamItems = _teams.Select((t, index) => new
+                {
+                    QuickKey = index < 9 ? $"[{index + 1}]" : "   ",
+                    Team = t,
+                    Score = _teamScores.TryGetValue(t, out var sc) ? sc : 0,
+                    Status = _currentBuzzingTeam == t ? "ANSWERING" :
+                             _buzzQueue.Contains(t) ? $"QUEUED #{_buzzQueue.IndexOf(t) + 1}" :
+                             _buzzedTeams.Contains(t) ? "BUZZED" : string.Empty
+                }).ToList();
+                ConsoleTeamList.SelectedValuePath = "Team";
+                ConsoleTeamList.ItemsSource = teamItems;
+                if (_currentBuzzingTeam != null)
+                    ConsoleTeamList.SelectedValue = _currentBuzzingTeam;
+                else if (teamItems.Count > 0 && ConsoleTeamList.SelectedIndex < 0)
+                    ConsoleTeamList.SelectedIndex = 0;
 
-            UpdateBuzzQueueDisplay();
+                UpdateBuzzQueueDisplay();
+            }
+            finally
+            {
+                _refreshingTeamList = false;
+            }
         }
 
         private void UpdateBuzzQueueDisplay()
         {
+            BuzzQueueContainer.Visibility = _buzzQueue.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
             if (_buzzQueue.Count > 0)
-            {
-                BuzzQueueContainer.Visibility = Visibility.Visible;
                 BuzzQueueListLabel.Text = string.Join(" → ", _buzzQueue.Select((t, i) => $"{i + 1}. {t}"));
-            }
-            else
-            {
-                BuzzQueueContainer.Visibility = Visibility.Collapsed;
-            }
         }
 
         private void ResumeActiveSession()
         {
-            _currentSession = _db.QuizDeckSessions
-                .Where(s => s.Status == "Running" || s.Status == "Paused")
-                .OrderByDescending(s => s.QuizDeckSessionId)
-                .FirstOrDefault();
+            var query = _db.QuizDeckSessions.Where(s => s.Status == "Running" || s.Status == "Paused");
+            if (_initialDeckId.HasValue)
+            {
+                query = query.Where(s => s.QuizDeckId == _initialDeckId.Value);
+            }
+            _currentSession = query.OrderByDescending(s => s.QuizDeckSessionId).FirstOrDefault();
             if (_currentSession == null) return;
 
             var deck = _db.QuizDecks.SingleOrDefault(d => d.QuizDeckId == _currentSession.QuizDeckId);
@@ -334,8 +324,7 @@ namespace Score
             _currentSlideIndex = Math.Max(0, Math.Min(_currentSession.CurrentSlideIndex, _slideList.Count - 1));
             _clueStep = _currentSession.ClueRevealStep;
             _passCount = _currentSession.PassCount;
-            StartQuizButton.IsEnabled = false;
-            ConsoleDeckSelector.IsEnabled = true;
+            UpdateSessionBadge();
             ShowCurrentSlide(false);
 
             RefreshTeams();
@@ -391,8 +380,7 @@ namespace Score
                 _hasCorrectBuzzForSlide = false;
                 _clueStep = 0;
                 _passCount = 0;
-                StartQuizButton.IsEnabled = false;
-                ConsoleDeckSelector.IsEnabled = false;
+                UpdateSessionBadge();
                 RefreshSlideList();
                 RefreshTeams();
                 ShowCurrentSlide();
@@ -430,28 +418,82 @@ namespace Score
             ConsoleSlideTitle.Text = _currentSlide.Title ?? string.Empty;
             ConsoleSlideContent.Text = _currentSlide.ContentText ?? string.Empty;
 
-            var options = isQuestion ? QuizScoringEngine.ParseOptions(_currentSlide.OptionsJson) : new List<string>();
-            if (options.Count > 0)
+            // Host Media Preview
+            if (!string.IsNullOrWhiteSpace(_currentSlide.MediaPath) && System.IO.File.Exists(_currentSlide.MediaPath))
             {
-                ConsoleSlideOptions.Visibility = Visibility.Visible;
-                ConsoleSlideOptions.Text = string.Join(Environment.NewLine,
-                    options.Select((option, index) => $"{(char)('A' + index)}. {option}"));
+                var ext = System.IO.Path.GetExtension(_currentSlide.MediaPath).ToLowerInvariant();
+                if (ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".gif" || ext == ".bmp")
+                {
+                    try
+                    {
+                        ConsoleMediaImage.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri(System.IO.Path.GetFullPath(_currentSlide.MediaPath)));
+                        ConsoleMediaPanel.Visibility = Visibility.Visible;
+                    }
+                    catch
+                    {
+                        ConsoleMediaPanel.Visibility = Visibility.Collapsed;
+                    }
+                }
+                else
+                {
+                    ConsoleMediaPanel.Visibility = Visibility.Collapsed;
+                }
             }
             else
             {
-                ConsoleSlideOptions.Visibility = Visibility.Collapsed;
+                ConsoleMediaPanel.Visibility = Visibility.Collapsed;
+            }
+
+            var options = isQuestion ? QuizScoringEngine.ParseOptions(_currentSlide.OptionsJson) : new List<string>();
+            ConsoleSlideOptions.Visibility = options.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+            if (options.Count > 0)
+            {
+                var optLines = new List<string>();
+                for (int i = 0; i < options.Count; i++)
+                {
+                    var letter = ((char)('A' + i)).ToString();
+                    var isAnswer = string.Equals(_currentSlide.CorrectAnswer?.Trim(), letter, StringComparison.OrdinalIgnoreCase) ||
+                                   string.Equals(_currentSlide.CorrectAnswer?.Trim(), options[i], StringComparison.OrdinalIgnoreCase);
+                    optLines.Add($"{letter}. {options[i]}{(isAnswer ? "  ✓ [KEY]" : "")}");
+                }
+                ConsoleSlideOptions.Text = string.Join(Environment.NewLine, optLines);
+            }
+            else
+            {
                 ConsoleSlideOptions.Text = string.Empty;
             }
 
-            ConsoleAnswerKey.Text = string.IsNullOrWhiteSpace(_currentSlide.CorrectAnswer)
-                ? "No answer key configured."
-                : "Answer Key: " + _currentSlide.CorrectAnswer;
-            ConsoleAlternateAnswers.Text = string.IsNullOrWhiteSpace(_currentSlide.AlternateAnswers)
-                ? string.Empty
-                : "Accepted Aliases: " + _currentSlide.AlternateAnswers;
-            ConsoleExplanation.Text = string.IsNullOrWhiteSpace(_currentSlide.Explanation)
-                ? string.Empty
-                : "Host Notes / Trivia: " + _currentSlide.Explanation;
+            // Quick Choice Bar
+            var isMC = isQuestion && string.Equals(_currentSlide.QuestionType, QuizScoringEngine.QuestionMultipleChoice, StringComparison.OrdinalIgnoreCase);
+            var isTF = isQuestion && string.Equals(_currentSlide.QuestionType, QuizScoringEngine.QuestionTrueFalse, StringComparison.OrdinalIgnoreCase);
+            if (isMC && options.Count > 0)
+            {
+                QuickOptionBar.Visibility = Visibility.Visible;
+                QuickOptionA.Visibility = Visibility.Visible;
+                QuickOptionB.Visibility = options.Count >= 2 ? Visibility.Visible : Visibility.Collapsed;
+                QuickOptionC.Visibility = options.Count >= 3 ? Visibility.Visible : Visibility.Collapsed;
+                QuickOptionD.Visibility = options.Count >= 4 ? Visibility.Visible : Visibility.Collapsed;
+                QuickOptionTrue.Visibility = Visibility.Collapsed;
+                QuickOptionFalse.Visibility = Visibility.Collapsed;
+            }
+            else if (isTF)
+            {
+                QuickOptionBar.Visibility = Visibility.Visible;
+                QuickOptionA.Visibility = Visibility.Collapsed;
+                QuickOptionB.Visibility = Visibility.Collapsed;
+                QuickOptionC.Visibility = Visibility.Collapsed;
+                QuickOptionD.Visibility = Visibility.Collapsed;
+                QuickOptionTrue.Visibility = Visibility.Visible;
+                QuickOptionFalse.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                QuickOptionBar.Visibility = Visibility.Collapsed;
+            }
+
+            ConsoleAnswerKey.Text = string.IsNullOrWhiteSpace(_currentSlide.CorrectAnswer) ? "No answer key configured." : "Answer Key: " + _currentSlide.CorrectAnswer;
+            ConsoleAlternateAnswers.Text = string.IsNullOrWhiteSpace(_currentSlide.AlternateAnswers) ? string.Empty : "Accepted Aliases: " + _currentSlide.AlternateAnswers;
+            ConsoleExplanation.Text = string.IsNullOrWhiteSpace(_currentSlide.Explanation) ? string.Empty : "Host Notes / Trivia: " + _currentSlide.Explanation;
 
             // Hints / Clues
             var hints = (_currentSlide.HintsJson ?? string.Empty)
@@ -524,8 +566,7 @@ namespace Score
             _buzzQueue.Clear();
             _buzzedTeams.Clear();
             _hasCorrectBuzzForSlide = false;
-            var isRevealed = _currentSession != null && _currentSession.AnswerRevealed;
-            RevealAnswerButton.Content = isRevealed ? "HIDE ANSWER" : "REVEAL ON STAGE (R)";
+            UpdateRevealButtonState();
             ConsoleAnswerEditor.Text = string.Empty;
 
             if (_currentSession != null)
@@ -540,80 +581,11 @@ namespace Score
             {
                 UpdateTimerDisplay();
             }
-        }
-
-        private void UpdateFloorBanner()
-        {
-            if (_currentSlide == null)
+            if (_buzzerServer != null)
             {
-                TurnBanner.Visibility = Visibility.Collapsed;
-                return;
+                _buzzerServer.IsBuzzerArmed = isQuestion && !_hasCorrectBuzzForSlide;
             }
-
-            TurnBanner.Visibility = Visibility.Visible;
-            if (_currentSession == null)
-            {
-                TurnBanner.Background = (Brush)new BrushConverter().ConvertFromString("#FFF0FDF4");
-                TurnBanner.BorderBrush = (Brush)new BrushConverter().ConvertFromString("#FFBBF7D0");
-                TurnStatusLabel.Text = "✦ READY TO CONDUCT · CLICK '▶ START QUIZ'";
-                TurnStatusLabel.Foreground = (Brush)new BrushConverter().ConvertFromString("#FF166534");
-                TurnDetailsLabel.Text = "Browse and preview questions above. Click 'START QUIZ' in the top bar to register teams and enable live buzzers.";
-                TurnDetailsLabel.Foreground = (Brush)new BrushConverter().ConvertFromString("#FF15803D");
-                PassButton.Visibility = Visibility.Collapsed;
-                return;
-            }
-
-            PassButton.Visibility = _currentSlide.AllowPass ? Visibility.Visible : Visibility.Collapsed;
-            TurnBanner.Background = (Brush)new BrushConverter().ConvertFromString("#FFFEF9C3");
-            TurnBanner.BorderBrush = (Brush)new BrushConverter().ConvertFromString("#FFFDE047");
-            TurnStatusLabel.Foreground = (Brush)new BrushConverter().ConvertFromString("#FF854D0E");
-            TurnDetailsLabel.Foreground = (Brush)new BrushConverter().ConvertFromString("#FFA16207");
-
-            var activeTeam = _currentSession?.ActiveTeamOnFloor ?? (ConsoleTeamList.SelectedValue as string);
-            if (string.IsNullOrWhiteSpace(activeTeam) && _teams.Count > 0) activeTeam = _teams[0];
-
-            if (_passCount == 0)
-            {
-                TurnStatusLabel.Text = $"ACTIVE FLOOR: {activeTeam?.ToUpperInvariant()}";
-                TurnDetailsLabel.Text = $"Direct question · Full score: +{_currentSlide.Points} pts";
-            }
-            else
-            {
-                var bonus = _currentSlide.BonusPoints > 0 ? _currentSlide.BonusPoints : (_currentSlide.Points / 2);
-                TurnStatusLabel.Text = $"BOUNCE #{_passCount}: {activeTeam?.ToUpperInvariant()}";
-                TurnDetailsLabel.Text = $"Passed question · Bonus score: +{bonus} pts";
-            }
-        }
-
-        private void UpdateClueDisplay(string[] hints)
-        {
-            if (_clueStep == 0)
-            {
-                ClueStatusLabel.Text = $"0 of {hints.Length} clues revealed";
-                RevealClueButton.Content = "💡 REVEAL CLUE 1";
-            }
-            else if (_clueStep <= hints.Length)
-            {
-                ClueStatusLabel.Text = $"Clue {_clueStep}/{hints.Length}: \"{hints[_clueStep - 1]}\"";
-                RevealClueButton.Content = _clueStep < hints.Length
-                    ? $"💡 REVEAL CLUE {_clueStep + 1}"
-                    : "ALL CLUES REVEALED";
-            }
-        }
-
-        private void RevealClueButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (_currentSlide == null || _currentSession == null) return;
-            var hints = (_currentSlide.HintsJson ?? string.Empty)
-                .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-            if (_clueStep < hints.Length)
-            {
-                _clueStep++;
-                _currentSession.ClueRevealStep = _clueStep;
-                _db.SaveChanges();
-                UpdateClueDisplay(hints);
-                ConsoleStatusText.Text = $"Clue {_clueStep} revealed to the audience.";
-            }
+            PushSlideStateToAudience();
         }
 
         private void ConsoleSlideList_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -626,21 +598,16 @@ namespace Score
                 if (_currentSession != null)
                 {
                     _currentSession.CurrentSlideIndex = idx;
+                    _currentSession.AnswerRevealed = false;
+                    _currentSession.ClueRevealStep = 0;
                     _db.SaveChanges();
                 }
                 ShowCurrentSlide(startTimer: _currentSession != null && _currentSession.Status == "Running");
             }
         }
 
-        private void NextSlideButton_Click(object sender, RoutedEventArgs e)
-        {
-            AdvanceSlide(1);
-        }
-
-        private void PrevSlideButton_Click(object sender, RoutedEventArgs e)
-        {
-            AdvanceSlide(-1);
-        }
+        private void NextSlideButton_Click(object sender, RoutedEventArgs e) => AdvanceSlide(1);
+        private void PrevSlideButton_Click(object sender, RoutedEventArgs e) => AdvanceSlide(-1);
 
         private void AdvanceSlide(int delta)
         {
@@ -651,6 +618,8 @@ namespace Score
                 if (_currentSession != null)
                 {
                     _currentSession.CurrentSlideIndex = _currentSlideIndex;
+                    _currentSession.AnswerRevealed = false;
+                    _currentSession.ClueRevealStep = 0;
                     _db.SaveChanges();
                 }
                 _questionTimer.Stop();
@@ -659,8 +628,6 @@ namespace Score
                 ConsoleSlideList.SelectedIndex = _currentSlideIndex;
             }
         }
-
-
 
         private void EndQuizButton_Click(object sender, RoutedEventArgs e)
         {

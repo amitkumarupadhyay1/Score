@@ -495,11 +495,18 @@ namespace Score
 
         private void HostQuizButton_Click(object sender, RoutedEventArgs e)
         {
-            var quizMasterWindow = new QuizMasterConsoleWindow
+            var libraryWindow = new QuizLibraryWindow
             {
                 Owner = this
             };
-            quizMasterWindow.ShowDialog();
+            if (libraryWindow.ShowDialog() == true && libraryWindow.SelectedDeckId.HasValue)
+            {
+                var quizMasterWindow = new QuizMasterConsoleWindow(libraryWindow.SelectedDeckId.Value)
+                {
+                    Owner = this
+                };
+                quizMasterWindow.ShowDialog();
+            }
         }
 
         protected override void OnClosed(EventArgs e)

@@ -3,7 +3,9 @@ param(
     [ValidateSet("Debug", "Release")]
     [string]$Configuration = "Release",
     [switch]$RunChecks,
-    [switch]$RunApp
+    [switch]$RunApp,
+    [switch]$BuildInstaller,
+    [string]$Version = "1.0.0"
 )
 
 $ErrorActionPreference = "Stop"
@@ -33,6 +35,40 @@ if ($RunChecks) {
     $checksPath = Join-Path $repositoryRoot "Score.Tests\bin\$Configuration\Score.Tests.exe"
     & $checksPath
     if ($LASTEXITCODE -ne 0) { throw "Production checks failed with exit code $LASTEXITCODE." }
+}
+
+if ($BuildInstaller) {
+    Write-Host "Locating Inno Setup compiler..."
+    $innoCandidates = @(
+        (Get-Command iscc.exe -ErrorAction SilentlyContinue).Source,
+        (Join-Path $env:LOCALAPPDATA "Programs\Inno Setup 6\ISCC.exe"),
+        (Join-Path ${env:ProgramFiles(x86)} "Inno Setup 6\ISCC.exe"),
+        (Join-Path $env:ProgramFiles "Inno Setup 6\ISCC.exe")
+    ) | Where-Object { $_ -and (Test-Path -LiteralPath $_) }
+
+    $isccPath = $innoCandidates | Select-Object -First 1
+    if (-not $isccPath) {
+        throw "Inno Setup compiler (ISCC.exe) was not found. Install Inno Setup 6 from https://jrsoftware.org/isdl.php"
+    }
+
+    Write-Host "Building installer with Inno Setup (version $Version)..."
+    $issPath = Join-Path $repositoryRoot "installer\Score.iss"
+    & $isccPath "/DMyAppVersion=$Version" $issPath
+    if ($LASTEXITCODE -ne 0) { throw "Installer compilation failed with exit code $LASTEXITCODE." }
+
+    $installerExe = Join-Path $repositoryRoot "installer-output\ScoreSetup.exe"
+    if (Test-Path -LiteralPath $installerExe) {
+        $hash = (Get-FileHash -Path $installerExe -Algorithm SHA256).Hash.ToLowerInvariant()
+        $checksumFile = "$installerExe.sha256"
+        "$hash *ScoreSetup.exe" | Set-Content -Path $checksumFile -Encoding ascii
+        $fileInfo = Get-Item -LiteralPath $installerExe
+        Write-Host "Installer created successfully:"
+        Write-Host "  Path:     $($fileInfo.FullName)"
+        Write-Host "  Size:     $([math]::Round($fileInfo.Length / 1MB, 2)) MB"
+        Write-Host "  SHA256:   $hash"
+    } else {
+        throw "Installer output not found at $installerExe."
+    }
 }
 
 if ($RunApp) {

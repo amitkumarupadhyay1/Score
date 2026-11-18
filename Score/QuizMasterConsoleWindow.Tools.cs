@@ -70,15 +70,17 @@ namespace Score
                     e.Handled = true;
                     break;
 
+                case Key.PageDown:
                 case Key.Right:
                 case Key.N:
-                    NextSlideButton_Click(sender, e);
+                    AdvanceSlide(1);
                     e.Handled = true;
                     break;
 
+                case Key.PageUp:
                 case Key.Left:
                 case Key.P:
-                    PrevSlideButton_Click(sender, e);
+                    AdvanceSlide(-1);
                     e.Handled = true;
                     break;
 
@@ -98,8 +100,13 @@ namespace Score
                     e.Handled = true;
                     break;
 
-                case Key.B:
+                case Key.S:
                     PassButton_Click(sender, e);
+                    e.Handled = true;
+                    break;
+
+                case Key.B:
+                    _audienceWindow?.ToggleBlackout();
                     e.Handled = true;
                     break;
 
@@ -162,9 +169,32 @@ namespace Score
 
         private void OpenProjectorButton_Click(object sender, RoutedEventArgs e)
         {
-            var projector = new QuizAudienceWindow();
-            projector.ShowOnAudienceScreen(this);
+            if (_audienceWindow != null && _audienceWindow.IsLoaded)
+            {
+                if (_audienceWindow.WindowState == WindowState.Minimized)
+                {
+                    _audienceWindow.WindowState = WindowState.Normal;
+                }
+                _audienceWindow.Activate();
+                _audienceWindow.Focus();
+                ConsoleStatusText.Text = "Audience view brought to front.";
+                PushSlideStateToAudience();
+                return;
+            }
+
+            _audienceWindow = new QuizAudienceWindow();
+            _audienceWindow.Closed += (s, args) => { _audienceWindow = null; };
+            _audienceWindow.ShowOnAudienceScreen(this);
             ConsoleStatusText.Text = "Audience view opened on stage monitor.";
+            PushSlideStateToAudience();
+        }
+
+        internal void PushSlideStateToAudience()
+        {
+            if (_audienceWindow != null && _audienceWindow.IsLoaded)
+            {
+                _audienceWindow.PushSlideState(_currentSlide, _currentSession, _currentSession?.AnswerRevealed ?? false, _currentSession?.ActiveTeamOnFloor, _clueStep);
+            }
         }
 
         private void ExportResultsButton_Click(object sender, RoutedEventArgs e)
@@ -285,12 +315,17 @@ namespace Score
         {
             if (_questionTimer.State == QuizTimerState.Stopped || _questionTimer.State == QuizTimerState.Completed)
             {
-                ConsoleTimerLabel.Text = "00:00";
+                // Show full duration in standby, 00:00 when completed
+                if (_questionTimer.State == QuizTimerState.Stopped && _currentSlide != null && _currentSlide.TimeLimitSeconds > 0)
+                    ConsoleTimerLabel.Text = TimeSpan.FromSeconds(_currentSlide.TimeLimitSeconds).ToString(@"mm\:ss");
+                else
+                    ConsoleTimerLabel.Text = "00:00";
             }
             else
             {
-                var ts = _questionTimer.Elapsed;
-                ConsoleTimerLabel.Text = $"{(int)ts.TotalMinutes:D2}:{ts.Seconds:D2}";
+                // Show REMAINING countdown (not elapsed) — matches audience screen
+                var remaining = _questionTimer.Remaining;
+                ConsoleTimerLabel.Text = $"{(int)remaining.TotalMinutes:D2}:{remaining.Seconds:D2}";
             }
         }
 
@@ -310,6 +345,11 @@ namespace Score
                 {
                     _lastWarningSecond = remaining;
                     QuizChimes.PlayTickWarning();
+                }
+                else if (remaining == 0 && _lastWarningSecond != 0)
+                {
+                    _lastWarningSecond = 0;
+                    QuizChimes.PlayBuzzer();
                 }
             }
         }
@@ -367,6 +407,177 @@ namespace Score
             if (_currentSession != null)
             {
                 _db.SaveChanges();
+            }
+        }
+
+        private void EnsureBuzzerServerStarted()
+        {
+            try
+            {
+                if (_buzzerServer == null)
+                {
+                    _buzzerServer = new QuizBuzzerServer();
+                    _buzzerServer.GetTeamsCallback = () => _teams;
+                    _buzzerServer.OnBuzzReceived += (team) =>
+                    {
+                        Dispatcher.Invoke(() => RegisterBuzz(team));
+                    };
+                    _buzzerServer.Start();
+                }
+            }
+            catch (Exception ex)
+            {
+                AppDiagnostics.WriteException("Could not auto-start QuizBuzzerServer.", ex);
+            }
+        }
+
+        private void SoundToggleButton_Click(object sender, RoutedEventArgs e)
+        {
+            QuizChimes.IsMuted = !QuizChimes.IsMuted;
+            UpdateSoundButtonState();
+        }
+
+        private void UpdateSoundButtonState()
+        {
+            var conv = new BrushConverter();
+            SoundToggleButton.Content = QuizChimes.IsMuted ? "🔇 MUTE" : "🔊 SOUND ON";
+            SoundToggleButton.Background = (Brush)conv.ConvertFromString(QuizChimes.IsMuted ? "#FF64748B" : "#FF059669");
+            SoundToggleButton.BorderBrush = (Brush)conv.ConvertFromString(QuizChimes.IsMuted ? "#FF475569" : "#FF047857");
+        }
+
+        private void MobileBuzzerButton_Click(object sender, RoutedEventArgs e)
+        {
+            EnsureBuzzerServerStarted();
+            var dialog = new QuizBuzzerDialog(_buzzerServer) { Owner = this };
+            dialog.ShowDialog();
+        }
+
+        private void UpdateClueDisplay(string[] hints)
+        {
+            if (_clueStep == 0)
+            {
+                ClueStatusLabel.Text = $"0 of {hints.Length} clues revealed";
+                RevealClueButton.Content = "💡 REVEAL CLUE 1";
+            }
+            else if (_clueStep <= hints.Length)
+            {
+                ClueStatusLabel.Text = $"Clue {_clueStep}/{hints.Length}: \"{hints[_clueStep - 1]}\"";
+                RevealClueButton.Content = _clueStep < hints.Length ? $"💡 REVEAL CLUE {_clueStep + 1}" : "ALL CLUES REVEALED";
+            }
+        }
+
+        private void RevealClueButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentSlide == null) return;
+            var hints = (_currentSlide.HintsJson ?? string.Empty)
+                .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            if (_clueStep < hints.Length)
+            {
+                _clueStep++;
+                if (_currentSession != null)
+                {
+                    _currentSession.ClueRevealStep = _clueStep;
+                    _db.SaveChanges();
+                }
+                UpdateClueDisplay(hints);
+                ConsoleStatusText.Text = $"Clue {_clueStep} revealed to the audience.";
+                PushSlideStateToAudience();
+            }
+        }
+
+        private void UpdateFloorBanner()
+        {
+            if (_currentSlide == null)
+            {
+                TurnBanner.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            TurnBanner.Visibility = Visibility.Visible;
+            var conv = new BrushConverter();
+
+            if (_currentSession == null)
+            {
+                TurnBanner.Background = (Brush)conv.ConvertFromString("#FFF0FDF4");
+                TurnBanner.BorderBrush = (Brush)conv.ConvertFromString("#FFBBF7D0");
+                TurnStatusLabel.Text = "✦ READY TO CONDUCT · CLICK '▶ START QUIZ'";
+                TurnStatusLabel.Foreground = (Brush)conv.ConvertFromString("#FF166534");
+                TurnDetailsLabel.Text = "Browse and preview questions above. Click 'START QUIZ' in the top bar to register teams and enable live buzzers.";
+                TurnDetailsLabel.Foreground = (Brush)conv.ConvertFromString("#FF15803D");
+                PassButton.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            PassButton.Visibility = _currentSlide.AllowPass ? Visibility.Visible : Visibility.Collapsed;
+
+            if (_hasCorrectBuzzForSlide)
+            {
+                TurnBanner.Background = (Brush)conv.ConvertFromString("#FFDCFCE7");
+                TurnBanner.BorderBrush = (Brush)conv.ConvertFromString("#FF86EFAC");
+                TurnStatusLabel.Text = "✓ QUESTION COMPLETED & SCORED · PRESS NEXT (N) ▶";
+                TurnStatusLabel.Foreground = (Brush)conv.ConvertFromString("#FF166534");
+                TurnDetailsLabel.Text = "Correct answer recorded. Advance to the next question or reveal answer on stage.";
+                TurnDetailsLabel.Foreground = (Brush)conv.ConvertFromString("#FF15803D");
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(_currentBuzzingTeam))
+            {
+                TurnBanner.Background = (Brush)conv.ConvertFromString("#FFFEE2E2");
+                TurnBanner.BorderBrush = (Brush)conv.ConvertFromString("#FFFCA5A5");
+                TurnStatusLabel.Text = $"🚨 {_currentBuzzingTeam.ToUpperInvariant()} HAS BUZZED · ANSWERING NOW";
+                TurnStatusLabel.Foreground = (Brush)conv.ConvertFromString("#FFB91C1C");
+                TurnDetailsLabel.Text = "Evaluate team response or click Mark Correct (C) / Mark Wrong (X).";
+                TurnDetailsLabel.Foreground = (Brush)conv.ConvertFromString("#FF991B1B");
+                return;
+            }
+
+            var activeTeam = _currentSession?.ActiveTeamOnFloor ?? (ConsoleTeamList.SelectedValue as string);
+            if (!string.IsNullOrWhiteSpace(activeTeam))
+            {
+                TurnBanner.Background = (Brush)conv.ConvertFromString("#FFFEF9C3");
+                TurnBanner.BorderBrush = (Brush)conv.ConvertFromString("#FFFDE047");
+                TurnStatusLabel.Foreground = (Brush)conv.ConvertFromString("#FF854D0E");
+                TurnDetailsLabel.Foreground = (Brush)conv.ConvertFromString("#FFA16207");
+
+                if (_passCount == 0)
+                {
+                    TurnStatusLabel.Text = $"ACTIVE FLOOR: {activeTeam.ToUpperInvariant()}";
+                    TurnDetailsLabel.Text = $"Direct question · Full score: +{_currentSlide.Points} pts";
+                }
+                else
+                {
+                    var bonus = _currentSlide.BonusPoints > 0 ? _currentSlide.BonusPoints : (_currentSlide.Points / 2);
+                    TurnStatusLabel.Text = $"BOUNCE #{_passCount}: {activeTeam.ToUpperInvariant()}";
+                    TurnDetailsLabel.Text = $"Passed question · Bonus score: +{bonus} pts";
+                }
+            }
+            else
+            {
+                TurnBanner.Background = (Brush)conv.ConvertFromString("#FFF1F5F9");
+                TurnBanner.BorderBrush = (Brush)conv.ConvertFromString("#FFE2E8F0");
+                TurnStatusLabel.Text = "✦ OPEN FLOOR · WAITING FOR TEAM BUZZ";
+                TurnStatusLabel.Foreground = (Brush)conv.ConvertFromString("#FF475569");
+                TurnDetailsLabel.Text = "Press keys 1-9 or let teams buzz in from their mobile devices.";
+                TurnDetailsLabel.Foreground = (Brush)conv.ConvertFromString("#FF64748B");
+            }
+        }
+
+        private void UpdateRevealButtonState()
+        {
+            var isRevealed = _currentSession != null && _currentSession.AnswerRevealed;
+            var conv = new BrushConverter();
+            if (isRevealed)
+            {
+                RevealAnswerButton.Content = "👁 HIDE ANSWER (R)";
+                RevealAnswerButton.Background = (Brush)conv.ConvertFromString("#FFE11D48");
+                RevealAnswerButton.BorderBrush = (Brush)conv.ConvertFromString("#FFBE123C");
+            }
+            else
+            {
+                RevealAnswerButton.Content = "REVEAL ON STAGE (R)";
+                RevealAnswerButton.Background = (Brush)conv.ConvertFromString("#FF2563EB");
+                RevealAnswerButton.BorderBrush = (Brush)conv.ConvertFromString("#FF1D4ED8");
             }
         }
     }

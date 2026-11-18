@@ -20,6 +20,7 @@ namespace Score
         private bool _loadingDeck;
         private bool _loadingEditor;
         private bool _syncingOptions;
+        private int? _initialDeckId;
 
         public QuizDeckBuilderWindow()
         {
@@ -27,6 +28,11 @@ namespace Score
             Loaded += QuizDeckBuilderWindow_Loaded;
             InitializeThemeSelector();
             InitializeSlideTypeSelector();
+        }
+
+        public QuizDeckBuilderWindow(int deckId) : this()
+        {
+            _initialDeckId = deckId;
         }
 
         private void QuizDeckBuilderWindow_Loaded(object sender, RoutedEventArgs e)
@@ -131,11 +137,15 @@ namespace Score
                 decks.Add(deck);
             }
 
+            var targetDeck = _initialDeckId.HasValue
+                ? decks.FirstOrDefault(d => d.QuizDeckId == _initialDeckId.Value) ?? decks[0]
+                : decks[0];
+
             _loadingDeck = true;
             DeckSelector.ItemsSource = decks;
-            DeckSelector.SelectedItem = decks[0];
+            DeckSelector.SelectedItem = targetDeck;
             _loadingDeck = false;
-            LoadSelectedDeck(decks[0]);
+            LoadSelectedDeck(targetDeck);
         }
 
         private void LoadSelectedDeck(QuizDeck deck)

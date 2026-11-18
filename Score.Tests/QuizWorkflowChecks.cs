@@ -542,6 +542,9 @@ namespace Score.Tests
                     var html = client.DownloadString("http://localhost:8099/");
                     Require(html.Contains("QUIZSCORE LIVE"), "Mobile buzzer HTML must contain QUIZSCORE LIVE.");
                     Require(html.Contains("BUZZ IN!"), "Mobile buzzer HTML must contain the BUZZ IN button.");
+                    Require(html.Contains("wakeLock"), "Mobile buzzer HTML must include Screen Wake Lock API.");
+                    Require(html.Contains("quiz_team"), "Mobile buzzer HTML must persist team in localStorage.");
+                    Require(html.Contains("80, 40, 80"), "Mobile buzzer HTML must include [80, 40, 80] vibration pattern.");
 
                     // HTTP GET /api/teams and /api/teams/
                     var teamsJson = client.DownloadString("http://localhost:8099/api/teams");
@@ -553,7 +556,25 @@ namespace Score.Tests
                     client.Headers[System.Net.HttpRequestHeader.ContentType] = "application/json";
                     var buzzResponse = client.UploadString("http://localhost:8099/api/buzz", "{\"team\":\"Team Falcon\"}");
                     Require(buzzResponse.Contains("\"status\":\"ok\""), "Buzz API response must indicate success.");
+                    Require(buzzResponse.Contains("\"timestamp\":"), "Buzz response must include high-precision timestamp.");
+                    Require(server.LastBuzzStopwatchTicks > 0, "LastBuzzStopwatchTicks must be recorded.");
+                    Require(server.LastBuzzUtcTicks > 0, "LastBuzzUtcTicks must be recorded.");
                     Equal("Team Falcon", receivedTeam);
+
+                    // Test Arming / Lockout flag: HTTP 423 Locked when disarmed
+                    server.IsBuzzerArmed = false;
+                    try
+                    {
+                        client.Headers[System.Net.HttpRequestHeader.ContentType] = "application/json";
+                        client.UploadString("http://localhost:8099/api/buzz", "{\"team\":\"Team Falcon\"}");
+                        Require(false, "Buzz must fail when disarmed.");
+                    }
+                    catch (System.Net.WebException ex)
+                    {
+                        var httpRes = ex.Response as System.Net.HttpWebResponse;
+                        Require(httpRes != null && (int)httpRes.StatusCode == 423, "Disarmed buzzer must return HTTP 423 Locked.");
+                    }
+                    server.IsBuzzerArmed = true;
 
                     // HTTP POST /api/buzz/ with trailing slash and form data
                     client.Headers[System.Net.HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
@@ -605,9 +626,24 @@ namespace Score.Tests
             Equal(false, QuizChimes.IsMuted);
             Equal("🔊 SOUND ON", soundButton.Content);
 
+            VerifyHostConducting(consoleWindow);
+
             consoleWindow.Close();
 
+            var targetedConsole = new QuizMasterConsoleWindow(1);
+            targetedConsole.Close();
+
+            var libraryWindow = new QuizLibraryWindow();
+            var searchBox = Find<TextBox>(libraryWindow, "SearchBox");
+            var sortSelector = Find<ComboBox>(libraryWindow, "SortSelector");
+            var createButton = Find<Button>(libraryWindow, "CreateNewButton");
+            Require(searchBox != null, "SearchBox must exist in QuizLibraryWindow.");
+            Require(sortSelector != null, "SortSelector must exist in QuizLibraryWindow.");
+            Require(createButton != null, "CreateNewButton must exist in QuizLibraryWindow.");
+            libraryWindow.Close();
+
             var audienceWindow = new QuizAudienceWindow();
+            VerifyAudienceWindow(audienceWindow);
             audienceWindow.Close();
         }
 

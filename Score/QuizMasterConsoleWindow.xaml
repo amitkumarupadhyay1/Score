@@ -35,12 +35,13 @@
                     </Border>
 
                     <!-- Deck Selector -->
-                    <Border Background="#FF1E293B" CornerRadius="7" Padding="8,3" BorderBrush="#FF334155" BorderThickness="1" VerticalAlignment="Center">
+                    <Border Background="#FF1E293B" CornerRadius="7" Padding="10,4" BorderBrush="#FF334155" BorderThickness="1" VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="Deck:" FontSize="11" FontWeight="SemiBold" Foreground="#FF94A3B8" Margin="0,0,6,0" VerticalAlignment="Center" />
-                            <ComboBox x:Name="ConsoleDeckSelector" MinWidth="180" MaxWidth="280" Height="26" DisplayMemberPath="Title"
+                            <TextBlock Text="Deck:" FontSize="12" FontWeight="SemiBold" Foreground="#FF94A3B8" Margin="0,0,8,0" VerticalAlignment="Center" />
+                            <ComboBox x:Name="ConsoleDeckSelector" MinWidth="220" MaxWidth="380" Height="28" DisplayMemberPath="Title"
                                       SelectedValuePath="QuizDeckId" SelectionChanged="ConsoleDeckSelector_SelectionChanged"
-                                      Background="#FF0F172A" Foreground="#FFFFFFFF" BorderThickness="0" VerticalContentAlignment="Center" />
+                                      Background="#FF0F172A" Foreground="#FFFFFFFF" BorderThickness="0" VerticalContentAlignment="Center"
+                                      FontSize="12" FontWeight="SemiBold" />
                         </StackPanel>
                     </Border>
                 </StackPanel>
@@ -56,7 +57,7 @@
 
                     <!-- Live Conducting Controls -->
                     <Button x:Name="StartQuizButton" Content="▶ START QUIZ" Style="{StaticResource ToolbarButtonStyle}" Background="#FF059669" BorderBrush="#FF10B981" Foreground="#FFFFFFFF" FontWeight="Bold" Margin="0,0,6,0" Click="StartQuizButton_Click" ToolTip="Begin live conducting with registered teams" />
-                    <Button x:Name="EndQuizButton" Content="⏹ FINISH QUIZ" Style="{StaticResource ToolbarButtonStyle}" Background="#FFDC2626" BorderBrush="#FFB91C1C" Foreground="#FFFFFFFF" FontWeight="SemiBold" Margin="0,0,8,0" Click="EndQuizButton_Click" ToolTip="Complete current quiz session and lock final scores" />
+                    <Button x:Name="EndQuizButton" Content="⏹ FINISH QUIZ" Style="{StaticResource ToolbarButtonStyle}" Background="#FFDC2626" BorderBrush="#FFB91C1C" Foreground="#FFFFFFFF" FontWeight="SemiBold" Margin="0,0,8,0" Click="EndQuizButton_Click" ToolTip="Complete current quiz session and lock final scores" Visibility="Collapsed" />
 
                     <Border Width="1" Height="20" Background="#FF334155" Margin="2,0,8,0" VerticalAlignment="Center" />
 
@@ -94,9 +95,40 @@
                         </Grid>
                     </Border>
                     <ListBox x:Name="ConsoleSlideList" BorderThickness="0" Background="#FFFFFFFF" SelectionChanged="ConsoleSlideList_SelectionChanged">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                <Setter Property="Padding" Value="0"/>
+                                <Setter Property="Margin" Value="0,0,0,1"/>
+                                <Setter Property="BorderThickness" Value="4,0,0,1"/>
+                                <Setter Property="BorderBrush" Value="#FFE2E8F0"/>
+                                <Setter Property="Background" Value="#FFFFFFFF"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListBoxItem">
+                                            <Border x:Name="ItemBorder" Background="{TemplateBinding Background}"
+                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                                    Padding="10,8">
+                                                <ContentPresenter />
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="ItemBorder" Property="Background" Value="#FFF8FAFC"/>
+                                                </Trigger>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter TargetName="ItemBorder" Property="Background" Value="#FFEFF6FF"/>
+                                                    <Setter TargetName="ItemBorder" Property="BorderBrush" Value="#FF2563EB"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Border Background="#FFFFFFFF" BorderBrush="#FFE2E8F0" BorderThickness="0,0,0,1" Padding="10,8">
+                                <Border Background="Transparent" Padding="0">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="28" />
@@ -166,8 +198,13 @@
                                     <TextBlock x:Name="TurnStatusLabel" Text="ACTIVE FLOOR: TEAM 1" FontSize="13" FontWeight="Bold" Foreground="#FF854D0E" />
                                     <TextBlock x:Name="TurnDetailsLabel" Text="Direct question · Worth 10 pts · Can pass if missed" FontSize="11" Foreground="#FFA16207" />
                                 </StackPanel>
-                                <Button x:Name="PassButton" Grid.Column="1" Content="PASS TO NEXT (B)" Style="{StaticResource ToolbarButtonStyle}" Background="#FFF59E0B" BorderBrush="#FFD97706" Foreground="#FFFFFFFF" Padding="14,4" Click="PassButton_Click" ToolTip="Pass / bounce question to next team in turn" />
+                                <Button x:Name="PassButton" Grid.Column="1" Content="PASS (S)" Style="{StaticResource ToolbarButtonStyle}" Background="#FFF59E0B" BorderBrush="#FFD97706" Foreground="#FFFFFFFF" Padding="14,4" Click="PassButton_Click" ToolTip="Pass / bounce question to next team in turn (Shortcut: S)" />
                             </Grid>
+                        </Border>
+
+                        <!-- Media Preview (Host View) -->
+                        <Border x:Name="ConsoleMediaPanel" Background="#FFF1F5F9" BorderBrush="#FFE2E8F0" BorderThickness="1" CornerRadius="8" Padding="6" Margin="0,0,0,12" MaxHeight="220" HorizontalAlignment="Center" Visibility="Collapsed">
+                            <Image x:Name="ConsoleMediaImage" MaxHeight="200" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
 
                         <!-- Question Content & Options -->
@@ -192,6 +229,18 @@
                         <Border Background="#FFFFFFFF" BorderBrush="#FFE2E8F0" BorderThickness="1" CornerRadius="8" Padding="14" Margin="0,0,0,16">
                             <StackPanel>
                                 <TextBlock Text="TEAM RESPONSE &amp; ADJUDICATION" FontSize="10" FontWeight="Bold" Foreground="#FF475569" Margin="0,0,0,6" />
+
+                                <!-- Quick Choice Buttons (A, B, C, D / True, False) -->
+                                <StackPanel x:Name="QuickOptionBar" Orientation="Horizontal" Margin="0,0,0,10" Visibility="Collapsed">
+                                    <TextBlock Text="Quick Choice:" FontSize="11" FontWeight="Bold" Foreground="#FF64748B" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <Button x:Name="QuickOptionA" Content="A" Width="44" Height="30" FontWeight="Bold" Margin="0,0,6,0" Style="{StaticResource ToolbarButtonStyle}" Click="QuickOptionButton_Click"/>
+                                    <Button x:Name="QuickOptionB" Content="B" Width="44" Height="30" FontWeight="Bold" Margin="0,0,6,0" Style="{StaticResource ToolbarButtonStyle}" Click="QuickOptionButton_Click"/>
+                                    <Button x:Name="QuickOptionC" Content="C" Width="44" Height="30" FontWeight="Bold" Margin="0,0,6,0" Style="{StaticResource ToolbarButtonStyle}" Click="QuickOptionButton_Click"/>
+                                    <Button x:Name="QuickOptionD" Content="D" Width="44" Height="30" FontWeight="Bold" Margin="0,0,6,0" Style="{StaticResource ToolbarButtonStyle}" Click="QuickOptionButton_Click"/>
+                                    <Button x:Name="QuickOptionTrue" Content="TRUE" Height="30" Padding="10,0" FontWeight="Bold" Margin="0,0,6,0" Style="{StaticResource ToolbarButtonStyle}" Click="QuickOptionButton_Click" Visibility="Collapsed"/>
+                                    <Button x:Name="QuickOptionFalse" Content="FALSE" Height="30" Padding="10,0" FontWeight="Bold" Margin="0,0,6,0" Style="{StaticResource ToolbarButtonStyle}" Click="QuickOptionButton_Click" Visibility="Collapsed"/>
+                                </StackPanel>
+
                                 <DockPanel Margin="0,0,0,12">
                                     <Button x:Name="SubmitAnswerButton" Content="EVALUATE" Style="{StaticResource ToolbarButtonStyle}" Width="90" DockPanel.Dock="Right" Click="SubmitAnswerButton_Click" Margin="8,0,0,0" />
                                     <TextBox x:Name="ConsoleAnswerEditor" Height="32" FontSize="13" Padding="8,4" VerticalContentAlignment="Center" ToolTip="Enter or verify team's submitted response" />
@@ -202,7 +251,7 @@
                                     <Button x:Name="MarkCorrectButton" Content="MARK CORRECT (C) ✓" Style="{StaticResource ToolbarButtonStyle}" Background="#FF22C55E" BorderBrush="#FF16A34A" Foreground="#FFFFFFFF" Padding="14,0" Margin="0,0,8,6" Click="MarkCorrectButton_Click" />
                                     <Button x:Name="MarkIncorrectButton" Content="MARK WRONG (X) ✗" Style="{StaticResource ToolbarButtonStyle}" Background="#FFEF4444" BorderBrush="#FFDC2626" Foreground="#FFFFFFFF" Padding="14,0" Margin="0,0,8,6" Click="MarkIncorrectButton_Click" />
                                     <Button x:Name="RevealAnswerButton" Content="REVEAL ON STAGE (R)" Style="{StaticResource ToolbarButtonStyle}" Background="#FF3B82F6" BorderBrush="#FF2563EB" Foreground="#FFFFFFFF" Padding="14,0" Margin="0,0,8,6" Click="RevealAnswerButton_Click" />
-                                    <Button x:Name="AcceptBuzzButton" Content="ACCEPT BUZZ" Style="{StaticResource ToolbarButtonStyle}" Margin="0,0,8,6" Click="AcceptBuzzButton_Click" />
+                                    <Button x:Name="AcceptBuzzButton" Content="MANUAL BUZZ" Style="{StaticResource ToolbarButtonStyle}" Margin="0,0,8,6" Click="AcceptBuzzButton_Click" ToolTip="Register a buzz for the team currently selected in the team list" />
                                     <Button x:Name="OverrideScoreButton" Content="ADJUDICATE / OVERRIDE" Style="{StaticResource ToolbarButtonStyle}" Margin="0,0,8,6" Click="OverrideScoreButton_Click" />
                                 </WrapPanel>
 
@@ -254,9 +303,40 @@
 
                     <!-- Team Score List -->
                     <ListBox x:Name="ConsoleTeamList" BorderThickness="0" Background="#FFFFFFFF">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                <Setter Property="Padding" Value="0"/>
+                                <Setter Property="Margin" Value="0,0,0,1"/>
+                                <Setter Property="BorderThickness" Value="4,0,0,1"/>
+                                <Setter Property="BorderBrush" Value="#FFE2E8F0"/>
+                                <Setter Property="Background" Value="#FFFFFFFF"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListBoxItem">
+                                            <Border x:Name="TeamItemBorder" Background="{TemplateBinding Background}"
+                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                                    Padding="12,10">
+                                                <ContentPresenter />
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="TeamItemBorder" Property="Background" Value="#FFF8FAFC"/>
+                                                </Trigger>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter TargetName="TeamItemBorder" Property="Background" Value="#FFF0FDF4"/>
+                                                    <Setter TargetName="TeamItemBorder" Property="BorderBrush" Value="#FF16A34A"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Border Background="#FFFFFFFF" BorderBrush="#FFE2E8F0" BorderThickness="0,0,0,1" Padding="12,10">
+                                <Border Background="Transparent" Padding="0">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="24" />
@@ -268,7 +348,7 @@
                                             <TextBlock Text="{Binding Team}" FontSize="14" FontWeight="SemiBold" Foreground="#FF1E293B" />
                                             <TextBlock Text="{Binding Status}" FontSize="10" FontWeight="Bold" Foreground="#FFE11D48" />
                                         </StackPanel>
-                                        <TextBlock Grid.Column="2" Text="{Binding Score}" FontSize="20" FontWeight="Bold" FontFamily="Consolas" Foreground="#FF0F766E" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="2" Text="{Binding Score}" FontSize="22" FontWeight="Bold" Foreground="#FF0F766E" VerticalAlignment="Center" />
                                     </Grid>
                                 </Border>
                             </DataTemplate>
