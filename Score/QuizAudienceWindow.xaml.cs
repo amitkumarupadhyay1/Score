@@ -92,19 +92,24 @@ namespace Score
 
             Loaded += QuizAudienceWindow_Loaded;
             Closed += QuizAudienceWindow_Closed;
-            MouseEnter += (s, e) => System.Windows.Input.Mouse.OverrideCursor = System.Windows.Input.Cursors.None;
+            MouseEnter += (s, e) => { if (_isFullscreenStage) System.Windows.Input.Mouse.OverrideCursor = System.Windows.Input.Cursors.None; };
             MouseLeave += (s, e) => { if (System.Windows.Input.Mouse.OverrideCursor == System.Windows.Input.Cursors.None) System.Windows.Input.Mouse.OverrideCursor = null; };
         }
 
         private void QuizAudienceWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            System.Windows.Input.Mouse.OverrideCursor = System.Windows.Input.Cursors.None;
+            if (_isFullscreenStage)
+            {
+                System.Windows.Input.Mouse.OverrideCursor = System.Windows.Input.Cursors.None;
+            }
+            HookMediaAndEscapeEvents();
             _pollTimer.Start();
             _clockTimer.Start();
         }
 
         private void QuizAudienceWindow_Closed(object sender, EventArgs e)
         {
+            UnhookMediaAndEscapeEvents();
             if (System.Windows.Input.Mouse.OverrideCursor == System.Windows.Input.Cursors.None)
             {
                 System.Windows.Input.Mouse.OverrideCursor = null;
@@ -262,6 +267,15 @@ namespace Score
                 BlackoutOverlay.Visibility = BlackoutOverlay.Visibility == Visibility.Visible
                     ? Visibility.Collapsed
                     : Visibility.Visible;
+            }
+
+            if (BlackoutOverlay.Visibility == Visibility.Visible)
+            {
+                PauseMediaPlayback();
+            }
+            else
+            {
+                ResumeMediaPlayback();
             }
         }
 
@@ -504,45 +518,39 @@ namespace Score
             }
         }
 
-        private void ResetToStandby()
-        {
-            _currentSessionId = 0;
-            _currentDeckTitle = null;
-            AudienceDeckTitle.Text = "QUIZ SCORE LIVE";
-            AudienceRoundName.Text = "WAITING";
-            AudiencePointsLabel.Text = "STANDBY";
-            AudienceSlideType.Text = "WELCOME";
-            AudienceSlideTitle.Text = "Quiz will begin shortly";
-            AudienceSlideContent.Text = "Please take your seats. The host will start the session soon.";
-            AudienceOptions.ItemsSource = null;
-            AudienceAnswerContainer.Visibility = Visibility.Collapsed;
-            AudienceCluesPanel.Visibility = Visibility.Collapsed;
-            AudienceMediaPanel.Visibility = Visibility.Collapsed;
-            AudienceImage.Source = null;
-            AudienceMediaPlayer.Stop();
-            AudienceMediaPlayer.Source = null;
-            AudienceBuzzBorder.Visibility = Visibility.Collapsed;
-            AudienceScoreboard.ItemsSource = null;
-            AudienceTimerLabel.Text = "00:00";
-            AudienceStatusText.Text = string.Empty;
-        }
-
         private void ShowMedia(DeckSlide slide)
         {
+            var mediaPath = slide?.MediaPath?.Trim();
+            if (string.Equals(_currentLoadedMediaPath, mediaPath, StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(mediaPath))
+            {
+                // Media is already loaded and active. Do not interrupt or reload every second.
+                return;
+            }
+
+            _currentLoadedMediaPath = mediaPath;
             AudienceImage.Source = null;
             AudienceMediaPlayer.Stop();
             AudienceMediaPlayer.Source = null;
             AudienceImage.Visibility = Visibility.Collapsed;
             AudienceMediaPlayer.Visibility = Visibility.Collapsed;
-            AudienceMediaPanel.Visibility = Visibility.Collapsed;
 
-            if (string.IsNullOrWhiteSpace(slide?.MediaPath)) return;
-            var path = Path.GetFullPath(slide.MediaPath);
-            if (!File.Exists(path)) return;
+            if (string.IsNullOrWhiteSpace(mediaPath))
+            {
+                ApplyMediaDisplayMode(slide, false);
+                return;
+            }
+
+            var path = Path.GetFullPath(mediaPath);
+            if (!File.Exists(path))
+            {
+                ApplyMediaDisplayMode(slide, false);
+                return;
+            }
 
             var uri = new Uri(path);
             var ext = Path.GetExtension(path).ToLowerInvariant();
             var isAudioOnly = slide.MediaDisplayMode == 2;
+            var hasVisualMedia = false;
 
             if (ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".gif" || ext == ".bmp")
             {
@@ -550,7 +558,7 @@ namespace Score
                 {
                     AudienceImage.Source = new BitmapImage(uri);
                     AudienceImage.Visibility = Visibility.Visible;
-                    AudienceMediaPanel.Visibility = Visibility.Visible;
+                    hasVisualMedia = true;
                 }
             }
             else if (ext == ".mp4" || ext == ".mp3" || ext == ".wav" || ext == ".wmv" || ext == ".avi")
@@ -559,10 +567,12 @@ namespace Score
                 if (!isAudioOnly)
                 {
                     AudienceMediaPlayer.Visibility = Visibility.Visible;
-                    AudienceMediaPanel.Visibility = Visibility.Visible;
+                    hasVisualMedia = true;
                 }
                 AudienceMediaPlayer.Play();
             }
+
+            ApplyMediaDisplayMode(slide, hasVisualMedia);
         }
 
         private void ClockTimer_Tick(object sender, EventArgs e)

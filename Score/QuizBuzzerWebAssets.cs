@@ -337,8 +337,10 @@ namespace Score
                 setTimeout(resetStatus, 3000);
             })
             .catch(err => {
-                statusBadge.textContent = '✓ BUZZ SENT FOR ' + team.toUpperCase();
-                setTimeout(resetStatus, 3000);
+                statusBadge.textContent = '❌ NETWORK ERROR - BUZZ NOT RECEIVED';
+                statusBadge.className = 'status-badge error-badge';
+                btn.classList.remove('buzzed-state');
+                setTimeout(resetStatus, 3500);
             });
         }
 

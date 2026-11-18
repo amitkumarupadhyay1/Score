@@ -35,8 +35,24 @@ namespace Score
 
             var activeTeam = _currentSession?.ActiveTeamOnFloor ?? (ConsoleTeamList.SelectedValue as string);
             var currentIdx = _teams.IndexOf(activeTeam ?? string.Empty);
-            var nextIdx = (currentIdx + 1) % _teams.Count;
-            var nextTeam = _teams[nextIdx];
+            var nextTeam = string.Empty;
+
+            for (int offset = 1; offset <= _teams.Count; offset++)
+            {
+                var candidateIdx = (currentIdx + offset) % _teams.Count;
+                var candidate = _teams[candidateIdx];
+                if (!_buzzedTeams.Contains(candidate))
+                {
+                    nextTeam = candidate;
+                    break;
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(nextTeam))
+            {
+                ConsoleStatusText.Text = "Cannot pass: All teams have already attempted this question.";
+                return;
+            }
 
             _passCount++;
             _currentSession.PassCount = _passCount;
@@ -201,7 +217,7 @@ namespace Score
 
             var updatedScore = currentScore + points;
 
-            _db.QuizResponses.Add(new QuizResponse
+            var responseRecord = new QuizResponse
             {
                 QuizDeckSessionId = _currentSession.QuizDeckSessionId,
                 DeckSlideId = _currentSlide.DeckSlideId,
@@ -216,7 +232,8 @@ namespace Score
                 SlideTypeSnapshot = _currentSlide.SlideType,
                 SlideOrderSnapshot = _currentSlideIndex + 1,
                 IsPassAttempt = isPass
-            });
+            };
+            _db.QuizResponses.Add(responseRecord);
 
             _db.QuizAuditEntries.Add(new QuizAuditEntry
             {
@@ -232,6 +249,7 @@ namespace Score
             _db.SaveChanges();
 
             _teamScores[teamName] = updatedScore;
+            SnapshotCurrentScoringState(responseRecord.QuizResponseId, teamName, points, isCorrect);
 
             if (isCorrect)
             {

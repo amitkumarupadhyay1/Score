@@ -281,7 +281,16 @@ namespace Score
         {
             BuzzQueueContainer.Visibility = _buzzQueue.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
             if (_buzzQueue.Count > 0)
-                BuzzQueueListLabel.Text = string.Join(" → ", _buzzQueue.Select((t, i) => $"{i + 1}. {t}"));
+            {
+                BuzzQueueListLabel.Text = string.Join(" → ", _buzzQueue.Select((t, i) =>
+                {
+                    if (_buzzQueueDeltas.TryGetValue(t, out var delta))
+                    {
+                        return i == 0 ? $"{i + 1}. {t} (0.00s)" : $"{i + 1}. {t} (+{delta:F0}ms)";
+                    }
+                    return $"{i + 1}. {t}";
+                }));
+            }
         }
 
         private void ResumeActiveSession()
@@ -418,21 +427,34 @@ namespace Score
             ConsoleSlideTitle.Text = _currentSlide.Title ?? string.Empty;
             ConsoleSlideContent.Text = _currentSlide.ContentText ?? string.Empty;
 
-            // Host Media Preview
+            // Host Media Preview & Transport
             if (!string.IsNullOrWhiteSpace(_currentSlide.MediaPath) && System.IO.File.Exists(_currentSlide.MediaPath))
             {
                 var ext = System.IO.Path.GetExtension(_currentSlide.MediaPath).ToLowerInvariant();
-                if (ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".gif" || ext == ".bmp")
+                var isImage = ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".gif" || ext == ".bmp";
+                var isAV = ext == ".mp4" || ext == ".mp3" || ext == ".wav" || ext == ".wmv" || ext == ".avi";
+
+                if (isImage)
                 {
                     try
                     {
                         ConsoleMediaImage.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri(System.IO.Path.GetFullPath(_currentSlide.MediaPath)));
+                        ConsoleMediaImage.Visibility = Visibility.Visible;
+                        MediaTransportControls.Visibility = Visibility.Collapsed;
                         ConsoleMediaPanel.Visibility = Visibility.Visible;
                     }
                     catch
                     {
                         ConsoleMediaPanel.Visibility = Visibility.Collapsed;
                     }
+                }
+                else if (isAV)
+                {
+                    ConsoleMediaImage.Source = null;
+                    ConsoleMediaImage.Visibility = Visibility.Collapsed;
+                    MediaTransportControls.Visibility = Visibility.Visible;
+                    MediaPlayPauseButton.Content = "⏸ PAUSE (M)";
+                    ConsoleMediaPanel.Visibility = Visibility.Visible;
                 }
                 else
                 {
@@ -584,7 +606,9 @@ namespace Score
             if (_buzzerServer != null)
             {
                 _buzzerServer.IsBuzzerArmed = isQuestion && !_hasCorrectBuzzForSlide;
+                UpdateBuzzerArmButtonDisplay();
             }
+            UpdateUndoButtonState();
             PushSlideStateToAudience();
         }
 

@@ -169,6 +169,12 @@
     <Compile Include="QuizMasterConsoleWindow.Tools.cs">
       <DependentUpon>QuizMasterConsoleWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="QuizMasterConsoleWindow.BuzzManagement.cs">
+      <DependentUpon>QuizMasterConsoleWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="QuizMasterConsoleWindow.UndoEngine.cs">
+      <DependentUpon>QuizMasterConsoleWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="TeamEntryDialog.xaml.cs">
       <DependentUpon>TeamEntryDialog.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -188,6 +194,9 @@
     <Compile Include="QuizAudienceWindow.xaml.cs">
       <DependentUpon>QuizAudienceWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="QuizAudienceWindow.Media.cs">
+      <DependentUpon>QuizAudienceWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="QuizBuzzerDialog.xaml">
       <Generator>MSBuild:Compile</Generator>

@@ -60,8 +60,30 @@ namespace Score
                 return;
             }
 
+            if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control && e.Key == Key.Z)
+            {
+                UndoScoreButton_Click(sender, e);
+                e.Handled = true;
+                return;
+            }
+
             switch (e.Key)
             {
+                case Key.Back:
+                    DismissBuzzButton_Click(sender, e);
+                    e.Handled = true;
+                    break;
+
+                case Key.A:
+                    ToggleBuzzerArming();
+                    e.Handled = true;
+                    break;
+
+                case Key.M:
+                    MediaPlayPauseButton_Click(sender, e);
+                    e.Handled = true;
+                    break;
+
                 case Key.Space:
                     if (_questionTimer.State == QuizTimerState.Running)
                         TimerPauseButton_Click(sender, e);
@@ -106,7 +128,7 @@ namespace Score
                     break;
 
                 case Key.B:
-                    _audienceWindow?.ToggleBlackout();
+                    ToggleBlackoutDesk();
                     e.Handled = true;
                     break;
 
@@ -194,6 +216,7 @@ namespace Score
             if (_audienceWindow != null && _audienceWindow.IsLoaded)
             {
                 _audienceWindow.PushSlideState(_currentSlide, _currentSession, _currentSession?.AnswerRevealed ?? false, _currentSession?.ActiveTeamOnFloor, _clueStep);
+                _audienceWindow.PushScoreboard(_teams, _teamScores);
             }
         }
 
@@ -308,6 +331,14 @@ namespace Score
                     }
                 }
             };
+            dialog.PreviewKeyDown += (s, ev) =>
+            {
+                if (ev.Key == Key.Escape)
+                {
+                    dialog.Close();
+                    ev.Handled = true;
+                }
+            };
             dialog.ShowDialog();
         }
 
@@ -410,48 +441,6 @@ namespace Score
             }
         }
 
-        private void EnsureBuzzerServerStarted()
-        {
-            try
-            {
-                if (_buzzerServer == null)
-                {
-                    _buzzerServer = new QuizBuzzerServer();
-                    _buzzerServer.GetTeamsCallback = () => _teams;
-                    _buzzerServer.OnBuzzReceived += (team) =>
-                    {
-                        Dispatcher.Invoke(() => RegisterBuzz(team));
-                    };
-                    _buzzerServer.Start();
-                }
-            }
-            catch (Exception ex)
-            {
-                AppDiagnostics.WriteException("Could not auto-start QuizBuzzerServer.", ex);
-            }
-        }
-
-        private void SoundToggleButton_Click(object sender, RoutedEventArgs e)
-        {
-            QuizChimes.IsMuted = !QuizChimes.IsMuted;
-            UpdateSoundButtonState();
-        }
-
-        private void UpdateSoundButtonState()
-        {
-            var conv = new BrushConverter();
-            SoundToggleButton.Content = QuizChimes.IsMuted ? "🔇 MUTE" : "🔊 SOUND ON";
-            SoundToggleButton.Background = (Brush)conv.ConvertFromString(QuizChimes.IsMuted ? "#FF64748B" : "#FF059669");
-            SoundToggleButton.BorderBrush = (Brush)conv.ConvertFromString(QuizChimes.IsMuted ? "#FF475569" : "#FF047857");
-        }
-
-        private void MobileBuzzerButton_Click(object sender, RoutedEventArgs e)
-        {
-            EnsureBuzzerServerStarted();
-            var dialog = new QuizBuzzerDialog(_buzzerServer) { Owner = this };
-            dialog.ShowDialog();
-        }
-
         private void UpdateClueDisplay(string[] hints)
         {
             if (_clueStep == 0)
@@ -509,6 +498,7 @@ namespace Score
             }
 
             PassButton.Visibility = _currentSlide.AllowPass ? Visibility.Visible : Visibility.Collapsed;
+            DismissBuzzButton.Visibility = !string.IsNullOrWhiteSpace(_currentBuzzingTeam) ? Visibility.Visible : Visibility.Collapsed;
 
             if (_hasCorrectBuzzForSlide)
             {
@@ -578,6 +568,86 @@ namespace Score
                 RevealAnswerButton.Content = "REVEAL ON STAGE (R)";
                 RevealAnswerButton.Background = (Brush)conv.ConvertFromString("#FF2563EB");
                 RevealAnswerButton.BorderBrush = (Brush)conv.ConvertFromString("#FF1D4ED8");
+            }
+        }
+
+        private bool _isBlackoutActive = false;
+
+        private void BlackoutToggleButton_Click(object sender, RoutedEventArgs e)
+        {
+            ToggleBlackoutDesk();
+        }
+
+        private void ToggleBlackoutDesk()
+        {
+            _isBlackoutActive = !_isBlackoutActive;
+            if (_audienceWindow != null && _audienceWindow.IsLoaded)
+            {
+                _audienceWindow.ToggleBlackout(_isBlackoutActive);
+            }
+
+            if (StageBlackoutPrompterBanner != null)
+                StageBlackoutPrompterBanner.Visibility = _isBlackoutActive ? Visibility.Visible : Visibility.Collapsed;
+
+            var conv = new BrushConverter();
+            if (BlackoutToggleButton != null)
+            {
+                BlackoutToggleButton.Background = (Brush)conv.ConvertFromString(_isBlackoutActive ? "#FFDC2626" : "#FF334155");
+                BlackoutToggleButton.Content = _isBlackoutActive ? "⬛ BLACKOUT ON (B)" : "⬛ BLACKOUT (B)";
+            }
+
+            if (_isBlackoutActive)
+            {
+                ToggleTimer(false);
+                if (_buzzerServer != null)
+                {
+                    _buzzerServer.IsBuzzerArmed = false;
+                    UpdateBuzzerArmButtonDisplay();
+                }
+                ConsoleStatusText.Text = "Emergency Stage Blackout engaged. Projector is black.";
+            }
+            else
+            {
+                if (_buzzerServer != null && !_hasCorrectBuzzForSlide && _currentSlide?.SlideType == "Question")
+                {
+                    _buzzerServer.IsBuzzerArmed = true;
+                    UpdateBuzzerArmButtonDisplay();
+                }
+                ConsoleStatusText.Text = "Stage Blackout lifted.";
+            }
+        }
+
+        private void MediaPlayPauseButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_audienceWindow != null && _audienceWindow.IsLoaded)
+            {
+                if (MediaPlayPauseButton.Content.ToString().Contains("PLAY"))
+                {
+                    _audienceWindow.ResumeMediaPlayback();
+                    MediaPlayPauseButton.Content = "⏸ PAUSE (M)";
+                }
+                else
+                {
+                    _audienceWindow.PauseMediaPlayback();
+                    MediaPlayPauseButton.Content = "▶ PLAY (M)";
+                }
+            }
+        }
+
+        private void MediaReplayButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_audienceWindow != null && _audienceWindow.IsLoaded)
+            {
+                _audienceWindow.ReplayMediaPlayback();
+                MediaPlayPauseButton.Content = "⏸ PAUSE (M)";
+            }
+        }
+
+        private void MediaVolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (_audienceWindow != null && _audienceWindow.IsLoaded)
+            {
+                _audienceWindow.SetMediaVolume(e.NewValue);
             }
         }
     }

@@ -50,6 +50,8 @@
                 <WrapPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,3,0,3">
                     <!-- Stage & Audio -->
                     <Button x:Name="SoundToggleButton" Content="🔊 SOUND ON" Style="{StaticResource ToolbarButtonStyle}" Background="#FF059669" BorderBrush="#FF047857" Foreground="#FFFFFFFF" Margin="0,0,6,0" Click="SoundToggleButton_Click" ToolTip="Toggle sound effects on / off" />
+                    <Button x:Name="ArmBuzzerButton" Content="🔔 BUZZERS ARMED (A)" Style="{StaticResource ToolbarButtonStyle}" Background="#FF059669" BorderBrush="#FF047857" Foreground="#FFFFFFFF" Margin="0,0,6,0" Click="ArmBuzzerButton_Click" ToolTip="Arm or lock mobile buzzers (A)" />
+                    <Button x:Name="BlackoutToggleButton" Content="⬛ BLACKOUT (B)" Style="{StaticResource ToolbarButtonStyle}" Background="#FF334155" BorderBrush="#FF475569" Foreground="#FFFFFFFF" Margin="0,0,6,0" Click="BlackoutToggleButton_Click" ToolTip="Emergency stage blackout (B)" />
                     <Button x:Name="MobileBuzzerButton" Content="📱 MOBILE BUZZERS (QR)" Style="{StaticResource ToolbarButtonStyle}" Background="#FF4F46E5" BorderBrush="#FF4338CA" Foreground="#FFFFFFFF" Margin="0,0,6,0" Click="MobileBuzzerButton_Click" ToolTip="Host local Wi-Fi mobile buzzers with QR code for contestants" />
                     <Button x:Name="OpenProjectorButton" Content="AUDIENCE VIEW (STAGE)" Style="{StaticResource ToolbarButtonStyle}" Background="#FF0288D1" BorderBrush="#FF0277BD" Foreground="#FFFFFFFF" Margin="0,0,8,0" Click="OpenProjectorButton_Click" ToolTip="Open the audience/projector window for the stage screen" />
 
@@ -187,6 +189,14 @@
                             </Grid>
                         </Border>
 
+                        <!-- Emergency Stage Blackout Banner -->
+                        <Border x:Name="StageBlackoutPrompterBanner" Background="#FF1E293B" BorderBrush="#FFDC2626" BorderThickness="2" CornerRadius="8" Padding="12,8" Margin="0,0,0,14" Visibility="Collapsed">
+                            <DockPanel>
+                                <Button Content="RESUME STAGE (B)" DockPanel.Dock="Right" Style="{StaticResource ToolbarButtonStyle}" Background="#FFDC2626" BorderBrush="#FFB91C1C" Foreground="#FFFFFFFF" FontWeight="Bold" Padding="12,0" Click="BlackoutToggleButton_Click" />
+                                <TextBlock Text="⚠️ STAGE BLACKOUT ACTIVE · AUDIENCE SCREEN IS BLACK · PRESS 'B' TO RESUME" FontSize="12" FontWeight="Bold" Foreground="#FFFCA5A5" VerticalAlignment="Center" />
+                            </DockPanel>
+                        </Border>
+
                         <!-- Floor / Turn & Pass Indicator Banner -->
                         <Border x:Name="TurnBanner" Background="#FFFEF9C3" BorderBrush="#FFFDE047" BorderThickness="1" CornerRadius="8" Padding="12,8" Margin="0,0,0,14">
                             <Grid>
@@ -198,13 +208,24 @@
                                     <TextBlock x:Name="TurnStatusLabel" Text="ACTIVE FLOOR: TEAM 1" FontSize="13" FontWeight="Bold" Foreground="#FF854D0E" />
                                     <TextBlock x:Name="TurnDetailsLabel" Text="Direct question · Worth 10 pts · Can pass if missed" FontSize="11" Foreground="#FFA16207" />
                                 </StackPanel>
-                                <Button x:Name="PassButton" Grid.Column="1" Content="PASS (S)" Style="{StaticResource ToolbarButtonStyle}" Background="#FFF59E0B" BorderBrush="#FFD97706" Foreground="#FFFFFFFF" Padding="14,4" Click="PassButton_Click" ToolTip="Pass / bounce question to next team in turn (Shortcut: S)" />
+                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                    <Button x:Name="DismissBuzzButton" Content="DISMISS BUZZ" Style="{StaticResource ToolbarButtonStyle}" Background="#FFE11D48" BorderBrush="#FFBE123C" Foreground="#FFFFFFFF" Padding="12,4" Margin="0,0,6,0" Click="DismissBuzzButton_Click" ToolTip="Dismiss active false buzz without penalty (Backspace)" Visibility="Collapsed" />
+                                    <Button x:Name="PassButton" Grid.Column="1" Content="PASS (S)" Style="{StaticResource ToolbarButtonStyle}" Background="#FFF59E0B" BorderBrush="#FFD97706" Foreground="#FFFFFFFF" Padding="14,4" Click="PassButton_Click" ToolTip="Pass / bounce question to next team in turn (Shortcut: S)" />
+                                </StackPanel>
                             </Grid>
                         </Border>
 
-                        <!-- Media Preview (Host View) -->
-                        <Border x:Name="ConsoleMediaPanel" Background="#FFF1F5F9" BorderBrush="#FFE2E8F0" BorderThickness="1" CornerRadius="8" Padding="6" Margin="0,0,0,12" MaxHeight="220" HorizontalAlignment="Center" Visibility="Collapsed">
-                            <Image x:Name="ConsoleMediaImage" MaxHeight="200" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <!-- Media Preview & Transport (Host View) -->
+                        <Border x:Name="ConsoleMediaPanel" Background="#FFF1F5F9" BorderBrush="#FFE2E8F0" BorderThickness="1" CornerRadius="8" Padding="8" Margin="0,0,0,12" HorizontalAlignment="Center" Visibility="Collapsed">
+                            <StackPanel HorizontalAlignment="Center">
+                                <Image x:Name="ConsoleMediaImage" MaxHeight="160" Stretch="Uniform" HorizontalAlignment="Center" Margin="0,0,0,6" />
+                                <StackPanel x:Name="MediaTransportControls" Orientation="Horizontal" HorizontalAlignment="Center" Visibility="Collapsed">
+                                    <Button x:Name="MediaPlayPauseButton" Content="▶ PLAY (M)" Style="{StaticResource ToolbarButtonStyle}" Background="#FF2563EB" BorderBrush="#FF1D4ED8" Foreground="#FFFFFFFF" Width="95" Margin="0,0,6,0" Click="MediaPlayPauseButton_Click" ToolTip="Play or pause media on stage (M)" />
+                                    <Button x:Name="MediaReplayButton" Content="⏮ REPLAY" Style="{StaticResource ToolbarButtonStyle}" Width="80" Margin="0,0,10,0" Click="MediaReplayButton_Click" ToolTip="Replay media clip from beginning" />
+                                    <TextBlock Text="🔊 Vol:" FontSize="11" FontWeight="Bold" Foreground="#FF64748B" VerticalAlignment="Center" Margin="0,0,4,0" />
+                                    <Slider x:Name="MediaVolumeSlider" Width="90" Minimum="0" Maximum="1" Value="0.8" SmallChange="0.05" LargeChange="0.1" VerticalAlignment="Center" ValueChanged="MediaVolumeSlider_ValueChanged" />
+                                </StackPanel>
+                            </StackPanel>
                         </Border>
 
                         <!-- Question Content & Options -->
@@ -250,6 +271,7 @@
                                 <WrapPanel>
                                     <Button x:Name="MarkCorrectButton" Content="MARK CORRECT (C) ✓" Style="{StaticResource ToolbarButtonStyle}" Background="#FF22C55E" BorderBrush="#FF16A34A" Foreground="#FFFFFFFF" Padding="14,0" Margin="0,0,8,6" Click="MarkCorrectButton_Click" />
                                     <Button x:Name="MarkIncorrectButton" Content="MARK WRONG (X) ✗" Style="{StaticResource ToolbarButtonStyle}" Background="#FFEF4444" BorderBrush="#FFDC2626" Foreground="#FFFFFFFF" Padding="14,0" Margin="0,0,8,6" Click="MarkIncorrectButton_Click" />
+                                    <Button x:Name="UndoScoreButton" Content="↶ UNDO (Ctrl+Z)" Style="{StaticResource ToolbarButtonStyle}" Background="#FF475569" BorderBrush="#FF334155" Foreground="#FFFFFFFF" Margin="0,0,8,6" Click="UndoScoreButton_Click" IsEnabled="False" ToolTip="Revert last scored answer (Ctrl+Z)" />
                                     <Button x:Name="RevealAnswerButton" Content="REVEAL ON STAGE (R)" Style="{StaticResource ToolbarButtonStyle}" Background="#FF3B82F6" BorderBrush="#FF2563EB" Foreground="#FFFFFFFF" Padding="14,0" Margin="0,0,8,6" Click="RevealAnswerButton_Click" />
                                     <Button x:Name="AcceptBuzzButton" Content="MANUAL BUZZ" Style="{StaticResource ToolbarButtonStyle}" Margin="0,0,8,6" Click="AcceptBuzzButton_Click" ToolTip="Register a buzz for the team currently selected in the team list" />
                                     <Button x:Name="OverrideScoreButton" Content="ADJUDICATE / OVERRIDE" Style="{StaticResource ToolbarButtonStyle}" Margin="0,0,8,6" Click="OverrideScoreButton_Click" />
@@ -295,10 +317,13 @@
 
                     <!-- Active Buzz Queue Box -->
                     <Border DockPanel.Dock="Top" x:Name="BuzzQueueContainer" Background="#FFFEF2F2" BorderBrush="#FFFECACA" BorderThickness="0,0,0,1" Padding="10,6" Visibility="Collapsed">
-                        <StackPanel>
-                            <TextBlock Text="🚨 ACTIVE BUZZ QUEUE" FontSize="10" FontWeight="Bold" Foreground="#FFB91C1C" />
-                            <TextBlock x:Name="BuzzQueueListLabel" Text="1. Team Alpha (Answering)" FontSize="12" FontWeight="SemiBold" Foreground="#FF991B1B" Margin="0,2,0,0" />
-                        </StackPanel>
+                        <DockPanel>
+                            <Button Content="CLEAR QUEUE" DockPanel.Dock="Right" Height="24" Padding="8,0" Style="{StaticResource ToolbarButtonStyle}" Background="#FFE11D48" BorderBrush="#FFBE123C" Foreground="#FFFFFFFF" FontSize="10" Click="ClearQueueButton_Click" ToolTip="Clear active buzz queue and let teams re-buzz" />
+                            <StackPanel>
+                                <TextBlock Text="🚨 ACTIVE BUZZ QUEUE" FontSize="10" FontWeight="Bold" Foreground="#FFB91C1C" />
+                                <TextBlock x:Name="BuzzQueueListLabel" Text="1. Team Alpha (Answering)" FontSize="12" FontWeight="SemiBold" Foreground="#FF991B1B" Margin="0,2,0,0" />
+                            </StackPanel>
+                        </DockPanel>
                     </Border>
 
                     <!-- Team Score List -->

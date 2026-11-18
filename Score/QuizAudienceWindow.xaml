@@ -57,7 +57,7 @@
 
                         <!-- Question / Content Card -->
                         <Border Grid.Column="0" Background="#FFFFFFFF" CornerRadius="24" Padding="44" Margin="10" Effect="{StaticResource PanelGlowEffect}">
-                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <ScrollViewer x:Name="AudienceQuestionContentScroll" VerticalScrollBarVisibility="Auto">
                                 <StackPanel>
                                     <TextBlock x:Name="AudienceSlideType" Text="QUESTION" FontSize="22" FontWeight="Bold" Foreground="#FF0284C7" Margin="0,0,0,12" />
                                     <TextBlock x:Name="AudienceSlideTitle" Text="Welcome to the Quiz" FontSize="48" FontWeight="Bold" Foreground="#FF0F172A" TextWrapping="Wrap" Margin="0,0,0,18" />

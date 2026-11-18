@@ -89,7 +89,7 @@
         <Border Grid.Row="2" Background="#FFF1F5F9" BorderBrush="#FFE2E8F0" BorderThickness="0,1,0,0" Padding="18,12">
             <Grid>
                 <TextBlock x:Name="DialogStatusText" Text="Ready for contestant buzzes." FontSize="11" Foreground="#FF64748B" VerticalAlignment="Center" />
-                <Button Content="Done / Keep Running" Height="32" Padding="18,0" HorizontalAlignment="Right" Background="#FF0F172A" BorderBrush="#FF1E293B" Foreground="#FFFFFFFF" FontWeight="SemiBold" FontSize="12" Click="CloseButton_Click" Cursor="Hand" />
+                <Button Content="Done / Keep Running" Height="32" Padding="18,0" HorizontalAlignment="Right" Background="#FF0F172A" BorderBrush="#FF1E293B" Foreground="#FFFFFFFF" FontWeight="SemiBold" FontSize="12" Click="CloseButton_Click" Cursor="Hand" IsCancel="True" />
             </Grid>
         </Border>
     </Grid>
