@@ -89,10 +89,17 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0" Margin="0,0,14,0">
                                 <TextBlock Text="Event / Championship Title" Style="{StaticResource FieldLabel}" />
-                                <TextBox x:Name="EventTitleInput" Height="34" FontSize="13" FontWeight="SemiBold"
-                                         Padding="8,0" VerticalContentAlignment="Center"
-                                         Text="Live Quiz Event" MaxLength="60"
-                                         ToolTip="Enter the competition or event title" />
+                                <Grid>
+                                    <TextBox x:Name="EventTitleInput" Height="34" FontSize="13" FontWeight="SemiBold"
+                                             Padding="8,0" VerticalContentAlignment="Center"
+                                             MaxLength="60" TextChanged="EventTitleInput_TextChanged"
+                                             ToolTip="Enter the competition or event title" />
+                                    <TextBlock x:Name="EventTitlePlaceholder"
+                                               Text="e.g. Annual Inter-School Science Bowl 2026"
+                                               FontSize="13" Foreground="#FF94A3B8"
+                                               Margin="9,0,0,0" VerticalAlignment="Center"
+                                               IsHitTestVisible="False" />
+                                </Grid>
                             </StackPanel>
                             <StackPanel Grid.Column="1">
                                 <TextBlock Text="Scoring Mode" Style="{StaticResource FieldLabel}" />

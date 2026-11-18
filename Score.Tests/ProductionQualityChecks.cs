@@ -259,11 +259,16 @@ namespace Score.Tests
         {
             var wizard = new GuidedSetupWizardWindow();
             var titleBox = FindElement<TextBox>(wizard, "EventTitleInput");
-            Require(titleBox != null && titleBox.Text == "Live Quiz Event", "Wizard must default to 'Live Quiz Event'.");
+            var placeholder = FindElement<TextBlock>(wizard, "EventTitlePlaceholder");
+            Require(titleBox != null, "Wizard title box must exist.");
+            Require(placeholder != null && placeholder.Text.Contains("Science Bowl"), "Placeholder must display 'e.g. Annual Inter-School Science Bowl 2026'.");
+            Require(placeholder.Visibility == Visibility.Visible, "Placeholder must be visible when title is empty.");
+
             var demoBtn = FindElement<Button>(wizard, "DemoQuickFillButton");
             Require(demoBtn != null, "DemoQuickFillButton must exist.");
             demoBtn.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
             Require(titleBox.Text.Contains("Science Bowl"), "Demo click should load Science Bowl demo title.");
+            Require(placeholder.Visibility == Visibility.Collapsed, "Placeholder must hide when title is populated.");
             Require(wizard.ConfiguredTeams.Count == 0, "Before launch, ConfiguredTeams should be uncommitted.");
             var launchBtn = FindElement<Button>(wizard, "LaunchButton");
             launchBtn.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
@@ -395,6 +400,10 @@ namespace Score.Tests
             Require(Convert.ToString(resetBtn.Content) == "↺", "Reset button must use '↺'.");
             Require(Convert.ToString(addBtn.Content) == "+15s", "Add 15 button must use '+15s'.");
             Require(startBtn.Width >= 36 && pauseBtn.Width >= 36, "Timer button width must be at least 36 to prevent clipping.");
+
+            var buzzLabel = FindElement<TextBlock>(console, "BuzzQueueListLabel");
+            Require(buzzLabel != null && !buzzLabel.Text.Contains("Alpha"), "BuzzQueueListLabel must not contain hardcoded dummy 'Team Alpha'.");
+
             console.Close();
         }
 

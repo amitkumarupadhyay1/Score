@@ -70,12 +70,16 @@ namespace Score
             preview.Children.Add(badgeRow);
 
             // Headline on Stage
+            var isSchoolTheme = string.Equals(_currentDeck?.Theme, "school", StringComparison.OrdinalIgnoreCase);
+            var headlineBrush = isSchoolTheme ? new SolidColorBrush(Color.FromRgb(15, 23, 42)) : new SolidColorBrush(Color.FromRgb(248, 250, 252));
+            var promptBrush = isSchoolTheme ? new SolidColorBrush(Color.FromRgb(51, 65, 85)) : new SolidColorBrush(Color.FromRgb(203, 213, 225));
+
             preview.Children.Add(new TextBlock
             {
                 Text = title,
                 FontSize = slideType == "Instruction" ? 17 : 16,
                 FontWeight = FontWeights.Bold,
-                Foreground = new SolidColorBrush(Color.FromRgb(248, 250, 252)),
+                Foreground = headlineBrush,
                 TextWrapping = TextWrapping.Wrap,
                 Margin = new Thickness(0, 0, 0, 8)
             });
@@ -287,8 +291,8 @@ namespace Score
                     Margin = new Thickness(0, 0, 0, 8)
                 });
 
-                var row1 = new TextBlock { Text = "1. Team Alpha · 35 pts", FontSize = 11.5, FontWeight = FontWeights.SemiBold, Foreground = new SolidColorBrush(Color.FromRgb(250, 204, 21)), Margin = new Thickness(0, 2, 0, 2) };
-                var row2 = new TextBlock { Text = "2. Team Beta · 30 pts", FontSize = 11.5, Foreground = new SolidColorBrush(Color.FromRgb(203, 213, 225)), Margin = new Thickness(0, 2, 0, 2) };
+                var row1 = new TextBlock { Text = "1. Team 1 · 35 pts", FontSize = 11.5, FontWeight = FontWeights.SemiBold, Foreground = new SolidColorBrush(Color.FromRgb(250, 204, 21)), Margin = new Thickness(0, 2, 0, 2) };
+                var row2 = new TextBlock { Text = "2. Team 2 · 30 pts", FontSize = 11.5, Foreground = new SolidColorBrush(Color.FromRgb(203, 213, 225)), Margin = new Thickness(0, 2, 0, 2) };
                 sStack.Children.Add(row1);
                 sStack.Children.Add(row2);
                 scoreBorder.Child = sStack;
@@ -307,7 +311,7 @@ namespace Score
             {
                 Text = content,
                 FontSize = 12.5,
-                Foreground = new SolidColorBrush(Color.FromRgb(203, 213, 225)),
+                Foreground = promptBrush,
                 TextWrapping = TextWrapping.Wrap,
                 LineHeight = 18,
                 Margin = new Thickness(0, 0, 0, 14)

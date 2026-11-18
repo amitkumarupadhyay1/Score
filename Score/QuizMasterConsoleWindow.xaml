@@ -365,7 +365,7 @@
                             <Button Content="CLEAR QUEUE" DockPanel.Dock="Right" Height="24" Padding="8,0" Style="{StaticResource ToolbarButtonStyle}" Background="#FFE11D48" BorderBrush="#FFBE123C" Foreground="#FFFFFFFF" FontSize="10" Click="ClearQueueButton_Click" ToolTip="Clear active buzz queue and let teams re-buzz" />
                             <StackPanel>
                                 <TextBlock Text="🚨 ACTIVE BUZZ QUEUE" FontSize="10" FontWeight="Bold" Foreground="#FFB91C1C" />
-                                <TextBlock x:Name="BuzzQueueListLabel" Text="1. Team Alpha (Answering)" FontSize="12" FontWeight="SemiBold" Foreground="#FF991B1B" Margin="0,2,0,0" />
+                                <TextBlock x:Name="BuzzQueueListLabel" Text="No active buzzes" FontSize="12" FontWeight="SemiBold" Foreground="#FF991B1B" Margin="0,2,0,0" />
                             </StackPanel>
                         </DockPanel>
                     </Border>

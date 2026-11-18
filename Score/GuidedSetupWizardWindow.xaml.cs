@@ -25,8 +25,12 @@ namespace Score
             InitializeComponent();
             BuildTeamCountButtons();
 
-            if (!string.IsNullOrWhiteSpace(initialTitle))
+            if (!string.IsNullOrWhiteSpace(initialTitle) && !string.Equals(initialTitle, "Live Quiz Event", StringComparison.OrdinalIgnoreCase))
                 EventTitleInput.Text = initialTitle;
+            else
+                EventTitleInput.Text = string.Empty;
+
+            UpdateEventTitlePlaceholder();
 
             var existing = initialTeams?.Where(t => !string.IsNullOrWhiteSpace(t)).ToList();
             if (existing != null && existing.Count >= 2)
@@ -40,6 +44,21 @@ namespace Score
             }
 
             HighlightTeamCountButton(_selectedTeamCount);
+        }
+
+        private void EventTitleInput_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            UpdateEventTitlePlaceholder();
+        }
+
+        private void UpdateEventTitlePlaceholder()
+        {
+            if (EventTitlePlaceholder != null)
+            {
+                EventTitlePlaceholder.Visibility = string.IsNullOrWhiteSpace(EventTitleInput.Text)
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+            }
         }
 
         private void BuildTeamCountButtons()
@@ -184,19 +203,22 @@ namespace Score
             var title = string.IsNullOrWhiteSpace(EventTitleInput.Text) ? "Live Quiz Event" : EventTitleInput.Text.Trim();
             var teams = GetCurrentEnteredTeams();
 
-            if (teams.Count < 2)
+            if (ConfiguredMode != "ConductDeck")
             {
-                MessageBox.Show(this, "Please enter at least 2 teams before launching the scoring desk.", "Guided Setup", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-            if (teams.Count > 12)
-            {
-                teams = teams.Take(12).ToList();
-            }
-            if (teams.Distinct(StringComparer.OrdinalIgnoreCase).Count() != teams.Count)
-            {
-                MessageBox.Show(this, "All team names must be unique.", "Guided Setup", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
+                if (teams.Count < 2)
+                {
+                    MessageBox.Show(this, "Please enter at least 2 teams before launching the scoring desk.", "Guided Setup", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                if (teams.Count > 12)
+                {
+                    teams = teams.Take(12).ToList();
+                }
+                if (teams.Distinct(StringComparer.OrdinalIgnoreCase).Count() != teams.Count)
+                {
+                    MessageBox.Show(this, "All team names must be unique.", "Guided Setup", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
             }
 
             ConfiguredTitle = title;

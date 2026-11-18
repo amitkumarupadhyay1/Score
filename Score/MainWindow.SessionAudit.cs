@@ -105,6 +105,7 @@ namespace Score
             SynchronizeRoundCountSelector();
             SynchronizeTimerSelector(GlobalMinutesSelector, newSession.GlobalDurationSeconds);
             SynchronizeTimerSelector(RoundMinutesSelector, newSession.RoundDurationSeconds);
+            if (QuestionSecondsSelector != null) QuestionSecondsSelector.Text = newSession.QuestionDurationSeconds.ToString(System.Globalization.CultureInfo.InvariantCulture);
             foreach (var card in Cards) { card.ScoreValue = 0; card.SetRoundScores(string.Empty); card.SetScoringEnabled(false); card.SetEditingEnabled(true); card.SetFinalWinner(false); }
             ResetTimerState();
             UpdateTotalLabels();
@@ -375,9 +376,12 @@ namespace Score
         {
             var now = DateTime.UtcNow;
             var teamCount = Math.Max(2, Math.Min(12, teamNames != null ? teamNames.Count : 4));
-            var cleanNames = (teamNames != null && teamNames.Count > 0)
-                ? teamNames.Take(teamCount).ToList()
-                : Enumerable.Range(1, teamCount).Select(i => "Team " + i).ToList();
+            var cleanNames = new List<string>();
+            for (var i = 0; i < teamCount; i++)
+            {
+                var name = (teamNames != null && i < teamNames.Count) ? teamNames[i]?.Trim() : null;
+                cleanNames.Add(!string.IsNullOrWhiteSpace(name) ? name : "Team " + (i + 1));
+            }
 
             var newSession = new QuizSession
             {
@@ -457,6 +461,7 @@ namespace Score
             SynchronizeRoundCountSelector();
             SynchronizeTimerSelector(GlobalMinutesSelector, newSession.GlobalDurationSeconds);
             SynchronizeTimerSelector(RoundMinutesSelector, newSession.RoundDurationSeconds);
+            if (QuestionSecondsSelector != null) QuestionSecondsSelector.Text = newSession.QuestionDurationSeconds.ToString(System.Globalization.CultureInfo.InvariantCulture);
             foreach (var card in Cards) { card.ScoreValue = 0; card.SetRoundScores(string.Empty); card.SetScoringEnabled(false); card.SetEditingEnabled(true); card.SetFinalWinner(false); }
             ResetTimerState();
             UpdateTotalLabels();

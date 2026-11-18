@@ -169,6 +169,7 @@ namespace Score
             {
                 var dir = Path.Combine(AppPaths.SettingsDirectory, "Sessions", sessionId.ToString());
                 var path = Path.Combine(dir, "team-names.txt");
+                if (!File.Exists(path)) path = Path.Combine(AppPaths.SettingsDirectory, "team-names.txt");
                 if (File.Exists(path))
                 {
                     var lines = File.ReadAllLines(path);
@@ -184,6 +185,11 @@ namespace Score
             }
             catch { }
 
+            if (databaseKey != null && databaseKey.StartsWith("TEAM-", StringComparison.OrdinalIgnoreCase) && int.TryParse(databaseKey.Substring(5), out var n))
+            {
+                return $"Team {n}";
+            }
+
             return databaseKey ?? "Team";
         }
 
@@ -193,6 +199,16 @@ namespace Score
             if (selected == null)
             {
                 MessageBox.Show(this, "Please select a session to delete.", "Delete Session", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            if (selected.IsActive)
+            {
+                MessageBox.Show(this,
+                    "The currently active session cannot be deleted while live scoring is running.\n\nPlease start a new session or select an inactive session to delete.",
+                    "Cannot Delete Active Session",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
                 return;
             }
 
@@ -230,18 +246,19 @@ namespace Score
             try
             {
                 int countDeleted = 0;
+                List<int> inactiveIds;
                 using (var db = new ScoreDbContext())
                 {
-                    var inactiveIds = db.QuizSessions
+                    inactiveIds = db.QuizSessions
                         .Where(s => !s.IsActive)
                         .Select(s => s.QuizSessionId)
                         .ToList();
+                }
 
-                    foreach (var id in inactiveIds)
-                    {
-                        CascadeDeleteSession(id);
-                        countDeleted++;
-                    }
+                foreach (var id in inactiveIds)
+                {
+                    CascadeDeleteSession(id);
+                    countDeleted++;
                 }
 
                 LoadSessions();
@@ -295,10 +312,11 @@ namespace Score
                 return;
             }
 
+            var safeTitle = ExportSafety.SanitizeFileName(selected.Title, "QuizSession");
             var dialog = new SaveFileDialog
             {
                 Filter = "CSV files (*.csv)|*.csv|All files (*.*)|*.*",
-                FileName = $"QuizSession_{selected.QuizSessionId}_{DateTime.Now:yyyyMMdd_HHmm}.csv"
+                FileName = $"{safeTitle}_{selected.QuizSessionId}_{DateTime.Now:yyyyMMdd_HHmm}.csv"
             };
 
             if (dialog.ShowDialog(this) != true) return;
@@ -315,14 +333,45 @@ namespace Score
                         .OrderBy(r => r.RoundNumber)
                         .ToList();
 
-                    foreach (var r in roundScores)
+                    if (roundScores.Count > 0)
                     {
-                        var teamFriendly = ResolveTeamName(selected.QuizSessionId, r.DatabaseTeamName);
-                        sb.AppendLine($"{selected.QuizSessionId},\"{EscapeCsv(selected.Title)}\",\"{selected.FormattedDate}\",\"{selected.Status}\",\"{r.DatabaseTeamName}\",\"{EscapeCsv(teamFriendly)}\",{r.RoundNumber},{r.ScoreValue},{r.TeamElapsedSeconds}");
+                        foreach (var r in roundScores)
+                        {
+                            var teamFriendly = ResolveTeamName(selected.QuizSessionId, r.DatabaseTeamName);
+                            sb.AppendLine(string.Join(",",
+                                selected.QuizSessionId,
+                                ExportSafety.ToCsvCell(selected.Title),
+                                ExportSafety.ToCsvCell(selected.FormattedDate),
+                                ExportSafety.ToCsvCell(selected.Status),
+                                ExportSafety.ToCsvCell(r.DatabaseTeamName),
+                                ExportSafety.ToCsvCell(teamFriendly),
+                                r.RoundNumber,
+                                r.ScoreValue,
+                                r.TeamElapsedSeconds));
+                        }
+                    }
+                    else
+                    {
+                        var teamCount = Math.Max(2, selected.ConfiguredTeamCount);
+                        for (var i = 0; i < teamCount; i++)
+                        {
+                            var key = $"TEAM-{(i + 1):00}";
+                            var teamFriendly = ResolveTeamName(selected.QuizSessionId, key);
+                            sb.AppendLine(string.Join(",",
+                                selected.QuizSessionId,
+                                ExportSafety.ToCsvCell(selected.Title),
+                                ExportSafety.ToCsvCell(selected.FormattedDate),
+                                ExportSafety.ToCsvCell(selected.Status),
+                                ExportSafety.ToCsvCell(key),
+                                ExportSafety.ToCsvCell(teamFriendly),
+                                0,
+                                0,
+                                0));
+                        }
                     }
                 }
 
-                File.WriteAllText(dialog.FileName, sb.ToString(), Encoding.UTF8);
+                File.WriteAllText(dialog.FileName, sb.ToString(), new UTF8Encoding(true));
                 MessageBox.Show(this, "Session results exported successfully.", "Export Complete", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
@@ -330,11 +379,6 @@ namespace Score
                 AppDiagnostics.WriteException("Could not export session to CSV.", ex);
                 MessageBox.Show(this, "Could not export CSV: " + ex.Message, "Export Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-        }
-
-        private static string EscapeCsv(string text)
-        {
-            return (text ?? string.Empty).Replace("\"", "\"\"");
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
