@@ -11,7 +11,7 @@
     <Window.Resources>
         <Style x:Key="DarkToolbarComboStyle" TargetType="ComboBox">
             <Setter Property="Height" Value="28"/><Setter Property="Padding" Value="8,0"/><Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Foreground" Value="#FFFFFFFF"/><Setter Property="Background" Value="#FF1E293B"/><Setter Property="BorderBrush" Value="#FF334155"/><Setter Property="BorderThickness" Value="1"/><Setter Property="FontSize" Value="12"/><Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#FF0F172A"/><Setter Property="Background" Value="#FFFFFFFF"/><Setter Property="BorderBrush" Value="#FFCBD5E1"/><Setter Property="BorderThickness" Value="1"/><Setter Property="FontSize" Value="12"/><Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="ItemContainerStyle">
                 <Setter.Value>
                     <Style TargetType="ComboBoxItem">

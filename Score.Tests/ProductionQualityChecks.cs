@@ -145,6 +145,7 @@ namespace Score.Tests
             Require(deckCombo != null, "ConsoleDeckSelector must exist.");
             Require(deckCombo.Style != null, "ConsoleDeckSelector must have an explicit style.");
             Require(deckCombo.ItemContainerStyle != null, "ConsoleDeckSelector must have an ItemContainerStyle to prevent white-on-white text.");
+            Require(!Equals(deckCombo.Foreground, Brushes.White), "ConsoleDeckSelector foreground must be high-contrast dark text, not white.");
 
             var themeCombo = FindElement<ComboBox>(console, "DeskThemeSelector");
             Require(themeCombo != null, "DeskThemeSelector must exist.");
