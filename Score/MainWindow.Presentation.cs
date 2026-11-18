@@ -339,16 +339,25 @@ namespace Score
                 ShowInTaskbar = false
             };
             var style = (Style)FindResource("ToolbarButtonStyle");
+            var guided = new Button { Name = "GuidedSetupOption", Content = "✦ Guided Setup", Style = style, Background = (Brush)new BrushConverter().ConvertFromString("#FFEDE9FE"), BorderBrush = (Brush)new BrushConverter().ConvertFromString("#FFC4B5FD"), Foreground = (Brush)new BrushConverter().ConvertFromString("#FF5B21B6"), FontWeight = FontWeights.Bold };
             var keep = new Button { Name = "KeepGameSettings", Content = "Keep roster and settings", Style = style };
             var blank = new Button { Name = "StartBlankGame", Content = "Start blank", Style = style };
             var cancel = new Button { Content = "Cancel", Style = style, IsCancel = true, IsDefault = true };
+            actions.Children.Add(guided);
             actions.Children.Add(keep);
             actions.Children.Add(blank);
             actions.Children.Add(cancel);
             var keepSettings = false;
+            var launchWizard = false;
+            guided.Click += (button, args) => { launchWizard = true; dialog.DialogResult = true; };
             keep.Click += (button, args) => { keepSettings = true; dialog.DialogResult = true; };
             blank.Click += (button, args) => dialog.DialogResult = true;
             if (dialog.ShowDialog() != true) return;
+            if (launchWizard)
+            {
+                LaunchGuidedSetup();
+                return;
+            }
             try
             {
                 StartFreshSession(keepSettings);

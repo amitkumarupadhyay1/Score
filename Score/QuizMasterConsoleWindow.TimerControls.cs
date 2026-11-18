@@ -74,12 +74,14 @@ namespace Score
             if (_currentSlide == null) return;
             if (start)
             {
-                // Handle restart if stopped, completed, or already overtime
+                // Handle restart if stopped, completed, already overtime, or zero remaining
                 if (_questionTimer.State == QuizTimerState.Stopped ||
                     _questionTimer.State == QuizTimerState.Completed ||
-                    _questionTimer.IsOvertime)
+                    _questionTimer.IsOvertime ||
+                    _questionTimer.Remaining <= TimeSpan.Zero)
                 {
                     var durSeconds = _currentSlide.TimeLimitSeconds > 0 ? _currentSlide.TimeLimitSeconds : 30;
+                    _questionTimer.Reset();
                     _questionTimer.Start(TimeSpan.FromSeconds(durSeconds));
                     if (_currentSession != null)
                     {

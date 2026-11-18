@@ -1,0 +1,124 @@
+<Window x:Class="Score.SessionHistoryDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Past Quiz Sessions &amp; Score History · QuizScore Live"
+        Width="960" Height="580"
+        MinWidth="800" MinHeight="440"
+        WindowStartupLocation="CenterOwner"
+        Background="#FFF8FAFC"
+        FontFamily="Segoe UI"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True">
+
+    <DockPanel>
+        <!-- Top Banner -->
+        <Border DockPanel.Dock="Top" Background="#FF0F172A" Padding="20,14">
+            <DockPanel>
+                <Button x:Name="DeleteAllInactiveButton" DockPanel.Dock="Right"
+                        Content="🗑 DELETE ALL INACTIVE"
+                        Style="{StaticResource ToolbarButtonStyle}"
+                        Background="#FFDC2626" BorderBrush="#FFB91C1C" Foreground="#FFFFFFFF"
+                        FontWeight="Bold" Height="32" Padding="14,0"
+                        Click="DeleteAllInactiveButton_Click"
+                        ToolTip="Delete all past completed/inactive sessions and cascade purge their records" />
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="📊 PAST QUIZ SESSIONS &amp; SCORE HISTORY" FontSize="15" FontWeight="Bold" Foreground="#FFFFFFFF" />
+                    <TextBlock Text="Review previous live quiz sessions, view team score breakdowns, export CSV, or delete old sessions." FontSize="11" Foreground="#FF94A3B8" Margin="0,2,0,0" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- Bottom Action Bar -->
+        <Border DockPanel.Dock="Bottom" Background="#FFFFFFFF" BorderBrush="#FFE2E8F0" BorderThickness="0,1,0,0" Padding="18,12">
+            <DockPanel>
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                    <Button x:Name="ExportCsvButton"
+                            Content="📥 EXPORT CSV"
+                            Style="{StaticResource ToolbarButtonStyle}"
+                            Background="#FF059669" BorderBrush="#FF047857" Foreground="#FFFFFFFF"
+                            FontWeight="Bold" Height="32" Padding="14,0" Margin="0,0,8,0"
+                            Click="ExportCsvButton_Click" ToolTip="Export selected session results to CSV" />
+                    <Button x:Name="DeleteSessionButton"
+                            Content="🗑 DELETE SESSION"
+                            Style="{StaticResource ToolbarButtonStyle}"
+                            Background="#FFEF4444" BorderBrush="#FFDC2626" Foreground="#FFFFFFFF"
+                            FontWeight="Bold" Height="32" Padding="14,0"
+                            Click="DeleteSessionButton_Click" ToolTip="Delete the selected session and cascade remove score records" />
+                </StackPanel>
+                <Button x:Name="CloseButton" DockPanel.Dock="Right"
+                        Content="CLOSE" Width="90" Height="32"
+                        Style="{StaticResource ToolbarButtonStyle}"
+                        IsCancel="True" Click="CloseButton_Click" />
+                <TextBlock x:Name="StatusInfoLabel" Text="Loading quiz sessions…" FontSize="11" Foreground="#FF64748B" VerticalAlignment="Center" Margin="16,0,0,0" />
+            </DockPanel>
+        </Border>
+
+        <!-- Main Master-Detail Layout -->
+        <Grid Margin="14">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.4*" MinWidth="360" />
+                <ColumnDefinition Width="*" MinWidth="260" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Sessions DataGrid -->
+            <Border Grid.Column="0" Background="#FFFFFFFF" BorderBrush="#FFE2E8F0" BorderThickness="1" CornerRadius="8" Margin="0,0,10,0">
+                <DataGrid x:Name="SessionsDataGrid" AutoGenerateColumns="False" IsReadOnly="True"
+                          Background="#FFFFFFFF" BorderThickness="0" GridLinesVisibility="Horizontal"
+                          HorizontalGridLinesBrush="#FFF1F5F9" RowHeight="34"
+                          SelectionMode="Single" HeadersVisibility="Column"
+                          SelectionChanged="SessionsDataGrid_SelectionChanged">
+                    <DataGrid.ColumnHeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="Background" Value="#FFF8FAFC"/>
+                            <Setter Property="Foreground" Value="#FF334155"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
+                            <Setter Property="FontSize" Value="11"/>
+                            <Setter Property="Padding" Value="10,6"/>
+                            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                            <Setter Property="BorderBrush" Value="#FFE2E8F0"/>
+                        </Style>
+                    </DataGrid.ColumnHeaderStyle>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID" Binding="{Binding QuizSessionId}" Width="45" />
+                        <DataGridTextColumn Header="Date" Binding="{Binding FormattedDate}" Width="120" />
+                        <DataGridTextColumn Header="Event Title" Binding="{Binding Title}" Width="*" />
+                        <DataGridTextColumn Header="Teams" Binding="{Binding ConfiguredTeamCount}" Width="50" />
+                        <DataGridTextColumn Header="Rounds" Binding="{Binding ConfiguredRounds}" Width="55" />
+                        <DataGridTextColumn Header="Winner" Binding="{Binding WinnerInfo}" Width="120" />
+                        <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="85" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+
+            <!-- Detail Pane -->
+            <Border Grid.Column="1" Background="#FFFFFFFF" BorderBrush="#FFE2E8F0" BorderThickness="1" CornerRadius="8" Padding="16">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Text="SESSION SCORE BREAKDOWN" FontSize="11" FontWeight="Bold" Foreground="#FF4F46E5" Margin="0,0,0,8" />
+                    <TextBlock x:Name="DetailTitleLabel" DockPanel.Dock="Top" Text="Select a session" FontSize="14" FontWeight="Bold" Foreground="#FF0F172A" Margin="0,0,0,4" TextWrapping="Wrap" />
+                    <TextBlock x:Name="DetailMetaLabel" DockPanel.Dock="Top" Text="-" FontSize="11" Foreground="#FF64748B" Margin="0,0,0,12" />
+
+                    <!-- Scores List -->
+                    <ListBox x:Name="TeamScoresListBox" BorderThickness="0" Background="#FFF8FAFC">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="#FFFFFFFF" BorderBrush="#FFE2E8F0" BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="0,2,0,4">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="{Binding TeamName}" FontSize="12" FontWeight="SemiBold" Foreground="#FF1E293B" />
+                                            <TextBlock Text="{Binding TimeSummary}" FontSize="10" Foreground="#FF64748B" />
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="1" Text="{Binding ScoreFormatted}" FontSize="14" FontWeight="Bold" Foreground="#FF4F46E5" VerticalAlignment="Center" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+            </Border>
+        </Grid>
+    </DockPanel>
+</Window>

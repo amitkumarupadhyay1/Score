@@ -20,6 +20,11 @@ namespace Score.Tests
             VerifyQuestionSidebarButtonsFitting();
             VerifyThemePalettes();
             VerifyTimerEngineStateTransitions();
+            VerifyNeutralTeamDefaults();
+            VerifyGuidedSetupWorkflow();
+            VerifySessionHistoryCascadeDeletion();
+            VerifyStudioCollapsiblePanelsAndThemes();
+            VerifyConsoleTimerGlyphsAndWidths();
             Console.WriteLine("PASS  Production quality, clean slate, ComboBox contrast, and theme checks passed.");
         }
 
@@ -211,6 +216,186 @@ namespace Score.Tests
 
             timer.Reset();
             Require(timer.State == QuizTimerState.Stopped, "Timer must reset to stopped.");
+        }
+
+        private static void VerifyNeutralTeamDefaults()
+        {
+            var originalHome = Environment.GetEnvironmentVariable("QUIZSCORE_HOME");
+            var testHome = Path.Combine(Path.GetTempPath(), "QuizScoreLive-Defaults-" + Guid.NewGuid().ToString("N"));
+            try
+            {
+                Environment.SetEnvironmentVariable("QUIZSCORE_HOME", testHome);
+                AppPaths.Initialize();
+                AppDomain.CurrentDomain.SetData("DataDirectory", AppPaths.DataDirectory);
+                NativeSqliteLoader.EnsureLoaded();
+                DatabaseMaintenance.Prepare();
+
+                var window = new MainWindow();
+                var cards = window.Cards;
+                Require(cards.Length == 4, "Scoring desk must default to 4 teams.");
+                for (int i = 0; i < cards.Length; i++)
+                {
+                    Require(cards[i].TeamName == "Team " + (i + 1), $"Team name must be 'Team {i + 1}', got '{cards[i].TeamName}'.");
+                    Require(cards[i].DatabaseTeamName == $"TEAM-{(i + 1):00}", $"Database team key must be 'TEAM-{(i + 1):00}', got '{cards[i].DatabaseTeamName}'.");
+                    Require(!cards[i].TeamName.Contains("Aurora"), "Legacy Aurora dummy team name must be eradicated.");
+                    Require(!cards[i].DatabaseTeamName.Contains("JBA"), "Legacy JBA team key must be eradicated.");
+                    Require(!cards[i].DatabaseTeamName.Contains("YVM"), "Legacy YVM team key must be eradicated.");
+                }
+                var title = FindElement<TextBox>(window, "EventTitleEditor").Text;
+                Require(title == "Live Quiz Event", $"Default event title must be 'Live Quiz Event', got '{title}'.");
+                window.Close();
+            }
+            finally
+            {
+                SQLiteConnection.ClearAllPools();
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                Environment.SetEnvironmentVariable("QUIZSCORE_HOME", originalHome);
+                try { if (Directory.Exists(testHome)) Directory.Delete(testHome, true); } catch { }
+            }
+        }
+
+        private static void VerifyGuidedSetupWorkflow()
+        {
+            var wizard = new GuidedSetupWizardWindow();
+            var titleBox = FindElement<TextBox>(wizard, "EventTitleInput");
+            Require(titleBox != null && titleBox.Text == "Live Quiz Event", "Wizard must default to 'Live Quiz Event'.");
+            var demoBtn = FindElement<Button>(wizard, "DemoQuickFillButton");
+            Require(demoBtn != null, "DemoQuickFillButton must exist.");
+            demoBtn.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            Require(titleBox.Text.Contains("Science Bowl"), "Demo click should load Science Bowl demo title.");
+            Require(wizard.ConfiguredTeams.Count == 0, "Before launch, ConfiguredTeams should be uncommitted.");
+            var launchBtn = FindElement<Button>(wizard, "LaunchButton");
+            launchBtn.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            Require(wizard.ConfiguredTeams.Count == 4, "Demo should commit 4 teams.");
+            Require(wizard.ConfiguredTeams.Contains("Cosmic Quarks"), "Demo should contain 'Cosmic Quarks'.");
+            Require(wizard.ConfiguredTitle.Contains("Science Bowl"), "Demo should commit Science Bowl title.");
+            wizard.Close();
+        }
+
+        private static void VerifySessionHistoryCascadeDeletion()
+        {
+            var originalHome = Environment.GetEnvironmentVariable("QUIZSCORE_HOME");
+            var testHome = Path.Combine(Path.GetTempPath(), "QuizScoreLive-SessionCascade-" + Guid.NewGuid().ToString("N"));
+            try
+            {
+                Environment.SetEnvironmentVariable("QUIZSCORE_HOME", testHome);
+                AppPaths.Initialize();
+                AppDomain.CurrentDomain.SetData("DataDirectory", AppPaths.DataDirectory);
+                NativeSqliteLoader.EnsureLoaded();
+                DatabaseMaintenance.Prepare();
+
+                int testSessionId;
+                using (var connection = new SQLiteConnection("Data Source=" + AppPaths.DatabasePath + ";Pooling=False;"))
+                {
+                    connection.Open();
+                    using (var cmd = new SQLiteCommand(
+                        "INSERT INTO QuizSessions (Title, ConfiguredTeamCount, ConfiguredRounds, CurrentRound, Status, IsActive, UsesSessionSettings) " +
+                        "VALUES ('Test Deletion Session', 4, 3, 1, 'Completed', 0, 1); SELECT last_insert_rowid();",
+                        connection))
+                    {
+                        testSessionId = Convert.ToInt32(cmd.ExecuteScalar());
+                    }
+
+                    using (var cmd = new SQLiteCommand(
+                        "INSERT INTO QuizRoundScores (QuizSessionId, DatabaseTeamName, RoundNumber, ScoreValue, TeamElapsedSeconds, ElapsedSeconds, IsFinalized, IsTieBreakParticipant) " +
+                        "VALUES (" + testSessionId + ", 'TEAM-01', 1, 10, 20, 20, 1, 0);" +
+                        "INSERT INTO QuizEventLogs (QuizSessionId, OccurredAtUtc, EventType, Team, RoundNumber, ScoreChange, ScoreAfter, ElapsedSeconds, Details) " +
+                        "VALUES (" + testSessionId + ", datetime('now'), 'TestEvent', 'TEAM-01', 1, 10, 10, 20, 'Test log');",
+                        connection))
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                var sessionDir = Path.Combine(AppPaths.SettingsDirectory, "Sessions", testSessionId.ToString());
+                Directory.CreateDirectory(sessionDir);
+                File.WriteAllText(Path.Combine(sessionDir, "team-names.txt"), "Team 1\nTeam 2");
+
+                // Perform cascade deletion
+                SessionHistoryDialog.CascadeDeleteSession(testSessionId);
+
+                using (var connection = new SQLiteConnection("Data Source=" + AppPaths.DatabasePath + ";Pooling=False;"))
+                {
+                    connection.Open();
+                    using (var cmd = new SQLiteCommand("SELECT COUNT(*) FROM QuizSessions WHERE QuizSessionId = " + testSessionId + ";", connection))
+                        Require(Convert.ToInt64(cmd.ExecuteScalar()) == 0, "QuizSession must be deleted.");
+                    using (var cmd = new SQLiteCommand("SELECT COUNT(*) FROM QuizRoundScores WHERE QuizSessionId = " + testSessionId + ";", connection))
+                        Require(Convert.ToInt64(cmd.ExecuteScalar()) == 0, "QuizRoundScores must be cascade deleted.");
+                    using (var cmd = new SQLiteCommand("SELECT COUNT(*) FROM QuizEventLogs WHERE QuizSessionId = " + testSessionId + ";", connection))
+                        Require(Convert.ToInt64(cmd.ExecuteScalar()) == 0, "QuizEventLogs must be cascade deleted.");
+                }
+                Require(!Directory.Exists(sessionDir), "Session settings directory must be deleted.");
+            }
+            finally
+            {
+                SQLiteConnection.ClearAllPools();
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                Environment.SetEnvironmentVariable("QUIZSCORE_HOME", originalHome);
+                try { if (Directory.Exists(testHome)) Directory.Delete(testHome, true); } catch { }
+            }
+        }
+
+        private static void VerifyStudioCollapsiblePanelsAndThemes()
+        {
+            var builder = new QuizDeckBuilderWindow();
+            var leftCol = FindElement<ColumnDefinition>(builder, "LeftColumnDef");
+            var rightCol = FindElement<ColumnDefinition>(builder, "RightColumnDef");
+            var collapseLeft = FindElement<Button>(builder, "CollapseLeftPanelButton");
+            var expandLeft = FindElement<Button>(builder, "ExpandLeftPanelButton");
+            var collapseRight = FindElement<Button>(builder, "CollapseRightPanelButton");
+            var expandRight = FindElement<Button>(builder, "ExpandRightPanelButton");
+
+            Require(leftCol != null && rightCol != null, "Left and right column definitions must exist.");
+            Require(collapseLeft != null && expandLeft != null, "Left collapse/expand buttons must exist.");
+            Require(collapseRight != null && expandRight != null, "Right collapse/expand buttons must exist.");
+
+            // Collapse left
+            collapseLeft.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            Require(leftCol.Width.Value == 0, "Left column width must collapse to 0.");
+            Require(expandLeft.Visibility == Visibility.Visible, "ExpandLeftPanelButton must be visible.");
+
+            // Expand left
+            expandLeft.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            Require(leftCol.Width.Value == 280, "Left column width must restore to 280.");
+            Require(expandLeft.Visibility == Visibility.Collapsed, "ExpandLeftPanelButton must be collapsed.");
+
+            // Collapse right
+            collapseRight.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            Require(rightCol.Width.Value == 0, "Right column width must collapse to 0.");
+            Require(expandRight.Visibility == Visibility.Visible, "ExpandRightPanelButton must be visible.");
+
+            // Expand right
+            expandRight.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            Require(rightCol.Width.Value == 320, "Right column width must restore to 320.");
+            Require(expandRight.Visibility == Visibility.Collapsed, "ExpandRightPanelButton must be collapsed.");
+
+            // Theme selection
+            var themeSelector = FindElement<ComboBox>(builder, "DeckThemeSelector");
+            Require(themeSelector != null, "DeckThemeSelector must exist.");
+            themeSelector.SelectedItem = "Broadcast";
+            var previewBorder = FindElement<Border>(builder, "PreviewStageScreenBorder");
+            Require(previewBorder != null, "PreviewStageScreenBorder must exist.");
+
+            builder.Close();
+        }
+
+        private static void VerifyConsoleTimerGlyphsAndWidths()
+        {
+            var console = new QuizMasterConsoleWindow();
+            var startBtn = FindElement<Button>(console, "TimerStartButton");
+            var pauseBtn = FindElement<Button>(console, "TimerPauseButton");
+            var resetBtn = FindElement<Button>(console, "TimerResetButton");
+            var addBtn = FindElement<Button>(console, "TimerAdd15Button");
+
+            Require(startBtn != null && pauseBtn != null && resetBtn != null && addBtn != null, "Timer buttons must exist.");
+            Require(Convert.ToString(pauseBtn.Content) == "❚❚", "Pause button must use standard '❚❚' symbol, not fragile emoji.");
+            Require(Convert.ToString(startBtn.Content) == "▶", "Start button must use '▶'.");
+            Require(Convert.ToString(resetBtn.Content) == "↺", "Reset button must use '↺'.");
+            Require(Convert.ToString(addBtn.Content) == "+15s", "Add 15 button must use '+15s'.");
+            Require(startBtn.Width >= 36 && pauseBtn.Width >= 36, "Timer button width must be at least 36 to prevent clipping.");
+            console.Close();
         }
 
         private static T FindElement<T>(FrameworkElement root, string name) where T : class

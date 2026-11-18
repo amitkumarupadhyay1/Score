@@ -151,7 +151,7 @@
                 <!-- Right: Deck & Exchange Controls -->
                 <WrapPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,3,0,3">
                     <TextBlock Text="Theme:" FontSize="11" Foreground="#FF94A3B8" VerticalAlignment="Center" Margin="0,0,6,0" />
-                    <ComboBox x:Name="DeckThemeSelector" Width="95" Height="28" Margin="0,0,10,0" Style="{StaticResource DarkToolbarComboStyle}" />
+                    <ComboBox x:Name="DeckThemeSelector" Width="95" Height="28" Margin="0,0,10,0" Style="{StaticResource DarkToolbarComboStyle}" SelectionChanged="DeckThemeSelector_SelectionChanged" />
                     <Button x:Name="SaveDeckButton" Content="Save Deck" Style="{StaticResource HeaderPillButton}" Background="#FF059669" BorderBrush="#FF10B981" Foreground="#FFFFFFFF" Margin="0,0,8,0" Click="SaveDeckButton_Click" />
                     <Button x:Name="NewDeckButton" Content="+ New Deck" Style="{StaticResource HeaderPillButton}" Margin="0,0,8,0" Click="NewDeckButton_Click" />
                     <Button x:Name="DeleteDeckButton" Content="🗑 Delete Deck" Style="{StaticResource HeaderPillButton}" Background="#FF7F1D1D" BorderBrush="#FFB91C1C" Foreground="#FFFFFFFF" Margin="0,0,8,0" Click="DeleteDeckButton_Click" ToolTip="Permanently delete the active quiz deck" />
@@ -172,9 +172,9 @@
         <!-- Main Body: 3-Column Studio -->
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="280" MinWidth="220" />
-                <ColumnDefinition Width="*" MinWidth="380" />
-                <ColumnDefinition Width="320" MinWidth="260" />
+                <ColumnDefinition x:Name="LeftColumnDef" Width="280" MinWidth="0" />
+                <ColumnDefinition x:Name="CenterColumnDef" Width="*" MinWidth="300" />
+                <ColumnDefinition x:Name="RightColumnDef" Width="320" MinWidth="0" />
             </Grid.ColumnDefinitions>
 
             <!-- Column 1: Left Slide Deck Explorer -->
@@ -187,6 +187,7 @@
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0" VerticalAlignment="Center">
                                 <TextBlock Text="QUESTIONS" FontSize="11" FontWeight="Bold" Foreground="#FF64748B" />
@@ -194,6 +195,7 @@
                             </StackPanel>
                             <Button x:Name="AddSlideButton" Grid.Column="1" Content="+ Add" Style="{StaticResource SecondaryButton}" Height="28" Padding="10,0" Margin="4,0,0,0" Click="AddSlideButton_Click" ToolTip="Add a new question" />
                             <Button x:Name="DuplicateSlideButton" Grid.Column="2" Content="Duplicate" Style="{StaticResource SecondaryButton}" Height="28" Padding="10,0" Margin="4,0,0,0" Click="DuplicateSlideButton_Click" ToolTip="Duplicate selected slide" />
+                            <Button x:Name="CollapseLeftPanelButton" Grid.Column="3" Content="◀" Style="{StaticResource SecondaryButton}" Height="28" Width="28" Padding="0" Margin="4,0,0,0" Click="CollapseLeftPanelButton_Click" ToolTip="Collapse questions panel" />
                         </Grid>
                     </Border>
 
@@ -293,6 +295,12 @@
             <!-- Column 2: Center Question Authoring Canvas -->
             <Border Grid.Column="1" Background="#FFF8FAFC">
                 <DockPanel>
+                    <!-- Expand Toggles when Panels are Collapsed -->
+                    <DockPanel DockPanel.Dock="Top" Margin="16,6,16,0">
+                        <Button x:Name="ExpandLeftPanelButton" Content="▶ QUESTIONS" Visibility="Collapsed" Style="{StaticResource SecondaryButton}" Height="24" Padding="8,0" Click="ExpandLeftPanelButton_Click" ToolTip="Show question list panel" DockPanel.Dock="Left" />
+                        <Button x:Name="ExpandRightPanelButton" Content="◀ SIMULATOR" Visibility="Collapsed" Style="{StaticResource SecondaryButton}" Height="24" Padding="8,0" Click="ExpandRightPanelButton_Click" ToolTip="Show stage screen simulator" DockPanel.Dock="Right" />
+                    </DockPanel>
+
                     <!-- Bottom Fixed Save Action Bar -->
                     <Border DockPanel.Dock="Bottom" Background="#FFFFFFFF" BorderBrush="#FFE2E8F0" BorderThickness="0,1,0,0" Padding="24,12">
                         <Grid>
@@ -605,17 +613,24 @@
             <Border Grid.Column="2" Background="#FFF1F5F9" BorderBrush="#FFE2E8F0" BorderThickness="1,0,0,0">
                 <DockPanel>
                     <!-- Header -->
-                    <Border DockPanel.Dock="Top" Background="#FFFFFFFF" Padding="16,12" BorderBrush="#FFE2E8F0" BorderThickness="0,0,0,1">
-                        <StackPanel>
-                            <TextBlock Text="STAGE SCREEN SIMULATOR" FontSize="11" FontWeight="Bold" Foreground="#FF64748B" />
-                            <TextBlock Text="Live preview of what audience &amp; teams will see" FontSize="10" Foreground="#FF94A3B8" Margin="0,2,0,0" />
-                        </StackPanel>
+                    <Border DockPanel.Dock="Top" Background="#FFFFFFFF" Padding="14,12" BorderBrush="#FFE2E8F0" BorderThickness="0,0,0,1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="STAGE SCREEN SIMULATOR" FontSize="11" FontWeight="Bold" Foreground="#FF64748B" />
+                                <TextBlock Text="Live preview of what audience &amp; teams will see" FontSize="10" Foreground="#FF94A3B8" Margin="0,2,0,0" />
+                            </StackPanel>
+                            <Button x:Name="CollapseRightPanelButton" Grid.Column="1" Content="▶" Style="{StaticResource SecondaryButton}" Height="28" Width="28" Padding="0" Margin="4,0,0,0" Click="CollapseRightPanelButton_Click" ToolTip="Collapse simulator panel" />
+                        </Grid>
                     </Border>
 
                     <!-- Preview Frame: Dark Stage Theme (#0A0F1D) -->
                     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="14">
                         <StackPanel>
-                            <Border Background="#FF0A0F1D" BorderBrush="#FF1E293B" BorderThickness="1" CornerRadius="12" Padding="16" MinHeight="260">
+                            <Border x:Name="PreviewStageScreenBorder" Background="#FF0A0F1D" BorderBrush="#FF1E293B" BorderThickness="1" CornerRadius="12" Padding="16" MinHeight="260">
                                 <Grid x:Name="PreviewPanel">
                                     <TextBlock Text="Select or create a slide to preview" Foreground="#FF64748B" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                 </Grid>

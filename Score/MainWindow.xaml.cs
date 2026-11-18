@@ -16,7 +16,7 @@ namespace Score
 {
     public partial class MainWindow : Window
     {
-        private const string DefaultEventTitle = "QUIZ CHAMPIONSHIP";
+        private const string DefaultEventTitle = "Live Quiz Event";
         private const string DefaultRoundName = "General Knowledge";
         private const int DefaultTeamCount = 4;
         private const int DefaultRoundCount = 3;
@@ -139,8 +139,8 @@ namespace Score
             RefreshProjector();
         }
 
-        private string GetDefaultTeamName(int index) { return index < 4 ? new[] { "Team Aurora", "Team Blue", "Team Emerald", "Team Gold" }[index] : "Team " + (index + 1); }
-        private string GetTeamKey(int index) { return index == 0 ? "JBA 1" : index == 1 ? "JBA 2" : index == 2 ? "YVM 1" : index == 3 ? "YVM 2" : "TEAM-" + (index + 1).ToString("00"); }
+        private string GetDefaultTeamName(int index) { return "Team " + (index + 1); }
+        private string GetTeamKey(int index) { return "TEAM-" + (index + 1).ToString("00"); }
 
         private void UpdateTeamGridLayout()
         {
@@ -179,6 +179,16 @@ namespace Score
         private void TeamCardsViewport_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             UpdateTeamGridLayout();
+        }
+
+        private void GuidedSetupButton_Click(object sender, RoutedEventArgs e)
+        {
+            LaunchGuidedSetup();
+        }
+
+        private void PastSessionsButton_Click(object sender, RoutedEventArgs e)
+        {
+            ShowPastSessions();
         }
 
         private void RoundSetupButton_Click(object sender, RoutedEventArgs e)

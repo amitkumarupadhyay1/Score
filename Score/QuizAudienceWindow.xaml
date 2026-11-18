@@ -29,7 +29,7 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                            <TextBlock x:Name="AudienceDeckTitle" Text="QUIZ CHAMPIONSHIP" FontSize="44" FontWeight="Bold" Foreground="#FFFFFFFF" />
+                            <TextBlock x:Name="AudienceDeckTitle" Text="QuizScore Live" FontSize="44" FontWeight="Bold" Foreground="#FFFFFFFF" />
                             <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                                 <Border x:Name="AudienceRoundBorder" Background="#FF3A506B" CornerRadius="6" Padding="14,4" Margin="0,0,12,0">
                                     <TextBlock x:Name="AudienceRoundName" Text="ROUND 1" FontSize="20" FontWeight="Bold" Foreground="#FF6FFFE9" />

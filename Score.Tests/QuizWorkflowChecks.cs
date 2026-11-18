@@ -166,7 +166,7 @@ namespace Score.Tests
                 window.WindowState = WindowState.Normal;
                 window.Show();
                 SelectNewGameOption(window, Find<Button>(window, "NewGameButton"), "StartBlankGame");
-                Equal("QUIZ CHAMPIONSHIP", Find<TextBox>(window, "EventTitleEditor").Text);
+                Equal("Live Quiz Event", Find<TextBox>(window, "EventTitleEditor").Text);
                 Equal("ROUND 1 OF 3", Find<TextBlock>(window, "RoundNumberLabel").Text);
                 Equal(string.Empty, Cards(window)[0].TeamMembers);
                 Equal("General Knowledge", Find<TextBox>(window, "RoundLabelEditor").Text);
@@ -174,7 +174,7 @@ namespace Score.Tests
                 window.Close();
 
                 window = new MainWindow();
-                Equal("QUIZ CHAMPIONSHIP", Find<TextBox>(window, "EventTitleEditor").Text);
+                Equal("Live Quiz Event", Find<TextBox>(window, "EventTitleEditor").Text);
                 Equal(string.Empty, Cards(window)[0].TeamMembers);
                 Equal("SOUND OFF", Find<Button>(window, "ChimeButton").Content);
                 Equal(true, Find<Button>(window, "StartTimerButton").IsEnabled);
@@ -315,7 +315,7 @@ namespace Score.Tests
                 {
                     Require(!window.TryCorrectScore(1, cards[0].DatabaseTeamName, 9, "Correction should roll back", out error), "Correction unexpectedly committed.");
                     Equal(7, cards[0].ScoreValue);
-                    Equal(7L, QueryNumber(connection, "SELECT ScoreValue FROM ScoreCounts WHERE Team='JBA 1'"));
+                    Equal(7L, QueryNumber(connection, "SELECT ScoreValue FROM ScoreCounts WHERE Team='TEAM-01'"));
                 }
                 finally { Execute(connection, "DROP TRIGGER RejectCorrection"); }
             }

@@ -20,7 +20,7 @@
                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                 <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                 <StackPanel x:Name="HeaderTitle">
-                    <TextBox x:Name="EventTitleEditor" Text="QUIZ CHAMPIONSHIP" MaxLength="50" TextWrapping="Wrap" ToolTip="Event title" FontSize="21" FontWeight="Bold" Foreground="#FF172B4D" Background="Transparent" BorderThickness="0" Padding="0" KeyDown="EventTitleEditor_KeyDown" LostFocus="EventTitleEditor_LostFocus" />
+                    <TextBox x:Name="EventTitleEditor" Text="Live Quiz Event" MaxLength="50" TextWrapping="Wrap" ToolTip="Event title" FontSize="21" FontWeight="Bold" Foreground="#FF172B4D" Background="Transparent" BorderThickness="0" Padding="0" KeyDown="EventTitleEditor_KeyDown" LostFocus="EventTitleEditor_LostFocus" />
                     <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
                         <TextBlock x:Name="RoundNumberLabel" Text="ROUND 1" FontSize="10" FontWeight="Bold" Foreground="#FF172B4D"/>
                         <TextBlock Text="  •  " FontSize="10" Foreground="#FF172B4D"/>
@@ -45,6 +45,7 @@
                     <Button x:Name="PauseTimerButton" Content="PAUSE" Click="PauseTimerButton_Click" Background="#FFFFEBC7" BorderBrush="#FFE5C98F"/>
                     <Button x:Name="ResumeTimerButton" Content="RESUME" Click="ResumeTimerButton_Click" Background="#FFDCEBFA" BorderBrush="#FFA8C5E3"/>
                     <Button x:Name="RestartTimerButton" Content="RESTART TIMERS" Click="RestartTimerButton_Click" Background="#FFE4EAF2" BorderBrush="#FFBAC8DA" ToolTip="Reset the event and round clocks, then start them again"/>
+                    <Button x:Name="GuidedSetupButton" Content="✦ GUIDED SETUP" Click="GuidedSetupButton_Click" Background="#FFEDE9FE" BorderBrush="#FFC4B5FD" Foreground="#FF5B21B6" FontWeight="SemiBold" ToolTip="Open the step-by-step wizard to set up event, teams, rounds and rules"/>
                     <Button x:Name="RoundSetupButton" MinWidth="96" Content="SHOW SETUP" Click="RoundSetupButton_Click" ToolTip="Show or hide round, time limit, and team settings"/>
                     <Button x:Name="ChimeButton" MinWidth="72" Content="SOUND ON" Click="ChimeButton_Click" ToolTip="Turn scoring and round chimes on or off"/>
                     <Button x:Name="HeaderQuizDeckButton" Content="📋 QUIZ MAKER" Click="QuizDeckButton_Click" Style="{StaticResource ToolbarButtonStyle}" Background="#FF059669" BorderBrush="#FF047857" Foreground="#FFFFFFFF" FontWeight="SemiBold" ToolTip="Create, edit, and import quiz questions and decks"/>
@@ -151,6 +152,7 @@
                     <Button Content="ROUND RESULT" Margin="0,3,7,3" Click="AnnounceWinnerButton_Click" Style="{StaticResource ToolbarButtonStyle}" Background="#FFEAE2F5" BorderBrush="#FFC8B6E0" ToolTip="Preview the current round ranking without finishing the round"/>
                     <Button Content="STANDINGS" Margin="0,3,7,3" Click="ShowStandingsButton_Click" Style="{StaticResource ToolbarButtonStyle}" Background="#FFDCEAF2" BorderBrush="#FFAFC8DB" ToolTip="View completed-round scores without stopping the current round"/>
                     <Button Content="EXPORT LOG" Margin="0,3,7,3" Click="ExportLogButton_Click" Style="{StaticResource ToolbarButtonStyle}"/>
+                    <Button x:Name="PastSessionsButton" Margin="0,3,7,3" Content="PAST SESSIONS" Click="PastSessionsButton_Click" Style="{StaticResource ToolbarButtonStyle}" Background="#FFEDE9FE" BorderBrush="#FFC4B5FD" Foreground="#FF5B21B6" ToolTip="View past sessions, scores breakdown, and cascade delete completed runs"/>
                     <Button Content="ABOUT" Margin="0,3,7,3" Click="AboutButton_Click" Style="{StaticResource ToolbarButtonStyle}" Background="#FFDCEAF2" BorderBrush="#FFAFC8DB" ToolTip="View application and developer information"/>
                     <Button x:Name="ProjectorButton" Margin="0,3,7,3" Content="PROJECTOR LIVE" Click="ProjectorButton_Click" Style="{StaticResource ToolbarButtonStyle}" ToolTip="Show the audience live round scores"/>
                     <Button x:Name="ProjectorStandingsButton" Margin="0,3,7,3" Content="PROJECTOR STANDINGS" Click="ProjectorStandingsButton_Click" Style="{StaticResource ToolbarButtonStyle}" ToolTip="Show ranked tournament totals to the audience"/>

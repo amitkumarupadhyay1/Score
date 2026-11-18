@@ -348,6 +348,132 @@ namespace Score
 
         private string Csv(string value) { return ExportSafety.ToCsvCell(value); }
 
+        internal void LaunchGuidedSetup()
+        {
+            var wizard = new GuidedSetupWizardWindow(EventTitleEditor.Text, Cards.Select(c => c.TeamName)) { Owner = this };
+            if (wizard.ShowDialog() == true)
+            {
+                if (wizard.ConfiguredMode == "ConductDeck")
+                {
+                    HostQuizButton_Click(this, new RoutedEventArgs());
+                    return;
+                }
+
+                ApplyGuidedSetup(
+                    wizard.ConfiguredTitle,
+                    wizard.ConfiguredTeams,
+                    wizard.ConfiguredRounds,
+                    wizard.ConfiguredRoundDurationSeconds,
+                    wizard.ConfiguredQuestionDurationSeconds,
+                    wizard.ConfiguredRoundFormat,
+                    wizard.ConfiguredRoundName
+                );
+            }
+        }
+
+        internal void ApplyGuidedSetup(string title, IList<string> teamNames, int roundCount, int roundDurationSec, int questionSec, string roundFormat, string roundName)
+        {
+            var now = DateTime.UtcNow;
+            var teamCount = Math.Max(2, Math.Min(12, teamNames != null ? teamNames.Count : 4));
+            var cleanNames = (teamNames != null && teamNames.Count > 0)
+                ? teamNames.Take(teamCount).ToList()
+                : Enumerable.Range(1, teamCount).Select(i => "Team " + i).ToList();
+
+            var newSession = new QuizSession
+            {
+                Title = string.IsNullOrWhiteSpace(title) ? "Live Quiz Event" : title.Trim(),
+                ConfiguredTeamCount = teamCount,
+                ConfiguredRounds = Math.Max(1, Math.Min(10, roundCount)),
+                GlobalDurationSeconds = 0,
+                RoundDurationSeconds = roundDurationSec,
+                CurrentRound = 1,
+                QuestionNumber = 1,
+                QuestionDurationSeconds = questionSec > 0 ? questionSec : 30,
+                LockAtQuestionEnd = QuestionLockCheckBox.IsChecked == true,
+                Status = "NotStarted",
+                LastUpdatedAtUtc = now,
+                IsActive = true,
+                UsesSessionSettings = true
+            };
+
+            using (var db = new ScoreDbContext())
+            using (var transaction = db.Database.BeginTransaction())
+            {
+                foreach (var session in db.QuizSessions.Where(item => item.IsActive).ToList())
+                {
+                    session.IsActive = false;
+                    if (!session.CompletedAtUtc.HasValue) session.CompletedAtUtc = now;
+                }
+                db.SaveChanges();
+
+                var scores = db.ScoreCounts.ToList();
+                foreach (var score in scores) score.ScoreValue = 0;
+                foreach (var key in Enumerable.Range(0, newSession.ConfiguredTeamCount).Select(GetTeamKey))
+                    if (!scores.Any(score => score.Team == key)) db.ScoreCounts.Add(new ScoreCount { Team = key, ScoreValue = 0 });
+
+                db.QuizSessions.Add(newSession);
+                db.SaveChanges();
+
+                var directory = GetSessionSettingsDirectory(newSession.QuizSessionId);
+                SafeFile.WriteAllLines(Path.Combine(directory, "team-names.txt"), cleanNames.ToArray());
+                SafeFile.WriteAllLines(Path.Combine(directory, "team-players.txt"), new string[teamCount]);
+                SafeFile.WriteAllLines(Path.Combine(directory, "round-context.txt"), new[] { string.IsNullOrWhiteSpace(roundName) ? "General Knowledge" : roundName.Trim(), string.IsNullOrWhiteSpace(roundFormat) ? "Standard" : roundFormat });
+                SafeFile.WriteAllText(Path.Combine(directory, "event-title.txt"), newSession.Title);
+
+                db.QuizEventLogs.Add(new QuizEventLog
+                {
+                    QuizSessionId = newSession.QuizSessionId,
+                    OccurredAtUtc = now,
+                    EventType = "SessionCreated",
+                    RoundNumber = 1,
+                    Team = string.Empty,
+                    Details = "Guided Setup completed: " + newSession.Title + " with " + teamCount + " teams"
+                });
+                db.SaveChanges();
+                transaction.Commit();
+            }
+
+            StopActiveTeamTimer();
+            activeSession = newSession;
+            RestoreQuestion();
+            MarkSessionSaved();
+            currentRound = 1;
+            configuredRounds = newSession.ConfiguredRounds;
+            configuredTeamCount = newSession.ConfiguredTeamCount;
+            isFinalRoundComplete = false;
+            isFinalAnnouncement = false;
+            isPreviewAnnouncement = false;
+            roundFinalized = false;
+            roundOvertimeAnnounced = false;
+            setupLocked = false;
+            WinnerOverlay.Visibility = Visibility.Collapsed;
+            FinalGameActions.Visibility = Visibility.Collapsed;
+            EventTitleEditor.Text = newSession.Title;
+            LoadRoundContext();
+            InitializeTeamState(newSession.ConfiguredTeamCount);
+            BuildTeamCards();
+            LoadTeamDetails();
+            SynchronizeTeamCountSelector();
+            SynchronizeRoundCountSelector();
+            SynchronizeTimerSelector(GlobalMinutesSelector, newSession.GlobalDurationSeconds);
+            SynchronizeTimerSelector(RoundMinutesSelector, newSession.RoundDurationSeconds);
+            foreach (var card in Cards) { card.ScoreValue = 0; card.SetRoundScores(string.Empty); card.SetScoringEnabled(false); card.SetEditingEnabled(true); card.SetFinalWinner(false); }
+            ResetTimerState();
+            UpdateTotalLabels();
+            UpdateTimerLabels();
+            UpdateTimerControls();
+            UpdateCompetitionStatus();
+            UpdateLeaderIndicators();
+            UpdateQuestionControls();
+            SetFeed("Guided setup applied. Teams and clocks are configured. Select START LIVE when ready.");
+        }
+
+        internal void ShowPastSessions()
+        {
+            var dialog = new SessionHistoryDialog { Owner = this };
+            dialog.ShowDialog();
+        }
+
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
             base.OnClosing(e);

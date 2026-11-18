@@ -220,10 +220,10 @@
                                         <TextBlock x:Name="ConsoleTimerLabel" Text="00:00" FontFamily="Consolas" FontSize="28" FontWeight="Bold" Foreground="#FF38BDF8" VerticalAlignment="Center" />
                                     </Border>
                                     <UniformGrid Columns="2" Rows="2" VerticalAlignment="Center" Margin="0,0,4,0">
-                                        <Button x:Name="TimerStartButton" Content="▶" Width="32" Height="24" Margin="1" Padding="0" Style="{StaticResource ToolbarButtonStyle}" Click="TimerStartButton_Click" ToolTip="Start / Resume Timer (Space)" />
-                                        <Button x:Name="TimerPauseButton" Content="⏸" Width="32" Height="24" Margin="1" Padding="0" Style="{StaticResource ToolbarButtonStyle}" Click="TimerPauseButton_Click" ToolTip="Pause Timer (Space)" />
-                                        <Button x:Name="TimerResetButton" Content="↺" Width="32" Height="24" Margin="1" Padding="0" Style="{StaticResource ToolbarButtonStyle}" Click="TimerResetButton_Click" ToolTip="Reset Timer back to full slide duration" />
-                                        <Button x:Name="TimerAdd15Button" Content="+15" Width="32" Height="24" Margin="1" Padding="0" FontSize="10" Style="{StaticResource ToolbarButtonStyle}" Click="TimerAdd15Button_Click" ToolTip="Add +15 seconds to remaining time" />
+                                        <Button x:Name="TimerStartButton" Content="▶" Width="38" Height="26" Margin="1" Padding="0" Style="{StaticResource ToolbarButtonStyle}" Click="TimerStartButton_Click" ToolTip="Start / Resume Timer (Space)" />
+                                        <Button x:Name="TimerPauseButton" Content="❚❚" Width="38" Height="26" Margin="1" Padding="0" FontSize="11" FontWeight="Bold" Style="{StaticResource ToolbarButtonStyle}" Click="TimerPauseButton_Click" ToolTip="Pause Timer (Space)" />
+                                        <Button x:Name="TimerResetButton" Content="↺" Width="38" Height="26" Margin="1" Padding="0" FontSize="12" Style="{StaticResource ToolbarButtonStyle}" Click="TimerResetButton_Click" ToolTip="Reset Timer back to full slide duration" />
+                                        <Button x:Name="TimerAdd15Button" Content="+15s" Width="38" Height="26" Margin="1" Padding="0" FontSize="10" FontWeight="SemiBold" Style="{StaticResource ToolbarButtonStyle}" Click="TimerAdd15Button_Click" ToolTip="Add +15 seconds to remaining time" />
                                     </UniformGrid>
                                 </StackPanel>
                             </Grid>

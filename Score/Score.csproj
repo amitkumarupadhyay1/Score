@@ -158,6 +158,9 @@
     <Compile Include="QuizDeckBuilderWindow.Exchange.cs">
       <DependentUpon>QuizDeckBuilderWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="QuizDeckBuilderWindow.Panels.cs">
+      <DependentUpon>QuizDeckBuilderWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="QuizScoringEngine.cs" />
     <Compile Include="QuizMasterConsoleWindow.xaml.cs">
       <DependentUpon>QuizMasterConsoleWindow.xaml</DependentUpon>
@@ -254,6 +257,22 @@
     </Page>
     <Compile Include="QuizSessionHistoryDialog.xaml.cs">
       <DependentUpon>QuizSessionHistoryDialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Page Include="GuidedSetupWizardWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="GuidedSetupWizardWindow.xaml.cs">
+      <DependentUpon>GuidedSetupWizardWindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Page Include="SessionHistoryDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="SessionHistoryDialog.xaml.cs">
+      <DependentUpon>SessionHistoryDialog.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="QuizThemePalette.cs" />

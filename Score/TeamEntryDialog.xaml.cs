@@ -43,7 +43,7 @@ namespace Score
             }
             catch { }
 
-            TeamNamesEditor.Text = "Team Alpha" + Environment.NewLine + "Team Bravo" + Environment.NewLine + "Team Charlie" + Environment.NewLine + "Team Delta";
+            TeamNamesEditor.Text = "Team 1" + Environment.NewLine + "Team 2" + Environment.NewLine + "Team 3" + Environment.NewLine + "Team 4";
         }
 
         private void UseDeskTeamsButton_Click(object sender, RoutedEventArgs e)
@@ -74,12 +74,10 @@ namespace Score
 
                     if (deskTeams.Count > 0)
                     {
-                        // Clean legacy raw database keys (e.g. JBA 1, YVM 1, TEAM-01) into friendly team names
+                        // Clean raw database keys (e.g. TEAM-01) into friendly team names
                         var cleaned = deskTeams.Select((t, i) =>
                         {
-                            if (t.StartsWith("JBA", StringComparison.OrdinalIgnoreCase) ||
-                                t.StartsWith("YVM", StringComparison.OrdinalIgnoreCase) ||
-                                t.StartsWith("TEAM-", StringComparison.OrdinalIgnoreCase))
+                            if (t.StartsWith("TEAM-", StringComparison.OrdinalIgnoreCase))
                             {
                                 return $"Team {i + 1}";
                             }

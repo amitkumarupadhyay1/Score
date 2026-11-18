@@ -70,10 +70,12 @@ namespace Score
         private void InitializeThemeSelector()
         {
             DeckThemeSelector.Items.Clear();
+            DeckThemeSelector.Items.Add("Stage");
+            DeckThemeSelector.Items.Add("School");
+            DeckThemeSelector.Items.Add("Corporate");
+            DeckThemeSelector.Items.Add("Broadcast");
             DeckThemeSelector.Items.Add("Classic");
             DeckThemeSelector.Items.Add("Neon");
-            DeckThemeSelector.Items.Add("School");
-            DeckThemeSelector.Items.Add("Stage");
             DeckThemeSelector.SelectedIndex = 0;
 
             QuestionTypeSelector.ItemsSource = new[]
@@ -151,7 +153,10 @@ namespace Score
         {
             _currentDeck = deck;
             DeckTitleEditor.Text = _currentDeck.Title ?? string.Empty;
-            DeckThemeSelector.SelectedItem = _currentDeck.Theme ?? "Classic";
+            var currentTheme = _currentDeck.Theme ?? "Stage";
+            if (!DeckThemeSelector.Items.Contains(currentTheme)) DeckThemeSelector.Items.Add(currentTheme);
+            DeckThemeSelector.SelectedItem = currentTheme;
+            ApplyThemeToSimulator(currentTheme);
 
             var slidesList = _db.DeckSlides.Where(s => s.QuizDeckId == _currentDeck.QuizDeckId && s.IsActive)
                 .OrderBy(s => s.SlideOrder)
