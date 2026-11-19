@@ -215,11 +215,11 @@ namespace Score
             }
             else if (session?.Status == "Paused")
             {
-                AudienceStatusText.Text = "⏸ QUIZ PAUSED";
+                AudienceStatusText.Text = "QUIZ PAUSED";
             }
             else if (session?.TimerState == "Paused")
             {
-                AudienceStatusText.Text = "⏸ TIMER HELD";
+                AudienceStatusText.Text = "TIMER HELD";
             }
             else
             {
@@ -237,7 +237,7 @@ namespace Score
 
             _buzzDismissTimer.Stop();
             var orderText = buzzOrder > 1 ? $" #{buzzOrder}" : string.Empty;
-            AudienceBuzzIndicator.Text = $"🚨 {teamName?.ToUpperInvariant() ?? "TEAM"}{orderText} BUZZED IN! 🚨";
+            AudienceBuzzIndicator.Text = $"{teamName?.ToUpperInvariant() ?? "TEAM"}{orderText} BUZZED IN!";
             AudienceBuzzBorder.Visibility = Visibility.Visible;
             TriggerBuzzAnimation();
             _buzzDismissTimer.Start();
@@ -360,7 +360,7 @@ namespace Score
                             BadgeForeground = CorrectBadgeFg,
                             FontWeight = FontWeights.Bold,
                             BorderThickness = new Thickness(3),
-                            Checkmark = "✔ CORRECT",
+                            Checkmark = "CORRECT",
                             CheckmarkForeground = CorrectCheckmarkFg,
                             CheckmarkVisibility = Visibility.Visible
                         });

@@ -15,14 +15,14 @@
         <Border DockPanel.Dock="Top" Background="#FF0F172A" Padding="20,14">
             <DockPanel>
                 <Button x:Name="PurgeTestRunsButton" DockPanel.Dock="Right"
-                        Content="🗑 PURGE ALL TEST RUNS"
+                        Content="PURGE ALL TEST RUNS"
                         Style="{StaticResource ToolbarButtonStyle}"
                         Background="#FFDC2626" BorderBrush="#FFB91C1C" Foreground="#FFFFFFFF"
                         FontWeight="Bold" Height="32" Padding="14,0"
                         Click="PurgeTestRunsButton_Click"
                         ToolTip="Delete completed and abandoned test sessions to clean the database" />
                 <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="📊 PAST QUIZ SESSIONS &amp; RESULTS" FontSize="15" FontWeight="Bold" Foreground="#FFFFFFFF" />
+                    <TextBlock Text="PAST QUIZ SESSIONS &amp; RESULTS" FontSize="15" FontWeight="Bold" Foreground="#FFFFFFFF" />
                     <TextBlock Text="Review previous live quiz performances, export results to CSV, or clear out past test scores." FontSize="11" Foreground="#FF94A3B8" Margin="0,2,0,0" />
                 </StackPanel>
             </DockPanel>

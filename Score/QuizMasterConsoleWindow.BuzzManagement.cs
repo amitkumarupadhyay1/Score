@@ -126,7 +126,7 @@ namespace Score
             if (ArmBuzzerButton == null) return;
             var isArmed = _buzzerServer != null && _buzzerServer.IsBuzzerArmed;
             var conv = new BrushConverter();
-            ArmBuzzerButton.Content = isArmed ? "🔔 BUZZERS ARMED (A)" : "🔒 BUZZERS LOCKED (A)";
+            ArmBuzzerButton.Content = isArmed ? "BUZZERS ARMED (A)" : "BUZZERS LOCKED (A)";
             ArmBuzzerButton.Background = (Brush)conv.ConvertFromString(isArmed ? "#FF059669" : "#FF64748B");
             ArmBuzzerButton.BorderBrush = (Brush)conv.ConvertFromString(isArmed ? "#FF047857" : "#FF475569");
             ArmBuzzerButton.ToolTip = isArmed
@@ -209,7 +209,7 @@ namespace Score
         private void UpdateSoundButtonState()
         {
             var conv = new BrushConverter();
-            SoundToggleButton.Content = QuizChimes.IsMuted ? "🔇 MUTE" : "🔊 SOUND ON";
+            SoundToggleButton.Content = QuizChimes.IsMuted ? "MUTE" : "SOUND ON";
             SoundToggleButton.Background = (Brush)conv.ConvertFromString(QuizChimes.IsMuted ? "#FF64748B" : "#FF059669");
             SoundToggleButton.BorderBrush = (Brush)conv.ConvertFromString(QuizChimes.IsMuted ? "#FF475569" : "#FF047857");
         }

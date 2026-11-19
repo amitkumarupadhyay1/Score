@@ -14,7 +14,7 @@ namespace Score
         public int PenaltyPoints { get; set; } = 0;
         public int TimeLimitSeconds { get; set; } = 15;
         public bool ConferringAllowed { get; set; } = true;
-        public string ConferringBadge { get; set; } = "👥 CONFERRING ALLOWED";
+        public string ConferringBadge { get; set; } = "CONFERRING ALLOWED";
         public bool InfiniteBounce { get; set; } = true;
         public string Notes { get; set; }
     }
@@ -66,8 +66,8 @@ namespace Score
             if (StageRulesConferringText != null)
             {
                 StageRulesConferringText.Text = rules.ConferringAllowed
-                    ? (string.IsNullOrWhiteSpace(rules.ConferringBadge) ? "👥 CONFERRING ALLOWED" : rules.ConferringBadge.ToUpperInvariant())
-                    : "🚫 NO CONFERRING / INDIVIDUAL";
+                    ? (string.IsNullOrWhiteSpace(rules.ConferringBadge) ? "CONFERRING ALLOWED" : rules.ConferringBadge.ToUpperInvariant())
+                    : "NO CONFERRING / INDIVIDUAL";
             }
 
             if (StageRulesDirectPointsText != null)
@@ -198,14 +198,14 @@ namespace Score
                 case "slate":
                     AudienceStageRulesPanel.Background = Parse("#FF1E293B");
                     AudienceStageRulesPanel.BorderBrush = Parse("#FF334155");
-                    if (StageRulesModeBadgeBorder != null) StageRulesModeBadgeBorder.Background = Parse("#FF312E81");
-                    if (StageRulesModeBadgeText != null) StageRulesModeBadgeText.Foreground = Parse("#FFA5B4FC");
+                    if (StageRulesModeBadgeBorder != null) StageRulesModeBadgeBorder.Background = Parse("#FF004377");
+                    if (StageRulesModeBadgeText != null) StageRulesModeBadgeText.Foreground = Parse("#FFDCEBFA");
                     if (StageRulesConferringBorder != null) { StageRulesConferringBorder.Background = Parse("#FF064E3B"); StageRulesConferringBorder.BorderBrush = Parse("#FF059669"); }
                     if (StageRulesConferringText != null) StageRulesConferringText.Foreground = Parse("#FF6EE7B7");
                     SetChipStyle(StageRulesDirectChip, StageRulesDirectLabel, StageRulesDirectPointsText, "#FF064E3B", "#FF059669", "#FF6EE7B7", "#FF34D399");
-                    SetChipStyle(StageRulesBounceChip, StageRulesBounceLabel, StageRulesBouncePointsText, "#FF1E1B4B", "#FF6366F1", "#FFC7D2FE", "#FFA5B4FC");
+                    SetChipStyle(StageRulesBounceChip, StageRulesBounceLabel, StageRulesBouncePointsText, "#FF082F49", "#FF0284C7", "#FFE0F2FE", "#FF7DD3FC");
                     SetChipStyle(StageRulesPenaltyChip, StageRulesPenaltyLabel, StageRulesPenaltyPointsText, "#FF450A0A", "#FFDC2626", "#FFFECACA", "#FFF87171");
-                    SetChipStyle(StageRulesTimerChip, StageRulesTimerLabel, StageRulesTimeLimitText, "#FF312E81", "#FF818CF8", "#FFE0E7FF", "#FFC7D2FE");
+                    SetChipStyle(StageRulesTimerChip, StageRulesTimerLabel, StageRulesTimeLimitText, "#FF004377", "#FF005A9C", "#FFDCEBFA", "#FFA8C5E3");
                     if (StageRulesNotesBorder != null) StageRulesNotesBorder.Background = Parse("#FF0F172A");
                     if (StageRulesNotesText != null) StageRulesNotesText.Foreground = Parse("#FF94A3B8");
                     break;

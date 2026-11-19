@@ -36,7 +36,7 @@ namespace Score
             font-weight: 700;
             letter-spacing: 2px;
             text-transform: uppercase;
-            color: #818CF8;
+            color: #38BDF8;
             margin-bottom: 6px;
         }
         .title {
@@ -75,7 +75,7 @@ namespace Score
             outline: none;
         }
         select:focus {
-            border-color: #6366F1;
+            border-color: #005A9C;
         }
         .buzzer-container {
             display: flex;
@@ -142,14 +142,14 @@ namespace Score
 </head>
 <body>
     <div class=""header"">
-        <div class=""brand"">✦ QUIZSCORE LIVE</div>
+        <div class=""brand"">QUIZSCORE LIVE</div>
         <div class=""title"">Contestant Buzzer</div>
     </div>
 
     <div class=""card"">
         <div style=""display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;"">
             <label class=""label"" for=""teamSelect"" style=""margin-bottom:0;"">Your Team</label>
-            <button id=""unlockTeamBtn"" type=""button"" style=""background:none; border:none; color:#818CF8; font-size:11px; font-weight:700; cursor:pointer; display:none;"">UNLOCK / CHANGE</button>
+            <button id=""unlockTeamBtn"" type=""button"" style=""background:none; border:none; color:#0284C7; font-size:11px; font-weight:700; cursor:pointer; display:none;"">UNLOCK / CHANGE</button>
         </div>
         <select id=""teamSelect"">
             <option value=""Team 1"">Team 1</option>
@@ -157,19 +157,19 @@ namespace Score
             <option value=""Team 3"">Team 3</option>
             <option value=""Team 4"">Team 4</option>
         </select>
-        <div id=""teamLockNotice"" style=""display:none; font-size:11px; color:#10B981; font-weight:600; margin-top:6px;"">🔒 Locked to your team for this session</div>
+        <div id=""teamLockNotice"" style=""display:none; font-size:11px; color:#10B981; font-weight:600; margin-top:6px;"">Locked to your team for this session</div>
     </div>
 
     <!-- Pounce (Secret Answer) Section -->
-    <div id=""pounceCard"" class=""card"" style=""display:none; border:2px solid #8B5CF6; background:linear-gradient(180deg, #1E1B4B 0%, #0F172A 100%);"">
+    <div id=""pounceCard"" class=""card"" style=""display:none; border:2px solid #D97706; background:linear-gradient(180deg, #1E293B 0%, #0F172A 100%);"">
         <div style=""display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;"">
-            <span class=""label"" style=""color:#A78BFA; margin-bottom:0; font-weight:800;"">⚡ CHIT POUNCE (RISK/REWARD)</span>
-            <span id=""pounceBadge"" style=""font-size:10px; font-weight:800; padding:2px 8px; border-radius:10px; background:#6D28D9; color:#DDD6FE;"">LIVE</span>
+            <span class=""label"" style=""color:#F59E0B; margin-bottom:0; font-weight:800;"">CHIT POUNCE (RISK/REWARD)</span>
+            <span id=""pounceBadge"" style=""font-size:10px; font-weight:800; padding:2px 8px; border-radius:10px; background:#B45309; color:#FEF3C7;"">LIVE</span>
         </div>
-        <p style=""font-size:12px; color:#C4B5FD; margin-bottom:10px;"">Submit secret answer directly to host. Bonus for correct, penalty for wrong.</p>
+        <p style=""font-size:12px; color:#FDE68A; margin-bottom:10px;"">Submit secret answer directly to host. Bonus for correct, penalty for wrong.</p>
         <div style=""display:flex; flex-direction:column; gap:8px;"">
-            <input type=""text"" id=""pounceInput"" placeholder=""Secret Answer..."" maxlength=""120"" style=""width:100%; height:44px; font-size:15px; font-weight:600; color:#FFFFFF; background:#0F172A; border:1.5px solid #7C3AED; border-radius:8px; padding:0 12px; outline:none;"" />
-            <button id=""pounceBtn"" type=""button"" style=""width:100%; height:46px; background:#7C3AED; border:2px solid #6D28D9; border-radius:8px; color:#FFF; font-size:16px; font-weight:900; letter-spacing:1px; cursor:pointer; box-shadow:0 4px 10px rgba(124,58,237,0.4);"">POUNCE</button>
+            <input type=""text"" id=""pounceInput"" placeholder=""Secret Answer..."" maxlength=""120"" style=""width:100%; height:44px; font-size:15px; font-weight:600; color:#FFFFFF; background:#0F172A; border:1.5px solid #D97706; border-radius:8px; padding:0 12px; outline:none;"" />
+            <button id=""pounceBtn"" type=""button"" style=""width:100%; height:46px; background:#D97706; border:2px solid #B45309; border-radius:8px; color:#FFF; font-size:16px; font-weight:900; letter-spacing:1px; cursor:pointer; box-shadow:0 4px 10px rgba(217,119,6,0.4);"">POUNCE</button>
         </div>
         <div id=""pounceStatus"" style=""display:none; font-size:12px; font-weight:700; margin-top:10px; text-align:center; padding:8px 10px; border-radius:6px; line-height:1.4;""></div>
     </div>
@@ -332,7 +332,7 @@ namespace Score
             })
             .then(r => {
                 if (r.status === 423) {
-                    statusBadge.textContent = '🔒 BUZZER LOCKED BY HOST';
+                    statusBadge.textContent = 'BUZZER LOCKED BY HOST';
                     statusBadge.className = 'status-badge';
                     btn.classList.remove('buzzed-state');
                     btn.textContent = 'BUZZ IN!';
@@ -347,11 +347,11 @@ namespace Score
                 if (navigator.vibrate) {
                     try { navigator.vibrate([80, 40, 80]); } catch(err) {}
                 }
-                statusBadge.textContent = '✓ BUZZ REGISTERED FOR ' + team.toUpperCase();
+                statusBadge.textContent = 'BUZZ REGISTERED FOR ' + team.toUpperCase();
                 setTimeout(resetStatus, 3000);
             })
             .catch(err => {
-                statusBadge.textContent = '❌ NETWORK ERROR - BUZZ NOT RECEIVED';
+                statusBadge.textContent = 'NETWORK ERROR - BUZZ NOT RECEIVED';
                 statusBadge.className = 'status-badge error-badge';
                 btn.classList.remove('buzzed-state');
                 setTimeout(resetStatus, 3500);
@@ -465,19 +465,19 @@ namespace Score
                     }
                 } else if (res.status === 423 || data.status === 'locked') {
                     if (pounceBtn) pounceBtn.disabled = false;
-                    setPounceStatus('🔒 Pounce locked by host.', false, true);
+                    setPounceStatus('Pounce locked by host.', false, true);
                 } else if (res.status === 409 || data.status === 'duplicate') {
                     pounceSubmitted = true;
                     if (pounceInput) pounceInput.disabled = true;
                     if (pounceBtn) pounceBtn.style.opacity = '0.5';
-                    setPounceStatus('⚠️ Pounce already submitted for your team.', false, true);
+                    setPounceStatus('Pounce already submitted for your team.', false, true);
                 } else {
                     if (pounceBtn) pounceBtn.disabled = false;
                     setPounceStatus(data.error || 'Failed to submit pounce.', false, true);
                 }
             } catch (err) {
                 if (pounceBtn) pounceBtn.disabled = false;
-                setPounceStatus('❌ Network error submitting pounce.', false, true);
+                setPounceStatus('Network error submitting pounce.', false, true);
             }
         }
 

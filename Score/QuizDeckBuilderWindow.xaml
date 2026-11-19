@@ -23,8 +23,8 @@
                     <Style TargetType="ComboBoxItem">
                         <Setter Property="Foreground" Value="#FF0F172A"/><Setter Property="Background" Value="#FFFFFFFF"/><Setter Property="Padding" Value="10,6"/><Setter Property="FontSize" Value="12"/><Setter Property="FontWeight" Value="Normal"/><Setter Property="VerticalContentAlignment" Value="Center"/>
                         <Style.Triggers>
-                            <Trigger Property="IsSelected" Value="True"><Setter Property="Foreground" Value="#FFFFFFFF"/><Setter Property="Background" Value="#FF4F46E5"/><Setter Property="FontWeight" Value="SemiBold"/></Trigger>
-                            <Trigger Property="IsHighlighted" Value="True"><Setter Property="Foreground" Value="#FF3730A3"/><Setter Property="Background" Value="#FFE0E7FF"/></Trigger>
+                            <Trigger Property="IsSelected" Value="True"><Setter Property="Foreground" Value="#FFFFFFFF"/><Setter Property="Background" Value="#FF005A9C"/><Setter Property="FontWeight" Value="SemiBold"/></Trigger>
+                            <Trigger Property="IsHighlighted" Value="True"><Setter Property="Foreground" Value="#FF005A9C"/><Setter Property="Background" Value="#FFDCEBFA"/></Trigger>
                             <Trigger Property="IsEnabled" Value="False"><Setter Property="Foreground" Value="#FF94A3B8"/><Setter Property="Background" Value="#FFF1F5F9"/></Trigger>
                         </Style.Triggers>
                     </Style>
@@ -42,7 +42,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="border" Property="BorderBrush" Value="#FF94A3B8"/></Trigger>
-                            <Trigger Property="IsFocused" Value="True"><Setter TargetName="border" Property="BorderBrush" Value="#FF4F46E5"/><Setter TargetName="border" Property="BorderThickness" Value="1.5"/></Trigger>
+                            <Trigger Property="IsFocused" Value="True"><Setter TargetName="border" Property="BorderBrush" Value="#FF005A9C"/><Setter TargetName="border" Property="BorderThickness" Value="1.5"/></Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
@@ -59,16 +59,16 @@
                     <Style TargetType="ComboBoxItem">
                         <Setter Property="Foreground" Value="#FF0F172A"/><Setter Property="Background" Value="#FFFFFFFF"/><Setter Property="Padding" Value="8,6"/><Setter Property="FontSize" Value="12"/>
                         <Style.Triggers>
-                            <Trigger Property="IsSelected" Value="True"><Setter Property="Foreground" Value="#FFFFFFFF"/><Setter Property="Background" Value="#FF4F46E5"/></Trigger>
-                            <Trigger Property="IsHighlighted" Value="True"><Setter Property="Foreground" Value="#FF3730A3"/><Setter Property="Background" Value="#FFE0E7FF"/></Trigger>
+                            <Trigger Property="IsSelected" Value="True"><Setter Property="Foreground" Value="#FFFFFFFF"/><Setter Property="Background" Value="#FF005A9C"/></Trigger>
+                            <Trigger Property="IsHighlighted" Value="True"><Setter Property="Foreground" Value="#FF005A9C"/><Setter Property="Background" Value="#FFDCEBFA"/></Trigger>
                         </Style.Triggers>
                     </Style>
                 </Setter.Value>
             </Setter>
         </Style>
 
-        <!-- Primary Action Button (Indigo) -->
-        <Style x:Key="PrimaryActionButton" TargetType="Button"><Setter Property="Height" Value="36"/><Setter Property="Padding" Value="18,0"/><Setter Property="FontSize" Value="12"/><Setter Property="FontWeight" Value="SemiBold"/><Setter Property="Foreground" Value="#FFFFFFFF"/><Setter Property="Background" Value="#FF4F46E5"/><Setter Property="BorderBrush" Value="#FF4338CA"/><Setter Property="BorderThickness" Value="1"/><Setter Property="Cursor" Value="Hand"/>
+        <!-- Primary Action Button (Corporate Blue) -->
+        <Style x:Key="PrimaryActionButton" TargetType="Button"><Setter Property="Height" Value="36"/><Setter Property="Padding" Value="18,0"/><Setter Property="FontSize" Value="12"/><Setter Property="FontWeight" Value="SemiBold"/><Setter Property="Foreground" Value="#FFFFFFFF"/><Setter Property="Background" Value="#FF005A9C"/><Setter Property="BorderBrush" Value="#FF004377"/><Setter Property="BorderThickness" Value="1"/><Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -76,8 +76,8 @@
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="border" Property="Background" Value="#FF6366F1"/></Trigger>
-                            <Trigger Property="IsPressed" Value="True"><Setter TargetName="border" Property="Background" Value="#FF3730A3"/></Trigger>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="border" Property="Background" Value="#FF1070B8"/></Trigger>
+                            <Trigger Property="IsPressed" Value="True"><Setter TargetName="border" Property="Background" Value="#FF003560"/></Trigger>
                             <Trigger Property="IsEnabled" Value="False"><Setter TargetName="border" Property="Background" Value="#FFCBD5E1"/><Setter TargetName="border" Property="BorderBrush" Value="#FFCBD5E1"/></Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -131,8 +131,8 @@
             <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <!-- Left: Studio Identity & Deck Selector -->
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,3,16,3">
-                    <Border Background="#FF4F46E5" CornerRadius="6" Width="28" Height="28" Margin="0,0,10,0">
-                        <TextBlock Text="✦" FontSize="15" FontWeight="Bold" Foreground="#FFFFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <Border Background="#FF005A9C" CornerRadius="6" Width="28" Height="28" Margin="0,0,10,0">
+                        <TextBlock Text="Q" FontSize="14" FontWeight="Bold" Foreground="#FFFFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                     <TextBlock Text="QUIZ STUDIO" FontSize="13" FontWeight="Bold" Foreground="#FFFFFFFF" VerticalAlignment="Center" Margin="0,0,14,0" />
 
@@ -154,17 +154,17 @@
                     <ComboBox x:Name="DeckThemeSelector" Width="95" Height="28" Margin="0,0,10,0" Style="{StaticResource DarkToolbarComboStyle}" SelectionChanged="DeckThemeSelector_SelectionChanged" />
                     <Button x:Name="SaveDeckButton" Content="Save Deck" Style="{StaticResource HeaderPillButton}" Background="#FF059669" BorderBrush="#FF10B981" Foreground="#FFFFFFFF" Margin="0,0,8,0" Click="SaveDeckButton_Click" />
                     <Button x:Name="NewDeckButton" Content="+ New Deck" Style="{StaticResource HeaderPillButton}" Margin="0,0,8,0" Click="NewDeckButton_Click" />
-                    <Button x:Name="DeleteDeckButton" Content="🗑 Delete Deck" Style="{StaticResource HeaderPillButton}" Background="#FF7F1D1D" BorderBrush="#FFB91C1C" Foreground="#FFFFFFFF" Margin="0,0,8,0" Click="DeleteDeckButton_Click" ToolTip="Permanently delete the active quiz deck" />
-                    <Button x:Name="LoadSampleDeckButton" Content="✦ Load Sample" Style="{StaticResource HeaderPillButton}" Margin="0,0,10,0" Click="LoadSampleDeckButton_Click" ToolTip="Load showcase sample quiz into studio" />
+                    <Button x:Name="DeleteDeckButton" Content="Delete Deck" Style="{StaticResource HeaderPillButton}" Background="#FF7F1D1D" BorderBrush="#FFB91C1C" Foreground="#FFFFFFFF" Margin="0,0,8,0" Click="DeleteDeckButton_Click" ToolTip="Permanently delete the active quiz deck" />
+                    <Button x:Name="LoadSampleDeckButton" Content="Load Sample" Style="{StaticResource HeaderPillButton}" Margin="0,0,10,0" Click="LoadSampleDeckButton_Click" ToolTip="Load showcase sample quiz into studio" />
 
-                    <Button x:Name="QuickAiQuizButton" Content="✦ Quick AI / Topic Quiz" Style="{StaticResource HeaderPillButton}" Background="#FF4F46E5" BorderBrush="#FF6366F1" Foreground="#FFFFFFFF" Margin="0,0,8,0" Click="QuickAiQuizButton_Click" ToolTip="Instantly generate a 5-question trivia round from curated topics" />
-                    <Button x:Name="SmartPasteButton" Content="📋 Smart AI Paste" Style="{StaticResource HeaderPillButton}" Margin="0,0,14,0" Click="SmartPasteButton_Click" ToolTip="Paste questions copied from ChatGPT, Claude, Gemini or documents" />
+                    <Button x:Name="QuickAiQuizButton" Content="Quick AI / Topic Quiz" Style="{StaticResource HeaderPillButton}" Background="#FF005A9C" BorderBrush="#FF004377" Foreground="#FFFFFFFF" Margin="0,0,8,0" Click="QuickAiQuizButton_Click" ToolTip="Instantly generate a 5-question trivia round from curated topics" />
+                    <Button x:Name="SmartPasteButton" Content="Smart AI Paste" Style="{StaticResource HeaderPillButton}" Margin="0,0,14,0" Click="SmartPasteButton_Click" ToolTip="Paste questions copied from ChatGPT, Claude, Gemini or documents" />
 
                     <Border Width="1" Height="20" Background="#FF334155" Margin="0,0,14,0" />
 
-                    <Button x:Name="ImportCsvButton" Content="📥 Import CSV" Style="{StaticResource HeaderPillButton}" Margin="0,0,8,0" Click="ImportCsvButton_Click" ToolTip="Import question batch from Excel / CSV" />
-                    <Button x:Name="ExportCsvButton" Content="📤 Export CSV" Style="{StaticResource HeaderPillButton}" Margin="0,0,8,0" Click="ExportCsvButton_Click" ToolTip="Export current deck to CSV" />
-                    <Button x:Name="TemplateButton" Content="📋 Template" Style="{StaticResource HeaderPillButton}" Click="TemplateButton_Click" ToolTip="Save sample Excel/CSV template" />
+                    <Button x:Name="ImportCsvButton" Content="Import CSV" Style="{StaticResource HeaderPillButton}" Margin="0,0,8,0" Click="ImportCsvButton_Click" ToolTip="Import question batch from Excel / CSV" />
+                    <Button x:Name="ExportCsvButton" Content="Export CSV" Style="{StaticResource HeaderPillButton}" Margin="0,0,8,0" Click="ExportCsvButton_Click" ToolTip="Export current deck to CSV" />
+                    <Button x:Name="TemplateButton" Content="Template" Style="{StaticResource HeaderPillButton}" Click="TemplateButton_Click" ToolTip="Save sample Excel/CSV template" />
                 </WrapPanel>
             </WrapPanel>
         </Border>
@@ -195,7 +195,7 @@
                             </StackPanel>
                             <Button x:Name="AddSlideButton" Grid.Column="1" Content="+ Add" Style="{StaticResource SecondaryButton}" Height="28" Padding="10,0" Margin="4,0,0,0" Click="AddSlideButton_Click" ToolTip="Add a new question" />
                             <Button x:Name="DuplicateSlideButton" Grid.Column="2" Content="Duplicate" Style="{StaticResource SecondaryButton}" Height="28" Padding="10,0" Margin="4,0,0,0" Click="DuplicateSlideButton_Click" ToolTip="Duplicate selected slide" />
-                            <Button x:Name="CollapseLeftPanelButton" Grid.Column="3" Content="◀" Style="{StaticResource SecondaryButton}" Height="28" Width="28" Padding="0" Margin="4,0,0,0" Click="CollapseLeftPanelButton_Click" ToolTip="Collapse questions panel" />
+                            <Button x:Name="CollapseLeftPanelButton" Grid.Column="3" Content="&lt;" Style="{StaticResource SecondaryButton}" Height="28" Width="28" Padding="0" Margin="4,0,0,0" Click="CollapseLeftPanelButton_Click" ToolTip="Collapse questions panel" />
                         </Grid>
                     </Border>
 
@@ -207,9 +207,9 @@
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <Button x:Name="MoveUpButton" Grid.Column="0" Content="▲ Up" Style="{StaticResource SecondaryButton}" Height="28" Margin="0,0,4,0" Padding="8,0" Click="MoveUpButton_Click" IsEnabled="False" />
-                            <Button x:Name="MoveDownButton" Grid.Column="1" Content="▼ Down" Style="{StaticResource SecondaryButton}" Height="28" Margin="0,0,4,0" Padding="8,0" Click="MoveDownButton_Click" IsEnabled="False" />
-                            <Button x:Name="DeleteSlideButton" Grid.Column="2" Content="🗑 Delete" Style="{StaticResource SecondaryButton}" Height="28" Background="#FFFEE2E2" BorderBrush="#FFFCA5A5" Foreground="#FFB91C1C" Padding="8,0" Click="DeleteSlideButton_Click" IsEnabled="False" />
+                            <Button x:Name="MoveUpButton" Grid.Column="0" Content="Up" Style="{StaticResource SecondaryButton}" Height="28" Margin="0,0,4,0" Padding="8,0" Click="MoveUpButton_Click" IsEnabled="False" />
+                            <Button x:Name="MoveDownButton" Grid.Column="1" Content="Down" Style="{StaticResource SecondaryButton}" Height="28" Margin="0,0,4,0" Padding="8,0" Click="MoveDownButton_Click" IsEnabled="False" />
+                            <Button x:Name="DeleteSlideButton" Grid.Column="2" Content="Delete" Style="{StaticResource SecondaryButton}" Height="28" Background="#FFFEE2E2" BorderBrush="#FFFCA5A5" Foreground="#FFB91C1C" Padding="8,0" Click="DeleteSlideButton_Click" IsEnabled="False" />
                         </Grid>
                     </Border>
 
@@ -218,7 +218,6 @@
                         <!-- Empty State Card -->
                         <Border x:Name="EmptySlideListCard" Background="#FFF8FAFC" BorderBrush="#FFE2E8F0" BorderThickness="1" CornerRadius="8" Padding="20" Margin="14" VerticalAlignment="Center" Visibility="Collapsed">
                             <StackPanel HorizontalAlignment="Center">
-                                <TextBlock Text="✦" FontSize="24" Foreground="#FF94A3B8" HorizontalAlignment="Center" Margin="0,0,0,6" />
                                 <TextBlock Text="No Questions Yet" FontSize="13" FontWeight="Bold" Foreground="#FF334155" HorizontalAlignment="Center" />
                                 <TextBlock Text="Add your first question to begin authoring this quiz." FontSize="11" Foreground="#FF64748B" TextWrapping="Wrap" TextAlignment="Center" Margin="0,4,0,12" />
                                 <Button Content="+ Add Question" Style="{StaticResource PrimaryActionButton}" Height="30" HorizontalAlignment="Center" Click="AddSlideButton_Click" />
@@ -283,7 +282,7 @@
                                         </StackPanel>
 
                                         <!-- Points Badge -->
-                                        <TextBlock Grid.Column="2" Text="{Binding PointsBadgeText}" Visibility="{Binding PointsBadgeVisibility}" FontSize="11" FontWeight="Bold" Foreground="#FF6366F1" VerticalAlignment="Top" Margin="6,2,0,0" />
+                                        <TextBlock Grid.Column="2" Text="{Binding PointsBadgeText}" Visibility="{Binding PointsBadgeVisibility}" FontSize="11" FontWeight="Bold" Foreground="#FF005A9C" VerticalAlignment="Top" Margin="6,2,0,0" />
                                     </Grid>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
@@ -297,8 +296,8 @@
                 <DockPanel>
                     <!-- Expand Toggles when Panels are Collapsed -->
                     <DockPanel DockPanel.Dock="Top" Margin="16,6,16,0">
-                        <Button x:Name="ExpandLeftPanelButton" Content="▶ QUESTIONS" Visibility="Collapsed" Style="{StaticResource SecondaryButton}" Height="24" Padding="8,0" Click="ExpandLeftPanelButton_Click" ToolTip="Show question list panel" DockPanel.Dock="Left" />
-                        <Button x:Name="ExpandRightPanelButton" Content="◀ SIMULATOR" Visibility="Collapsed" Style="{StaticResource SecondaryButton}" Height="24" Padding="8,0" Click="ExpandRightPanelButton_Click" ToolTip="Show stage screen simulator" DockPanel.Dock="Right" />
+                        <Button x:Name="ExpandLeftPanelButton" Content="&gt; QUESTIONS" Visibility="Collapsed" Style="{StaticResource SecondaryButton}" Height="24" Padding="8,0" Click="ExpandLeftPanelButton_Click" ToolTip="Show question list panel" DockPanel.Dock="Left" />
+                        <Button x:Name="ExpandRightPanelButton" Content="&lt; SIMULATOR" Visibility="Collapsed" Style="{StaticResource SecondaryButton}" Height="24" Padding="8,0" Click="ExpandRightPanelButton_Click" ToolTip="Show stage screen simulator" DockPanel.Dock="Right" />
                     </DockPanel>
 
                     <!-- Bottom Fixed Save Action Bar -->
@@ -310,7 +309,7 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock x:Name="EditStatusIndicator" Text="Editing Slide" FontSize="12" Foreground="#FF64748B" VerticalAlignment="Center" />
                             <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                <Button x:Name="SaveSlideButton" Content="✓ Save Question" Style="{StaticResource PrimaryActionButton}" Width="150" Click="SaveSlideButton_Click" />
+                                <Button x:Name="SaveSlideButton" Content="Save Question" Style="{StaticResource PrimaryActionButton}" Width="150" Click="SaveSlideButton_Click" />
                             </StackPanel>
                         </Grid>
                     </Border>
@@ -328,12 +327,11 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0" VerticalAlignment="Center">
                                         <StackPanel Orientation="Horizontal" Margin="0,0,0,3">
-                                            <TextBlock Text="🔒 " FontSize="14" VerticalAlignment="Center"/>
                                             <TextBlock Text="Deck Locked by Active Quiz Session" FontSize="12" FontWeight="Bold" Foreground="#FF92400E" VerticalAlignment="Center"/>
                                         </StackPanel>
                                         <TextBlock x:Name="DeckLockedText" Text="This deck is linked to an active quiz session. Finish the session to enable editing and adding questions." FontSize="11.5" Foreground="#FFB45309" TextWrapping="Wrap"/>
                                     </StackPanel>
-                                    <Button x:Name="UnlockDeckButton" Grid.Column="1" Content="🔓 End Session &amp; Unlock" Style="{StaticResource HeaderPillButton}" Background="#FFD97706" BorderBrush="#FFB45309" Foreground="#FFFFFFFF" Margin="10,0,0,0" VerticalAlignment="Center" Click="UnlockDeckButton_Click" ToolTip="End the active quiz session so you can edit and add questions to this deck" />
+                                    <Button x:Name="UnlockDeckButton" Grid.Column="1" Content="End Session &amp; Unlock" Style="{StaticResource HeaderPillButton}" Background="#FFD97706" BorderBrush="#FFB45309" Foreground="#FFFFFFFF" Margin="10,0,0,0" VerticalAlignment="Center" Click="UnlockDeckButton_Click" ToolTip="End the active quiz session so you can edit and add questions to this deck" />
                                 </Grid>
                             </Border>
 
@@ -346,7 +344,6 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0">
                                         <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
-                                            <TextBlock Text="⚠️ " FontSize="13" VerticalAlignment="Center"/>
                                             <TextBlock Text="Please resolve the following before saving:" FontSize="12" FontWeight="Bold" Foreground="#FF991B1B" VerticalAlignment="Center"/>
                                         </StackPanel>
                                         <TextBlock x:Name="ValidationAlertText" FontSize="11.5" Foreground="#FFB91C1C" TextWrapping="Wrap" LineHeight="17"/>
@@ -356,13 +353,12 @@
                             </Border>
 
                             <!-- Instruction Notice Banner -->
-                            <Border x:Name="InstructionNoticeBanner" Background="#FFF3E8FF" BorderBrush="#FFD8B4FE" BorderThickness="1.5" CornerRadius="8" Padding="14,10" Margin="0,0,0,14" Visibility="Collapsed">
+                            <Border x:Name="InstructionNoticeBanner" Background="#FFEFF6FF" BorderBrush="#FFBFDBFE" BorderThickness="1.5" CornerRadius="8" Padding="14,10" Margin="0,0,0,14" Visibility="Collapsed">
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal" Margin="0,0,0,3">
-                                        <TextBlock Text="📢 " FontSize="14" VerticalAlignment="Center"/>
-                                        <TextBlock Text="Announcement &amp; Rules Slide" FontSize="12" FontWeight="Bold" Foreground="#FF6B21A8" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Announcement &amp; Rules Slide" FontSize="12" FontWeight="Bold" Foreground="#FF1E40AF" VerticalAlignment="Center"/>
                                     </StackPanel>
-                                    <TextBlock Text="This slide is for announcements, round rules, or intermission notices. Options, scoring rules, and answer keys are not required." FontSize="11.5" Foreground="#FF7E22CE" TextWrapping="Wrap"/>
+                                    <TextBlock Text="This slide is for announcements, round rules, or intermission notices. Options, scoring rules, and answer keys are not required." FontSize="11.5" Foreground="#FF1D4ED8" TextWrapping="Wrap"/>
                                 </StackPanel>
                             </Border>
 
@@ -370,7 +366,7 @@
                             <Border x:Name="CardStageRules" Style="{StaticResource StudioCard}" Visibility="Collapsed">
                                 <StackPanel>
                                     <DockPanel Margin="0,0,0,8">
-                                        <Button x:Name="StageRuleInheritButton" DockPanel.Dock="Right" Content="✦ Inherit from Round" Style="{StaticResource HeaderPillButton}" Background="#FF6366F1" BorderBrush="#FF4F46E5" Foreground="#FFFFFFFF" Height="24" Padding="8,0" Click="StageRuleInheritButton_Click" ToolTip="Pull parent round default scoring and rules into this stage rules card" />
+                                        <Button x:Name="StageRuleInheritButton" DockPanel.Dock="Right" Content="Inherit from Round" Style="{StaticResource HeaderPillButton}" Background="#FF005A9C" BorderBrush="#FF004377" Foreground="#FFFFFFFF" Height="24" Padding="8,0" Click="StageRuleInheritButton_Click" ToolTip="Pull parent round default scoring and rules into this stage rules card" />
                                         <TextBlock Text="STAGE RULES CARD (STAGE DISPLAY)" Style="{StaticResource SectionHeader}" VerticalAlignment="Center" Margin="0" />
                                     </DockPanel>
                                     <CheckBox x:Name="StageRulesEnabledCheckBox" Content="Enable Structured Rules Card on Stage Screen" FontWeight="SemiBold" FontSize="12" Foreground="#FF334155" Margin="0,0,0,8" Checked="StageRulesEnabled_Changed" Unchecked="StageRulesEnabled_Changed" />
@@ -414,7 +410,7 @@
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                                         <StackPanel Grid.Column="0" Margin="0,0,10,0">
                                             <DockPanel Margin="0,0,0,3">
-                                                <Button x:Name="ManageRoundsButton" DockPanel.Dock="Right" Content="⚙ Rounds" Style="{StaticResource SecondaryButton}" Height="18" Padding="5,0" FontSize="10" Click="ManageRoundsButton_Click" ToolTip="Add, edit, or configure rounds for this deck" />
+                                                <Button x:Name="ManageRoundsButton" DockPanel.Dock="Right" Content="Rounds" Style="{StaticResource SecondaryButton}" Height="18" Padding="5,0" FontSize="10" Click="ManageRoundsButton_Click" ToolTip="Add, edit, or configure rounds for this deck" />
                                                 <TextBlock Text="Quiz Round" Style="{StaticResource InputLabel}" Margin="0" VerticalAlignment="Center" />
                                             </DockPanel>
                                             <ComboBox x:Name="SlideRoundSelector" Style="{StaticResource ModernComboBox}" SelectionChanged="SlideRoundSelector_SelectionChanged" DisplayMemberPath="RoundTitle" SelectedValuePath="QuizRoundId" />
@@ -502,15 +498,15 @@
                                                 <ColumnDefinition Width="*" />
                                                 <ColumnDefinition Width="*" />
                                             </Grid.ColumnDefinitions>
-                                            <Button x:Name="TrueChoiceButton" Grid.Column="0" Content="✓ TRUE" Height="42" Margin="0,0,6,0" Style="{StaticResource SecondaryButton}" FontSize="14" FontWeight="Bold" Click="TrueChoiceButton_Click" />
-                                            <Button x:Name="FalseChoiceButton" Grid.Column="1" Content="✗ FALSE" Height="42" Margin="6,0,0,0" Style="{StaticResource SecondaryButton}" FontSize="14" FontWeight="Bold" Click="FalseChoiceButton_Click" />
+                                            <Button x:Name="TrueChoiceButton" Grid.Column="0" Content="TRUE" Height="42" Margin="0,0,6,0" Style="{StaticResource SecondaryButton}" FontSize="14" FontWeight="Bold" Click="TrueChoiceButton_Click" />
+                                            <Button x:Name="FalseChoiceButton" Grid.Column="1" Content="FALSE" Height="42" Margin="6,0,0,0" Style="{StaticResource SecondaryButton}" FontSize="14" FontWeight="Bold" Click="FalseChoiceButton_Click" />
                                         </Grid>
                                     </StackPanel>
 
                                     <!-- Context-Sensitive Panel 2C: Manual Notice -->
                                     <Border x:Name="ManualNoticeContainer" Background="#FFF1F5F9" BorderBrush="#FFCBD5E1" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,0,10" Visibility="Collapsed">
                                         <StackPanel>
-                                            <TextBlock Text="⚖️ Live Discretionary Adjudication" FontSize="12" FontWeight="Bold" Foreground="#FF334155" />
+                                            <TextBlock Text="Live Discretionary Adjudication" FontSize="12" FontWeight="Bold" Foreground="#FF334155" />
                                             <TextBlock Text="This question will be scored manually by the quizmaster during the live quiz." FontSize="11" Foreground="#FF64748B" Margin="0,2,0,0" />
                                         </StackPanel>
                                     </Border>
@@ -649,7 +645,7 @@
                                 <TextBlock Text="STAGE SCREEN SIMULATOR" FontSize="11" FontWeight="Bold" Foreground="#FF64748B" />
                                 <TextBlock Text="Live preview of what audience &amp; teams will see" FontSize="10" Foreground="#FF94A3B8" Margin="0,2,0,0" />
                             </StackPanel>
-                            <Button x:Name="CollapseRightPanelButton" Grid.Column="1" Content="▶" Style="{StaticResource SecondaryButton}" Height="28" Width="28" Padding="0" Margin="4,0,0,0" Click="CollapseRightPanelButton_Click" ToolTip="Collapse simulator panel" />
+                            <Button x:Name="CollapseRightPanelButton" Grid.Column="1" Content="&gt;" Style="{StaticResource SecondaryButton}" Height="28" Width="28" Padding="0" Margin="4,0,0,0" Click="CollapseRightPanelButton_Click" ToolTip="Collapse simulator panel" />
                         </Grid>
                     </Border>
 
@@ -665,7 +661,7 @@
                             <!-- Host Teleprompter Card (Below Stage Screen) -->
                             <Border Background="#FFFFFFFF" BorderBrush="#FFE2E8F0" BorderThickness="1" CornerRadius="10" Padding="14" Margin="0,14,0,0">
                                 <StackPanel x:Name="HostTeleprompterPanel">
-                                    <TextBlock Text="🔒 QUIZMASTER TELEPROMPTER" FontSize="10" FontWeight="Bold" Foreground="#FF64748B" Margin="0,0,0,8" />
+                                    <TextBlock Text="QUIZMASTER TELEPROMPTER" FontSize="10" FontWeight="Bold" Foreground="#FF64748B" Margin="0,0,0,8" />
                                     <TextBlock x:Name="HostAnswerKeyLabel" Text="Answer: -" FontSize="13" FontWeight="Bold" Foreground="#FF15803D" Margin="0,0,0,4" TextWrapping="Wrap" />
                                     <TextBlock x:Name="HostAliasesLabel" Text="Aliases: None" FontSize="11" Foreground="#FF64748B" Margin="0,0,0,6" TextWrapping="Wrap" />
                                     <TextBlock x:Name="HostNotesLabel" Text="No secret trivia notes." FontSize="11" FontStyle="Italic" Foreground="#FF334155" TextWrapping="Wrap" />

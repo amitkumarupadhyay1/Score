@@ -380,12 +380,12 @@ namespace Score
             if (_clueStep == 0)
             {
                 ClueStatusLabel.Text = $"0 of {hints.Length} clues revealed";
-                RevealClueButton.Content = "💡 REVEAL CLUE 1";
+                RevealClueButton.Content = "REVEAL CLUE 1";
             }
             else if (_clueStep <= hints.Length)
             {
                 ClueStatusLabel.Text = $"Clue {_clueStep}/{hints.Length}: \"{hints[_clueStep - 1]}\"";
-                RevealClueButton.Content = _clueStep < hints.Length ? $"💡 REVEAL CLUE {_clueStep + 1}" : "ALL CLUES REVEALED";
+                RevealClueButton.Content = _clueStep < hints.Length ? $"REVEAL CLUE {_clueStep + 1}" : "ALL CLUES REVEALED";
             }
         }
 
@@ -424,7 +424,7 @@ namespace Score
             {
                 TurnBanner.Background = (Brush)conv.ConvertFromString("#FFF0FDF4");
                 TurnBanner.BorderBrush = (Brush)conv.ConvertFromString("#FFBBF7D0");
-                TurnStatusLabel.Text = "✦ READY TO CONDUCT · CLICK '▶ START QUIZ'";
+                TurnStatusLabel.Text = "READY TO CONDUCT - CLICK START QUIZ";
                 TurnStatusLabel.Foreground = (Brush)conv.ConvertFromString("#FF166534");
                 TurnDetailsLabel.Text = "Browse and preview questions above. Click 'START QUIZ' in the top bar to register teams and enable live buzzers.";
                 TurnDetailsLabel.Foreground = (Brush)conv.ConvertFromString("#FF15803D");
@@ -439,7 +439,7 @@ namespace Score
             {
                 TurnBanner.Background = (Brush)conv.ConvertFromString("#FFDCFCE7");
                 TurnBanner.BorderBrush = (Brush)conv.ConvertFromString("#FF86EFAC");
-                TurnStatusLabel.Text = "✓ QUESTION COMPLETED & SCORED · PRESS NEXT (N) ▶";
+                TurnStatusLabel.Text = "QUESTION COMPLETED & SCORED - PRESS NEXT (N)";
                 TurnStatusLabel.Foreground = (Brush)conv.ConvertFromString("#FF166534");
                 TurnDetailsLabel.Text = "Correct answer recorded. Advance to the next question or reveal answer on stage.";
                 TurnDetailsLabel.Foreground = (Brush)conv.ConvertFromString("#FF15803D");
@@ -450,7 +450,7 @@ namespace Score
             {
                 TurnBanner.Background = (Brush)conv.ConvertFromString("#FFFEE2E2");
                 TurnBanner.BorderBrush = (Brush)conv.ConvertFromString("#FFFCA5A5");
-                TurnStatusLabel.Text = $"🚨 {_currentBuzzingTeam.ToUpperInvariant()} HAS BUZZED · ANSWERING NOW";
+                TurnStatusLabel.Text = $"{_currentBuzzingTeam.ToUpperInvariant()} HAS BUZZED - ANSWERING NOW";
                 TurnStatusLabel.Foreground = (Brush)conv.ConvertFromString("#FFB91C1C");
                 TurnDetailsLabel.Text = "Evaluate team response or click Mark Correct (C) / Mark Wrong (X).";
                 TurnDetailsLabel.Foreground = (Brush)conv.ConvertFromString("#FF991B1B");
@@ -481,7 +481,7 @@ namespace Score
             {
                 TurnBanner.Background = (Brush)conv.ConvertFromString("#FFF1F5F9");
                 TurnBanner.BorderBrush = (Brush)conv.ConvertFromString("#FFE2E8F0");
-                TurnStatusLabel.Text = "✦ OPEN FLOOR · WAITING FOR TEAM BUZZ";
+                TurnStatusLabel.Text = "OPEN FLOOR - WAITING FOR TEAM BUZZ";
                 TurnStatusLabel.Foreground = (Brush)conv.ConvertFromString("#FF475569");
                 TurnDetailsLabel.Text = "Press keys 1-9 or let teams buzz in from their mobile devices.";
                 TurnDetailsLabel.Foreground = (Brush)conv.ConvertFromString("#FF64748B");
@@ -494,7 +494,7 @@ namespace Score
             var conv = new BrushConverter();
             if (isRevealed)
             {
-                RevealAnswerButton.Content = "👁 HIDE ANSWER (R)";
+                RevealAnswerButton.Content = "HIDE ANSWER (R)";
                 RevealAnswerButton.Background = (Brush)conv.ConvertFromString("#FFE11D48");
                 RevealAnswerButton.BorderBrush = (Brush)conv.ConvertFromString("#FFBE123C");
             }
@@ -528,7 +528,7 @@ namespace Score
             if (BlackoutToggleButton != null)
             {
                 BlackoutToggleButton.Background = (Brush)conv.ConvertFromString(_isBlackoutActive ? "#FFDC2626" : "#FF334155");
-                BlackoutToggleButton.Content = _isBlackoutActive ? "⬛ BLACKOUT ON (B)" : "⬛ BLACKOUT (B)";
+                BlackoutToggleButton.Content = _isBlackoutActive ? "BLACKOUT ON (B)" : "BLACKOUT (B)";
             }
 
             if (_isBlackoutActive)
@@ -559,12 +559,12 @@ namespace Score
                 if (MediaPlayPauseButton.Content.ToString().Contains("PLAY"))
                 {
                     _audienceWindow.ResumeMediaPlayback();
-                    MediaPlayPauseButton.Content = "⏸ PAUSE (M)";
+                    MediaPlayPauseButton.Content = "PAUSE (M)";
                 }
                 else
                 {
                     _audienceWindow.PauseMediaPlayback();
-                    MediaPlayPauseButton.Content = "▶ PLAY (M)";
+                    MediaPlayPauseButton.Content = "PLAY (M)";
                 }
             }
         }
@@ -574,7 +574,7 @@ namespace Score
             if (_audienceWindow != null && _audienceWindow.IsLoaded)
             {
                 _audienceWindow.ReplayMediaPlayback();
-                MediaPlayPauseButton.Content = "⏸ PAUSE (M)";
+                MediaPlayPauseButton.Content = "PAUSE (M)";
             }
         }
 

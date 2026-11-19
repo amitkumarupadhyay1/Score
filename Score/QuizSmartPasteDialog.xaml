@@ -15,8 +15,8 @@
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="#FFFFFFFF"/>
-            <Setter Property="Background" Value="#FF4F46E5"/>
-            <Setter Property="BorderBrush" Value="#FF4338CA"/>
+            <Setter Property="Background" Value="#FF005A9C"/>
+            <Setter Property="BorderBrush" Value="#FF004377"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
@@ -27,7 +27,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#FF6366F1"/>
+                                <Setter TargetName="border" Property="Background" Value="#FF1070B8"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="border" Property="Background" Value="#FFCBD5E1"/>
@@ -79,8 +79,8 @@
         <Border Grid.Row="0" Background="#FF0F172A" Padding="20,14" BorderBrush="#FF1E293B" BorderThickness="0,0,0,1">
             <StackPanel>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Background="#FF059669" CornerRadius="6" Width="26" Height="26" Margin="0,0,10,0">
-                        <TextBlock Text="📋" FontSize="13" Foreground="#FFFFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Border Background="#FF005A9C" CornerRadius="6" Width="26" Height="26" Margin="0,0,10,0">
+                        <TextBlock Text="Q" FontSize="13" FontWeight="Bold" Foreground="#FFFFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <TextBlock Text="SMART AI PASTE IMPORTER" FontSize="13" FontWeight="Bold" Foreground="#FFFFFFFF" VerticalAlignment="Center"/>
                 </StackPanel>
@@ -108,7 +108,7 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" x:Name="ParseButton" Content="⚡ Parse &amp; Preview Questions" Style="{StaticResource ActionButton}" Height="30" Padding="14,0" Click="ParseButton_Click"/>
+                <Button Grid.Column="0" x:Name="ParseButton" Content="Parse &amp; Preview Questions" Style="{StaticResource ActionButton}" Height="30" Padding="14,0" Click="ParseButton_Click"/>
                 <TextBlock Grid.Column="1" x:Name="ParseStatusLabel" Text="Paste questions above and click 'Parse &amp; Preview Questions'." FontSize="11" Foreground="#FF64748B" VerticalAlignment="Center" Margin="14,0,0,0"/>
                 <Button Grid.Column="2" Content="Clear" Style="{StaticResource SecondaryButton}" Height="28" Padding="10,0" Click="ClearButton_Click"/>
             </Grid>
@@ -171,7 +171,7 @@
                 <CheckBox x:Name="ReplaceExistingCheckBox" Content="Replace existing slides in deck" FontSize="11" Foreground="#FF475569" VerticalAlignment="Center"/>
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
                     <Button Content="Cancel" Style="{StaticResource SecondaryButton}" Height="34" Width="80" Margin="0,0,8,0" Click="CancelButton_Click"/>
-                    <Button x:Name="ImportButton" Content="✓ Import Questions into Deck" Style="{StaticResource ActionButton}" Height="34" Padding="16,0" Click="ImportButton_Click" IsEnabled="False"/>
+                    <Button x:Name="ImportButton" Content="Import Questions into Deck" Style="{StaticResource ActionButton}" Height="34" Padding="16,0" Click="ImportButton_Click" IsEnabled="False"/>
                 </StackPanel>
             </Grid>
         </Border>

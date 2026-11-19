@@ -535,7 +535,7 @@ namespace Score
             if (!ValidateAndPrepareSlideForSave(out var errors))
             {
                 ShowValidationAlert(errors);
-                StatusText.Text = $"⚠️ Unable to save {slideType.ToLowerInvariant()} slide: please resolve the highlighted issues.";
+                StatusText.Text = $"Unable to save {slideType.ToLowerInvariant()} slide: please resolve the highlighted issues.";
                 return;
             }
 
@@ -609,7 +609,7 @@ namespace Score
                 RefreshSlideList();
                 SlideListBox.SelectedItem = _selectedSlide;
                 EditStatusIndicator.Text = $"Saved at {DateTime.Now:t} · {_selectedSlide.Title}";
-                StatusText.Text = $"✓ {slideType} slide saved successfully.";
+                StatusText.Text = $"{slideType} slide saved successfully.";
             }
             catch (Exception ex)
             {

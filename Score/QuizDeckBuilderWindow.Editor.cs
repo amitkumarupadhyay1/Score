@@ -27,11 +27,11 @@ namespace Score
 
             if (SaveSlideButton != null)
             {
-                if (isInstruction) SaveSlideButton.Content = "✓ Save Instruction";
-                else if (isMedia) SaveSlideButton.Content = "✓ Save Media Slide";
-                else if (isTimer) SaveSlideButton.Content = "✓ Save Timer";
-                else if (isScoreboard) SaveSlideButton.Content = "✓ Save Scoreboard";
-                else SaveSlideButton.Content = "✓ Save Question";
+                if (isInstruction) SaveSlideButton.Content = "Save Instruction";
+                else if (isMedia) SaveSlideButton.Content = "Save Media Slide";
+                else if (isTimer) SaveSlideButton.Content = "Save Timer";
+                else if (isScoreboard) SaveSlideButton.Content = "Save Scoreboard";
+                else SaveSlideButton.Content = "Save Question";
             }
 
             if (isInstruction)

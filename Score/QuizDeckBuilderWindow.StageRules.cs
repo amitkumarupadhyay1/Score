@@ -214,7 +214,7 @@ namespace Score
                 if (!silent)
                 {
                     if (StageRulesEnabledCheckBox != null) StageRulesEnabledCheckBox.IsChecked = true;
-                    StatusText.Text = $"✦ Inherited stage rules from round '{activeRound.RoundTitle}'.";
+                    StatusText.Text = $"Inherited stage rules from round '{activeRound.RoundTitle}'.";
                     UpdatePreview();
                 }
             }
@@ -289,25 +289,25 @@ namespace Score
             var titleRow = new DockPanel { Margin = new Thickness(0, 0, 0, 8) };
             titleRow.Children.Add(new TextBlock
             {
-                Text = "✦ STAGE RULES CARD",
+                Text = "STAGE RULES CARD",
                 FontSize = 10.5,
                 FontWeight = FontWeights.Bold,
-                Foreground = new SolidColorBrush(Color.FromRgb(129, 140, 248))
+                Foreground = new SolidColorBrush(Color.FromRgb(14, 165, 233))
             });
             sp.Children.Add(titleRow);
 
             var badgeWrap = new WrapPanel { Margin = new Thickness(0, 0, 0, 6) };
-            badgeWrap.Children.Add(CreateStageBadge(mode.ToUpperInvariant(), "#818CF8", "#1E1B4B"));
+            badgeWrap.Children.Add(CreateStageBadge(mode.ToUpperInvariant(), "#38BDF8", "#082F49"));
             badgeWrap.Children.Add(CreateStageBadge($"+{pts} PTS", "#4ADE80", "#14532D"));
             if (bnc > 0) badgeWrap.Children.Add(CreateStageBadge($"+{bnc} BOUNCE", "#FACC15", "#713F12"));
             if (pen > 0) badgeWrap.Children.Add(CreateStageBadge($"-{pen} PENALTY", "#F87171", "#7F1D1D"));
-            if (sec > 0) badgeWrap.Children.Add(CreateStageBadge($"⏱ {sec}s", "#38BDF8", "#0C4A6E"));
+            if (sec > 0) badgeWrap.Children.Add(CreateStageBadge($"{sec}s", "#38BDF8", "#0C4A6E"));
             sp.Children.Add(badgeWrap);
 
             var tags = new List<string>
             {
-                conferring ? "✓ Conferring Permitted" : "✗ No Conferring",
-                infinite ? "✓ Infinite Bounce" : "✗ Single Chance"
+                conferring ? "Conferring Permitted" : "No Conferring",
+                infinite ? "Infinite Bounce" : "Single Chance"
             };
 
             var rulesText = new TextBlock

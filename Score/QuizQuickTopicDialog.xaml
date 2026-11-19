@@ -24,8 +24,8 @@
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="#FFFFFFFF"/>
-            <Setter Property="Background" Value="#FF4F46E5"/>
-            <Setter Property="BorderBrush" Value="#FF4338CA"/>
+            <Setter Property="Background" Value="#FF005A9C"/>
+            <Setter Property="BorderBrush" Value="#FF004377"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
@@ -36,7 +36,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#FF6366F1"/>
+                                <Setter TargetName="border" Property="Background" Value="#FF1070B8"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -82,8 +82,8 @@
         <Border Grid.Row="0" Background="#FF0F172A" Padding="20,16" BorderBrush="#FF1E293B" BorderThickness="0,0,0,1">
             <StackPanel>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Background="#FF4F46E5" CornerRadius="6" Width="26" Height="26" Margin="0,0,10,0">
-                        <TextBlock Text="✦" FontSize="14" FontWeight="Bold" Foreground="#FFFFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Border Background="#FF005A9C" CornerRadius="6" Width="26" Height="26" Margin="0,0,10,0">
+                        <TextBlock Text="Q" FontSize="13" FontWeight="Bold" Foreground="#FFFFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <TextBlock Text="QUICK TOPIC GENERATOR" FontSize="13" FontWeight="Bold" Foreground="#FFFFFFFF" VerticalAlignment="Center"/>
                 </StackPanel>
@@ -100,7 +100,7 @@
                 <Border x:Name="TopicScienceCard" Style="{StaticResource TopicCardBorder}" Cursor="Hand" PreviewMouseLeftButtonDown="TopicCard_PreviewMouseLeftButtonDown">
                     <RadioButton x:Name="TopicScienceRadio" GroupName="TopicPackGroup" IsChecked="True" VerticalContentAlignment="Center">
                         <StackPanel Margin="6,0,0,0">
-                            <TextBlock Text="🔬  Science &amp; Technology" FontSize="13" FontWeight="Bold" Foreground="#FF0F172A"/>
+                            <TextBlock Text="Science &amp; Technology" FontSize="13" FontWeight="Bold" Foreground="#FF0F172A"/>
                             <TextBlock Text="Physics, Astronomy, Biology, Discoveries &amp; Cell Biology" FontSize="11" Foreground="#FF64748B" Margin="0,2,0,0"/>
                         </StackPanel>
                     </RadioButton>
@@ -110,7 +110,7 @@
                 <Border x:Name="TopicHistoryCard" Style="{StaticResource TopicCardBorder}" Cursor="Hand" PreviewMouseLeftButtonDown="TopicCard_PreviewMouseLeftButtonDown">
                     <RadioButton x:Name="TopicHistoryRadio" GroupName="TopicPackGroup" VerticalContentAlignment="Center">
                         <StackPanel Margin="6,0,0,0">
-                            <TextBlock Text="🏛️  History &amp; Civilization" FontSize="13" FontWeight="Bold" Foreground="#FF0F172A"/>
+                            <TextBlock Text="History &amp; Civilization" FontSize="13" FontWeight="Bold" Foreground="#FF0F172A"/>
                             <TextBlock Text="Apollo Moon Landing, Rosetta Stone, Magna Carta &amp; World Leaders" FontSize="11" Foreground="#FF64748B" Margin="0,2,0,0"/>
                         </StackPanel>
                     </RadioButton>
@@ -120,7 +120,7 @@
                 <Border x:Name="TopicGeographyCard" Style="{StaticResource TopicCardBorder}" Cursor="Hand" PreviewMouseLeftButtonDown="TopicCard_PreviewMouseLeftButtonDown">
                     <RadioButton x:Name="TopicGeographyRadio" GroupName="TopicPackGroup" VerticalContentAlignment="Center">
                         <StackPanel Margin="6,0,0,0">
-                            <TextBlock Text="🌍  World Geography &amp; Wonders" FontSize="13" FontWeight="Bold" Foreground="#FF0F172A"/>
+                            <TextBlock Text="World Geography &amp; Wonders" FontSize="13" FontWeight="Bold" Foreground="#FF0F172A"/>
                             <TextBlock Text="World Capitals, Lake Baikal, Angel Falls &amp; Deserts" FontSize="11" Foreground="#FF64748B" Margin="0,2,0,0"/>
                         </StackPanel>
                     </RadioButton>
@@ -130,7 +130,7 @@
                 <Border x:Name="TopicPopCultureCard" Style="{StaticResource TopicCardBorder}" Cursor="Hand" PreviewMouseLeftButtonDown="TopicCard_PreviewMouseLeftButtonDown">
                     <RadioButton x:Name="TopicPopCultureRadio" GroupName="TopicPackGroup" VerticalContentAlignment="Center">
                         <StackPanel Margin="6,0,0,0">
-                            <TextBlock Text="🎬  Pop Culture &amp; Entertainment" FontSize="13" FontWeight="Bold" Foreground="#FF0F172A"/>
+                            <TextBlock Text="Pop Culture &amp; Entertainment" FontSize="13" FontWeight="Bold" Foreground="#FF0F172A"/>
                             <TextBlock Text="Cinema Oscars, Michael Jackson, Breaking Bad &amp; Mario" FontSize="11" Foreground="#FF64748B" Margin="0,2,0,0"/>
                         </StackPanel>
                     </RadioButton>
@@ -140,7 +140,7 @@
                 <Border x:Name="TopicSportsCard" Style="{StaticResource TopicCardBorder}" Cursor="Hand" PreviewMouseLeftButtonDown="TopicCard_PreviewMouseLeftButtonDown">
                     <RadioButton x:Name="TopicSportsRadio" GroupName="TopicPackGroup" VerticalContentAlignment="Center">
                         <StackPanel Margin="6,0,0,0">
-                            <TextBlock Text="⚽  Sports &amp; Olympic Games" FontSize="13" FontWeight="Bold" Foreground="#FF0F172A"/>
+                            <TextBlock Text="Sports &amp; Olympic Games" FontSize="13" FontWeight="Bold" Foreground="#FF0F172A"/>
                             <TextBlock Text="Usain Bolt, FIFA World Cup, Wimbledon &amp; Olympic Records" FontSize="11" Foreground="#FF64748B" Margin="0,2,0,0"/>
                         </StackPanel>
                     </RadioButton>
@@ -150,7 +150,7 @@
                 <Border x:Name="TopicLiteratureCard" Style="{StaticResource TopicCardBorder}" Cursor="Hand" PreviewMouseLeftButtonDown="TopicCard_PreviewMouseLeftButtonDown">
                     <RadioButton x:Name="TopicLiteratureRadio" GroupName="TopicPackGroup" VerticalContentAlignment="Center">
                         <StackPanel Margin="6,0,0,0">
-                            <TextBlock Text="📚  Literature &amp; Arts" FontSize="13" FontWeight="Bold" Foreground="#FF0F172A"/>
+                            <TextBlock Text="Literature &amp; Arts" FontSize="13" FontWeight="Bold" Foreground="#FF0F172A"/>
                             <TextBlock Text="Frankenstein, Nineteen Eighty-Four, Van Gogh &amp; Tolkien" FontSize="11" Foreground="#FF64748B" Margin="0,2,0,0"/>
                         </StackPanel>
                     </RadioButton>
@@ -170,7 +170,7 @@
                 <TextBlock Text="Round will be generated with 5 slides ready to play." FontSize="11" Foreground="#FF64748B" VerticalAlignment="Center"/>
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
                     <Button Content="Cancel" Style="{StaticResource SecondaryButton}" Width="80" Margin="0,0,8,0" Click="CancelButton_Click"/>
-                    <Button x:Name="GenerateButton" Content="✦ Generate 5 Questions" Style="{StaticResource ActionButton}" Padding="16,0" Click="GenerateButton_Click"/>
+                    <Button x:Name="GenerateButton" Content="Generate 5 Questions" Style="{StaticResource ActionButton}" Padding="16,0" Click="GenerateButton_Click"/>
                 </StackPanel>
             </Grid>
         </Border>

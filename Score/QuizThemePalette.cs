@@ -49,26 +49,28 @@ namespace Score
                         ScoreCardBackground = Parse("#FF065F46")
                     };
 
-                case "neon":
+                case "ocean":
+                case "cobalt":
                 case "royal":
-                case "royal velvet":
+                case "neon":
+                case "blue":
                     return new QuizThemePalette
                     {
-                        Name = "Royal Velvet",
-                        WindowBackground = Parse("#FF1E1B4B"),
-                        HeaderBackground = Parse("#FF312E81"),
+                        Name = "Cobalt Ocean",
+                        WindowBackground = Parse("#FF0F172A"),
+                        HeaderBackground = Parse("#FF1E293B"),
                         CardBackground = Parse("#FFFFFFFF"),
-                        TextPrimary = Parse("#FF1E1B4B"),
-                        TextSecondary = Parse("#FF4338CA"),
-                        AccentColor = Parse("#FFA855F7"),
-                        AccentBadgeBackground = Parse("#FFEDE9FE"),
-                        AccentBadgeForeground = Parse("#FF5B21B6"),
-                        TimerBorderBackground = Parse("#FF0F0E2A"),
-                        TimerTextBrush = Parse("#FFD8B4FE"),
-                        OptionCardBackground = Parse("#FFFAF5FF"),
-                        OptionCardBorder = Parse("#FFE9D5FF"),
-                        OptionTextBrush = Parse("#FF1E1B4B"),
-                        ScoreCardBackground = Parse("#FF312E81")
+                        TextPrimary = Parse("#FF0F172A"),
+                        TextSecondary = Parse("#FF005A9C"),
+                        AccentColor = Parse("#FF005A9C"),
+                        AccentBadgeBackground = Parse("#FFDCEBFA"),
+                        AccentBadgeForeground = Parse("#FF004377"),
+                        TimerBorderBackground = Parse("#FF0F172A"),
+                        TimerTextBrush = Parse("#FF38BDF8"),
+                        OptionCardBackground = Parse("#FFF8FAFC"),
+                        OptionCardBorder = Parse("#FFA8C5E3"),
+                        OptionTextBrush = Parse("#FF0F172A"),
+                        ScoreCardBackground = Parse("#FF1E293B")
                     };
 
                 case "school":

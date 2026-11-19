@@ -15,8 +15,8 @@ namespace Score
         public PounceSubmissionItem(PounceSubmission submission, int bonus = 20, int penalty = 10)
         {
             Submission = submission ?? throw new ArgumentNullException(nameof(submission));
-            CorrectButtonLabel = $"✓ (+{bonus})";
-            IncorrectButtonLabel = $"✗ (-{penalty})";
+            CorrectButtonLabel = $"ACCEPT (+{bonus})";
+            IncorrectButtonLabel = $"REJECT (-{penalty})";
         }
 
         public string TeamName => Submission.TeamName;
@@ -29,11 +29,11 @@ namespace Score
             {
                 if (!Submission.Evaluated)
                 {
-                    return "● Awaiting Adjudication";
+                    return "Awaiting Adjudication";
                 }
                 return Submission.IsCorrect
-                    ? $"✓ Scored +{Submission.PointsAwarded} pts"
-                    : $"✗ Penalized {Submission.PointsAwarded} pts";
+                    ? $"Scored +{Submission.PointsAwarded} pts"
+                    : $"Penalized {Submission.PointsAwarded} pts";
             }
         }
 
@@ -87,8 +87,8 @@ namespace Score
             RefreshPounceQueueUI();
 
             ConsoleStatusText.Text = _buzzerServer.PounceEnabled
-                ? "⚡ Chit Pounce ACTIVATED: Contestants can submit secret answers via mobile."
-                : "⚡ Chit Pounce DEACTIVATED: Mobile pounce submissions locked.";
+                ? "Chit Pounce ACTIVATED: Contestants can submit secret answers via mobile."
+                : "Chit Pounce DEACTIVATED: Mobile pounce submissions locked.";
         }
 
         public void UpdatePounceToggleButtonDisplay()
@@ -97,9 +97,9 @@ namespace Score
             bool isEnabled = _buzzerServer != null && _buzzerServer.PounceEnabled;
             var conv = new BrushConverter();
 
-            PounceToggleButton.Content = isEnabled ? "⚡ POUNCE: LIVE (P)" : "⚡ POUNCE: OFF (P)";
-            PounceToggleButton.Background = (Brush)conv.ConvertFromString(isEnabled ? "#FF7C3AED" : "#FF334155");
-            PounceToggleButton.BorderBrush = (Brush)conv.ConvertFromString(isEnabled ? "#FF6D28D9" : "#FF475569");
+            PounceToggleButton.Content = isEnabled ? "POUNCE: LIVE (P)" : "POUNCE: OFF (P)";
+            PounceToggleButton.Background = (Brush)conv.ConvertFromString(isEnabled ? "#FFB45309" : "#FF334155");
+            PounceToggleButton.BorderBrush = (Brush)conv.ConvertFromString(isEnabled ? "#FF92400E" : "#FF475569");
             PounceToggleButton.ToolTip = isEnabled
                 ? "Chit Pounce is LIVE on mobile screens. Contestants can submit secret answers (Shortcut: P)"
                 : "Chit Pounce is OFF. Click or press P to allow secret answers on mobile screens.";
@@ -117,7 +117,7 @@ namespace Score
             QuizChimes.PlayBounce();
             RefreshPounceQueueUI();
 
-            ConsoleStatusText.Text = $"⚡ Pounce received from {sub.TeamName}: \"{sub.Answer}\"";
+            ConsoleStatusText.Text = $"Pounce received from {sub.TeamName}: \"{sub.Answer}\"";
         }
 
         private void PounceCorrectButton_Click(object sender, RoutedEventArgs e)
@@ -178,7 +178,7 @@ namespace Score
             PushSlideStateToAudience();
             RefreshPounceQueueUI();
 
-            ConsoleStatusText.Text = $"✓ Pounce CORRECT: {teamName} awarded +{bonus} pts.";
+            ConsoleStatusText.Text = $"Pounce CORRECT: {teamName} awarded +{bonus} pts.";
         }
 
         private void PounceIncorrectButton_Click(object sender, RoutedEventArgs e)

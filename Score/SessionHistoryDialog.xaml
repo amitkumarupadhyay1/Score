@@ -15,14 +15,14 @@
         <Border DockPanel.Dock="Top" Background="#FF0F172A" Padding="20,14">
             <DockPanel>
                 <Button x:Name="DeleteAllInactiveButton" DockPanel.Dock="Right"
-                        Content="🗑 DELETE ALL INACTIVE"
+                        Content="DELETE ALL INACTIVE"
                         Style="{StaticResource ToolbarButtonStyle}"
                         Background="#FFDC2626" BorderBrush="#FFB91C1C" Foreground="#FFFFFFFF"
                         FontWeight="Bold" Height="32" Padding="14,0"
                         Click="DeleteAllInactiveButton_Click"
                         ToolTip="Delete all past completed/inactive sessions and cascade purge their records" />
                 <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="📊 PAST QUIZ SESSIONS &amp; SCORE HISTORY" FontSize="15" FontWeight="Bold" Foreground="#FFFFFFFF" />
+                    <TextBlock Text="PAST QUIZ SESSIONS &amp; SCORE HISTORY" FontSize="15" FontWeight="Bold" Foreground="#FFFFFFFF" />
                     <TextBlock Text="Review previous live quiz sessions, view team score breakdowns, export CSV, or delete old sessions." FontSize="11" Foreground="#FF94A3B8" Margin="0,2,0,0" />
                 </StackPanel>
             </DockPanel>
@@ -33,13 +33,13 @@
             <DockPanel>
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
                     <Button x:Name="ExportCsvButton"
-                            Content="📥 EXPORT CSV"
+                            Content="EXPORT CSV"
                             Style="{StaticResource ToolbarButtonStyle}"
                             Background="#FF059669" BorderBrush="#FF047857" Foreground="#FFFFFFFF"
                             FontWeight="Bold" Height="32" Padding="14,0" Margin="0,0,8,0"
                             Click="ExportCsvButton_Click" ToolTip="Export selected session results to CSV" />
                     <Button x:Name="DeleteSessionButton"
-                            Content="🗑 DELETE SESSION"
+                            Content="DELETE SESSION"
                             Style="{StaticResource ToolbarButtonStyle}"
                             Background="#FFEF4444" BorderBrush="#FFDC2626" Foreground="#FFFFFFFF"
                             FontWeight="Bold" Height="32" Padding="14,0"
@@ -93,7 +93,7 @@
             <!-- Detail Pane -->
             <Border Grid.Column="1" Background="#FFFFFFFF" BorderBrush="#FFE2E8F0" BorderThickness="1" CornerRadius="8" Padding="16">
                 <DockPanel>
-                    <TextBlock DockPanel.Dock="Top" Text="SESSION SCORE BREAKDOWN" FontSize="11" FontWeight="Bold" Foreground="#FF4F46E5" Margin="0,0,0,8" />
+                    <TextBlock DockPanel.Dock="Top" Text="SESSION SCORE BREAKDOWN" FontSize="11" FontWeight="Bold" Foreground="#FF005A9C" Margin="0,0,0,8" />
                     <TextBlock x:Name="DetailTitleLabel" DockPanel.Dock="Top" Text="Select a session" FontSize="14" FontWeight="Bold" Foreground="#FF0F172A" Margin="0,0,0,4" TextWrapping="Wrap" />
                     <TextBlock x:Name="DetailMetaLabel" DockPanel.Dock="Top" Text="-" FontSize="11" Foreground="#FF64748B" Margin="0,0,0,12" />
 
@@ -111,7 +111,7 @@
                                             <TextBlock Text="{Binding TeamName}" FontSize="12" FontWeight="SemiBold" Foreground="#FF1E293B" />
                                             <TextBlock Text="{Binding TimeSummary}" FontSize="10" Foreground="#FF64748B" />
                                         </StackPanel>
-                                        <TextBlock Grid.Column="1" Text="{Binding ScoreFormatted}" FontSize="14" FontWeight="Bold" Foreground="#FF4F46E5" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="1" Text="{Binding ScoreFormatted}" FontSize="14" FontWeight="Bold" Foreground="#FF005A9C" VerticalAlignment="Center" />
                                     </Grid>
                                 </Border>
                             </DataTemplate>

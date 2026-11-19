@@ -18,8 +18,8 @@
         <Border Grid.Row="0" Background="#FF0F172A" Padding="20,12" BorderBrush="#FF1E293B" BorderThickness="0,0,0,1">
             <StackPanel>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Background="#FF4F46E5" CornerRadius="6" Width="26" Height="26" Margin="0,0,10,0">
-                        <TextBlock Text="✦" FontSize="14" FontWeight="Bold" Foreground="#FFFFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <Border Background="#FF005A9C" CornerRadius="6" Width="26" Height="26" Margin="0,0,10,0">
+                        <TextBlock Text="Q" FontSize="13" FontWeight="Bold" Foreground="#FFFFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                     <TextBlock Text="ENTER QUIZ TEAMS" FontSize="13" FontWeight="Bold" Foreground="#FFFFFFFF" VerticalAlignment="Center" />
                 </StackPanel>
@@ -36,7 +36,7 @@
 
             <DockPanel Grid.Row="0" Margin="0,0,0,8">
                 <TextBlock Text="TEAM ROSTER (ONE PER LINE):" FontSize="10" FontWeight="Bold" Foreground="#FF64748B" VerticalAlignment="Center" />
-                <Button x:Name="UseDeskTeamsButton" Content="🔄 Import From Main Desk" Style="{StaticResource ToolbarButtonStyle}" Height="28" Padding="10,0" HorizontalAlignment="Right" Click="UseDeskTeamsButton_Click" ToolTip="Load teams currently playing on the main scoreboard desk" />
+                <Button x:Name="UseDeskTeamsButton" Content="Import From Main Desk" Style="{StaticResource ToolbarButtonStyle}" Height="28" Padding="10,0" HorizontalAlignment="Right" Click="UseDeskTeamsButton_Click" ToolTip="Load teams currently playing on the main scoreboard desk" />
             </DockPanel>
 
             <Border Grid.Row="1" Background="#FFFFFFFF" BorderBrush="#FFE2E8F0" BorderThickness="1" CornerRadius="8" Padding="10">
@@ -50,7 +50,7 @@
         <Border Grid.Row="2" Background="#FFF1F5F9" BorderBrush="#FFE2E8F0" BorderThickness="0,1,0,0" Padding="18,12">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Content="CANCEL" Click="CancelButton_Click" Style="{StaticResource ToolbarButtonStyle}" Width="90" Margin="0,0,10,0" IsCancel="True" />
-                <Button Content="▶ START QUIZ" Click="StartButton_Click" Style="{StaticResource ToolbarButtonStyle}" Background="#FF059669" BorderBrush="#FF047857" Foreground="#FFFFFFFF" FontWeight="Bold" Padding="18,0" />
+                <Button Content="START QUIZ" Click="StartButton_Click" Style="{StaticResource ToolbarButtonStyle}" Background="#FF059669" BorderBrush="#FF047857" Foreground="#FFFFFFFF" FontWeight="Bold" Padding="18,0" />
             </StackPanel>
         </Border>
     </Grid>

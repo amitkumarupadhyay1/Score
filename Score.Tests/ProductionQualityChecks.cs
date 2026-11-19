@@ -175,15 +175,15 @@ namespace Score.Tests
             var delBtn = FindElement<Button>(builder, "DeleteSlideButton");
 
             Require(upBtn != null && downBtn != null && delBtn != null, "All sidebar reorder buttons must exist.");
-            Require(Convert.ToString(upBtn.Content) == "▲ Up", "MoveUpButton content should be compact '▲ Up'.");
-            Require(Convert.ToString(downBtn.Content) == "▼ Down", "MoveDownButton content should be compact '▼ Down'.");
-            Require(Convert.ToString(delBtn.Content) == "🗑 Delete", "DeleteSlideButton content should be '🗑 Delete'.");
+            Require(Convert.ToString(upBtn.Content) == "Up", "MoveUpButton content should be compact 'Up'.");
+            Require(Convert.ToString(downBtn.Content) == "Down", "MoveDownButton content should be compact 'Down'.");
+            Require(Convert.ToString(delBtn.Content) == "Delete", "DeleteSlideButton content should be 'Delete'.");
             builder.Close();
         }
 
         private static void VerifyThemePalettes()
         {
-            var themes = new[] { "Midnight Navy", "Emerald Arena", "Royal Velvet", "Daylight Contrast" };
+            var themes = new[] { "Midnight Navy", "Emerald Arena", "Cobalt Ocean", "Daylight Contrast" };
             foreach (var theme in themes)
             {
                 var palette = QuizThemePalette.GetPalette(theme);

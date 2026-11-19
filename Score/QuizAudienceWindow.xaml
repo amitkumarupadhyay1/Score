@@ -78,7 +78,7 @@
                                                     <TextBlock x:Name="StageRulesModeBadgeText" Text="DIRECT WITH BOUNCE" FontSize="26" FontWeight="Black" Foreground="#FFFFFFFF" />
                                                 </Border>
                                                 <Border x:Name="StageRulesConferringBorder" Grid.Column="1" Background="#FFDCFCE7" BorderBrush="#FF86EFAC" BorderThickness="1.5" CornerRadius="10" Padding="16,10" HorizontalAlignment="Right">
-                                                    <TextBlock x:Name="StageRulesConferringText" Text="👥 CONFERRING ALLOWED" FontSize="20" FontWeight="Bold" Foreground="#FF15803D" />
+                                                    <TextBlock x:Name="StageRulesConferringText" Text="CONFERRING ALLOWED" FontSize="20" FontWeight="Bold" Foreground="#FF15803D" />
                                                 </Border>
                                             </Grid>
 
@@ -149,7 +149,7 @@
                                     <!-- Progressive Clues / Hints Box (When revealed) -->
                                     <Border x:Name="AudienceCluesPanel" Background="#FFFEF9C3" BorderBrush="#FFFACC15" BorderThickness="2" CornerRadius="14" Padding="22" Margin="0,0,0,20" Visibility="Collapsed">
                                         <StackPanel>
-                                            <TextBlock Text="💡 CLUES REVEALED" FontSize="20" FontWeight="Bold" Foreground="#FF854D0E" Margin="0,0,0,10" />
+                                            <TextBlock Text="CLUES REVEALED" FontSize="20" FontWeight="Bold" Foreground="#FF854D0E" Margin="0,0,0,10" />
                                             <ItemsControl x:Name="AudienceCluesList">
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate>
@@ -190,7 +190,7 @@
                             </TransformGroup>
                         </Border.RenderTransform>
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock x:Name="AudienceBuzzIndicator" Text="🚨 TEAM 1 BUZZED IN! 🚨" FontSize="38" FontWeight="Bold" Foreground="#FFFFFFFF" VerticalAlignment="Center" />
+                            <TextBlock x:Name="AudienceBuzzIndicator" Text="TEAM 1 BUZZED IN" FontSize="38" FontWeight="Bold" Foreground="#FFFFFFFF" VerticalAlignment="Center" />
                         </StackPanel>
                     </Border>
                 </Border>

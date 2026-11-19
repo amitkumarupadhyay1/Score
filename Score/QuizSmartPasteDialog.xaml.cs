@@ -62,15 +62,15 @@ namespace Score
 
             if (ParsedSlides.Count > 0)
             {
-                ParseStatusLabel.Text = $"✓ Successfully parsed {ParsedSlides.Count} question{(ParsedSlides.Count == 1 ? "" : "s")}. Ready to import.";
+                ParseStatusLabel.Text = $"Successfully parsed {ParsedSlides.Count} question{(ParsedSlides.Count == 1 ? "" : "s")}. Ready to import.";
                 ImportButton.IsEnabled = true;
-                ImportButton.Content = $"✓ Import ({ParsedSlides.Count}) Questions into Deck";
+                ImportButton.Content = $"Import ({ParsedSlides.Count}) Questions into Deck";
             }
             else
             {
                 ParseStatusLabel.Text = "Could not identify distinct questions. Ensure questions have question text and answers.";
                 ImportButton.IsEnabled = false;
-                ImportButton.Content = "✓ Import Questions into Deck";
+                ImportButton.Content = "Import Questions into Deck";
             }
         }
 
@@ -80,7 +80,7 @@ namespace Score
             ParsedSlides.Clear();
             ParsedQuestionsListBox.ItemsSource = null;
             ImportButton.IsEnabled = false;
-            ImportButton.Content = "✓ Import Questions into Deck";
+            ImportButton.Content = "Import Questions into Deck";
             ParseStatusLabel.Text = "Text cleared. Paste new questions and click Parse.";
         }
 

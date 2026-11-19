@@ -45,7 +45,7 @@ namespace Score
                     {
                         SlideListBox.SelectedItem = generated.FirstOrDefault() ?? _slides.Last();
                     }
-                    StatusText.Text = $"✓ Generated 5 questions for '{dlg.SelectedTopicTitle}'.";
+                    StatusText.Text = $"Generated 5 questions for '{dlg.SelectedTopicTitle}'.";
                     MessageBox.Show(this, $"Successfully added 5 curated questions for '{dlg.SelectedTopicTitle}' to '{_currentDeck.Title}'.", "Round Generated", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
@@ -89,7 +89,7 @@ namespace Score
                     {
                         SlideListBox.SelectedItem = dlg.ParsedSlides.First();
                     }
-                    StatusText.Text = $"✓ Imported {dlg.ParsedSlides.Count} questions via Smart AI Paste.";
+                    StatusText.Text = $"Imported {dlg.ParsedSlides.Count} questions via Smart AI Paste.";
                     MessageBox.Show(this, $"Successfully imported {dlg.ParsedSlides.Count} questions into '{_currentDeck.Title}'.", "Import Successful", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
@@ -280,7 +280,7 @@ namespace Score
             UpdateLockBanner();
             if (showFeedback)
             {
-                StatusText.Text = $"✓ Session ended. '{_currentDeck.Title}' is now unlocked for editing.";
+                StatusText.Text = $"Session ended. '{_currentDeck.Title}' is now unlocked for editing.";
             }
         }
 

@@ -106,8 +106,8 @@ namespace Score.Tests
             var testSub = new PounceSubmission { TeamName = "Team Falcon", Answer = "Jupiter", Evaluated = false };
             var vm = new PounceSubmissionItem(testSub, bonus: 20, penalty: 10);
             Assert(vm.CanEvaluate, "Un-evaluated item should be evaluatable");
-            Assert(vm.CorrectButtonLabel == "✓ (+20)", "CorrectButtonLabel should format bonus");
-            Assert(vm.IncorrectButtonLabel == "✗ (-10)", "IncorrectButtonLabel should format penalty");
+            Assert(vm.CorrectButtonLabel == "ACCEPT (+20)", "CorrectButtonLabel should format bonus");
+            Assert(vm.IncorrectButtonLabel == "REJECT (-10)", "IncorrectButtonLabel should format penalty");
             Assert(vm.StatusLabel.Contains("Awaiting"), "StatusLabel should indicate awaiting adjudication");
 
             // Evaluate correct

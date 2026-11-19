@@ -79,7 +79,7 @@ namespace Score
                 RapidFireBanner.Visibility = Visibility.Visible;
 
             if (RapidFireBarrageButton != null)
-                RapidFireBarrageButton.Content = "⏹ STOP BARRAGE (Esc)";
+                RapidFireBarrageButton.Content = "STOP BARRAGE (Esc)";
 
             if (_rapidFireTimer == null)
             {
@@ -89,7 +89,7 @@ namespace Score
             _rapidFireTimer.Start();
 
             QuizChimes.PlayBuzzer();
-            ConsoleStatusText.Text = $"⚡ Rapid Fire Barrage started for {_rapidFireTeam} (60s countdown active).";
+            ConsoleStatusText.Text = $"Rapid Fire Barrage started for {_rapidFireTeam} (60s countdown active).";
         }
 
         private void RapidFireTimer_Tick(object sender, EventArgs e)
@@ -135,11 +135,11 @@ namespace Score
                 RapidFireBanner.Visibility = Visibility.Collapsed;
 
             if (RapidFireBarrageButton != null)
-                RapidFireBarrageButton.Content = "⚡ RAPID FIRE (60s)";
+                RapidFireBarrageButton.Content = "RAPID FIRE (60s)";
 
             QuizChimes.PlayRoundFinished();
 
-            var summary = $"⚡ 60s RAPID FIRE BARRAGE COMPLETE\n\n" +
+            var summary = $"60s RAPID FIRE BARRAGE COMPLETE\n\n" +
                           $"Team: {_rapidFireTeam}\n" +
                           $"Total Questions Attempted: {_rapidFireAttempted}\n" +
                           $"Correct Answers: {_rapidFireCorrect}\n" +

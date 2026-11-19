@@ -20,7 +20,7 @@ namespace Score
         public string Message { get; set; }
         public string Detail { get; set; }
 
-        public string LevelBadge => Level == PreflightLevel.Error ? "❌ ERROR" : Level == PreflightLevel.Warning ? "⚠️ WARNING" : "✅ PASS";
+        public string LevelBadge => Level == PreflightLevel.Error ? "ERROR" : Level == PreflightLevel.Warning ? "WARNING" : "PASS";
     }
 
     public class PreflightReport
@@ -257,10 +257,9 @@ namespace Score
 
             var headerStack = new StackPanel();
             var statusRow = new StackPanel { Orientation = Orientation.Horizontal };
-            statusRow.Children.Add(new TextBlock { Text = isReady ? "✅" : "❌", FontSize = 20, Margin = new Thickness(0, 0, 10, 0), VerticalAlignment = VerticalAlignment.Center });
             statusRow.Children.Add(new TextBlock { Text = isReady ? "STAGE READY FOR LIVE BROADCAST" : "STAGE READINESS FAILED — CRITICAL ERRORS", FontSize = 16, FontWeight = FontWeights.Bold, Foreground = Brushes.White, VerticalAlignment = VerticalAlignment.Center });
             headerStack.Children.Add(statusRow);
-            headerStack.Children.Add(new TextBlock { Text = $"Quiz: \"{_report.DeckTitle}\"  •  {_report.TotalQuestions} Questions  •  {_report.TotalPoints} Points  •  {_report.TotalSlides} Total Slides", FontSize = 12, Foreground = (Brush)brushConv.ConvertFromString("#E2E8F0"), Margin = new Thickness(32, 4, 0, 0) });
+            headerStack.Children.Add(new TextBlock { Text = $"Quiz: \"{_report.DeckTitle}\"  •  {_report.TotalQuestions} Questions  •  {_report.TotalPoints} Points  •  {_report.TotalSlides} Total Slides", FontSize = 12, Foreground = (Brush)brushConv.ConvertFromString("#E2E8F0"), Margin = new Thickness(0, 4, 0, 0) });
             headerBorder.Child = headerStack;
             mainDock.Children.Add(headerBorder);
 
@@ -268,9 +267,9 @@ namespace Score
             var filterBorder = new Border { Background = Brushes.White, BorderBrush = (Brush)brushConv.ConvertFromString("#E2E8F0"), BorderThickness = new Thickness(0, 0, 0, 1), Padding = new Thickness(24, 10, 24, 10) };
             DockPanel.SetDock(filterBorder, Dock.Top);
             var statsRow = new StackPanel { Orientation = Orientation.Horizontal };
-            statsRow.Children.Add(CreateStatBadge($"✅ {_report.PassCount} PASSED", "#ECFDF5", "#047857", "#A7F3D0", () => SetFilter("PASS")));
-            statsRow.Children.Add(CreateStatBadge($"⚠️ {_report.WarningCount} WARNINGS", "#FEF3C7", "#B45309", "#FDE68A", () => SetFilter("WARNING")));
-            statsRow.Children.Add(CreateStatBadge($"❌ {_report.ErrorCount} ERRORS", "#FEE2E2", "#B91C1C", "#FECACA", () => SetFilter("ERROR")));
+            statsRow.Children.Add(CreateStatBadge($"{_report.PassCount} PASSED", "#ECFDF5", "#047857", "#A7F3D0", () => SetFilter("PASS")));
+            statsRow.Children.Add(CreateStatBadge($"{_report.WarningCount} WARNINGS", "#FEF3C7", "#B45309", "#FDE68A", () => SetFilter("WARNING")));
+            statsRow.Children.Add(CreateStatBadge($"{_report.ErrorCount} ERRORS", "#FEE2E2", "#B91C1C", "#FECACA", () => SetFilter("ERROR")));
             statsRow.Children.Add(CreateStatBadge($"ALL ({_report.Issues.Count})", "#F1F5F9", "#475569", "#CBD5E1", () => SetFilter("ALL")));
             filterBorder.Child = statsRow;
             mainDock.Children.Add(filterBorder);
@@ -284,13 +283,13 @@ namespace Score
 
             if (_report.IsStageReady)
             {
-                var conductBtn = new Button { Content = "▶  CONDUCT NOW", Background = (Brush)brushConv.ConvertFromString("#16A34A"), BorderBrush = (Brush)brushConv.ConvertFromString("#15803D"), Foreground = Brushes.White, FontWeight = FontWeights.Bold, Height = 36, Padding = new Thickness(16, 0, 16, 0), Margin = new Thickness(0, 0, 10, 0), Cursor = Cursors.Hand };
+                var conductBtn = new Button { Content = "CONDUCT NOW", Background = (Brush)brushConv.ConvertFromString("#16A34A"), BorderBrush = (Brush)brushConv.ConvertFromString("#15803D"), Foreground = Brushes.White, FontWeight = FontWeights.Bold, Height = 36, Padding = new Thickness(16, 0, 16, 0), Margin = new Thickness(0, 0, 10, 0), Cursor = Cursors.Hand };
                 conductBtn.Click += (s, e) => { WantsConduct = true; DialogResult = true; Close(); };
                 actionButtons.Children.Add(conductBtn);
             }
             else
             {
-                var editBtn = new Button { Content = "✏  FIX IN QUIZ MAKER", Background = (Brush)brushConv.ConvertFromString("#4F46E5"), BorderBrush = (Brush)brushConv.ConvertFromString("#4338CA"), Foreground = Brushes.White, FontWeight = FontWeights.Bold, Height = 36, Padding = new Thickness(16, 0, 16, 0), Margin = new Thickness(0, 0, 10, 0), Cursor = Cursors.Hand };
+                var editBtn = new Button { Content = "FIX IN QUIZ MAKER", Background = (Brush)brushConv.ConvertFromString("#005A9C"), BorderBrush = (Brush)brushConv.ConvertFromString("#004377"), Foreground = Brushes.White, FontWeight = FontWeights.Bold, Height = 36, Padding = new Thickness(16, 0, 16, 0), Margin = new Thickness(0, 0, 10, 0), Cursor = Cursors.Hand };
                 editBtn.Click += (s, e) => { WantsEdit = true; DialogResult = false; Close(); };
                 actionButtons.Children.Add(editBtn);
             }

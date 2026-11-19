@@ -224,7 +224,7 @@ namespace Score
                 statusPill.BorderThickness = new Thickness(1);
                 statusPill.Child = new TextBlock
                 {
-                    Text = item.ActiveSessionStatus == "Paused" ? "⏸ PAUSED" : "● LIVE",
+                    Text = item.ActiveSessionStatus == "Paused" ? "PAUSED" : "LIVE",
                     FontSize = 10,
                     FontWeight = FontWeights.Bold,
                     Foreground = (Brush)brushConv.ConvertFromString("#B45309")
@@ -270,8 +270,8 @@ namespace Score
             var tagsRow = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 7, 0, 7) };
             var themeBadge = new Border
             {
-                Background = (Brush)brushConv.ConvertFromString("#EEF2FF"),
-                BorderBrush = (Brush)brushConv.ConvertFromString("#C7D2FE"),
+                Background = (Brush)brushConv.ConvertFromString("#DCEBFA"),
+                BorderBrush = (Brush)brushConv.ConvertFromString("#A8C5E3"),
                 BorderThickness = new Thickness(1),
                 CornerRadius = new CornerRadius(4),
                 Padding = new Thickness(6, 1, 6, 1),
@@ -282,7 +282,7 @@ namespace Score
                 Text = (item.Theme ?? "Classic").ToUpperInvariant(),
                 FontSize = 9,
                 FontWeight = FontWeights.Bold,
-                Foreground = (Brush)brushConv.ConvertFromString("#4338CA")
+                Foreground = (Brush)brushConv.ConvertFromString("#005A9C")
             };
             tagsRow.Children.Add(themeBadge);
 
@@ -385,7 +385,7 @@ namespace Score
             var editButton = new Button
             {
                 Height = 34,
-                Content = "✏ EDIT",
+                Content = "EDIT",
                 Margin = new Thickness(6, 0, 0, 0),
                 FontSize = 11,
                 FontWeight = FontWeights.SemiBold,
@@ -410,7 +410,7 @@ namespace Score
             {
                 Height = 28,
                 Margin = new Thickness(0, 6, 0, 0),
-                Content = "🔍 PRE-FLIGHT CHECK",
+                Content = "PRE-FLIGHT CHECK",
                 FontSize = 10.5,
                 FontWeight = FontWeights.SemiBold,
                 Background = (Brush)brushConv.ConvertFromString("#F8FAFC"),
@@ -430,7 +430,7 @@ namespace Score
             var previewBtn = new Button
             {
                 Height = 26,
-                Content = "👁 PREVIEW",
+                Content = "PREVIEW",
                 FontSize = 10,
                 FontWeight = FontWeights.SemiBold,
                 Margin = new Thickness(0, 0, 3, 0),
@@ -446,7 +446,7 @@ namespace Score
             var cloneBtn = new Button
             {
                 Height = 26,
-                Content = "📋 CLONE",
+                Content = "CLONE",
                 FontSize = 10,
                 FontWeight = FontWeights.SemiBold,
                 Margin = new Thickness(3, 0, 3, 0),
@@ -462,7 +462,7 @@ namespace Score
             var deleteBtn = new Button
             {
                 Height = 26,
-                Content = "🗑 DELETE",
+                Content = "DELETE",
                 FontSize = 10,
                 FontWeight = FontWeights.Bold,
                 Margin = new Thickness(3, 0, 0, 0),

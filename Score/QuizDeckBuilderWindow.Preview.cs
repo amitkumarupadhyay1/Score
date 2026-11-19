@@ -42,7 +42,7 @@ namespace Score
 
             if (slideType == "Instruction")
             {
-                badgeRow.Children.Add(CreateStageBadge("INSTRUCTION", "#E9D5FF", "#581C87"));
+                badgeRow.Children.Add(CreateStageBadge("INSTRUCTION", "#E2E8F0", "#334155"));
                 badgeRow.Children.Add(CreateStageBadge("ANNOUNCEMENT", "#FDE047", "#854D0E"));
             }
             else if (slideType == "Media")
@@ -53,7 +53,7 @@ namespace Score
             {
                 badgeRow.Children.Add(CreateStageBadge("TIMER", "#BAE6FD", "#0369A1"));
                 if (int.TryParse(SlideTimeLimitEditor?.Text, out var sec) && sec > 0)
-                    badgeRow.Children.Add(CreateStageBadge($"⏱ {sec}s", "#93C5FD", "#1E3A8A"));
+                    badgeRow.Children.Add(CreateStageBadge($"{sec}s", "#93C5FD", "#1E3A8A"));
             }
             else if (slideType == "Scoreboard")
             {
@@ -62,10 +62,10 @@ namespace Score
             else
             {
                 badgeRow.Children.Add(CreateStageBadge(slideType, "#86EFAC", "#15803D"));
-                badgeRow.Children.Add(CreateStageBadge(QuestionTypeSelector?.SelectedItem?.ToString() ?? "MCQ", "#DDD6FE", "#6D28D9"));
+                badgeRow.Children.Add(CreateStageBadge(QuestionTypeSelector?.SelectedItem?.ToString() ?? "MCQ", "#E0F2FE", "#0369A1"));
                 badgeRow.Children.Add(CreateStageBadge($"+{SlidePointsEditor?.Text ?? "10"} pts", "#FDE047", "#854D0E"));
                 if (int.TryParse(SlideTimeLimitEditor?.Text, out var sec) && sec > 0)
-                    badgeRow.Children.Add(CreateStageBadge($"⏱ {sec}s", "#93C5FD", "#1E3A8A"));
+                    badgeRow.Children.Add(CreateStageBadge($"{sec}s", "#93C5FD", "#1E3A8A"));
             }
             preview.Children.Add(badgeRow);
 
@@ -276,7 +276,7 @@ namespace Score
                 var sStack = new StackPanel();
                 sStack.Children.Add(new TextBlock
                 {
-                    Text = "🏆 INTERMISSION / SCOREBOARD PREVIEW",
+                    Text = "INTERMISSION / SCOREBOARD PREVIEW",
                     FontSize = 10,
                     FontWeight = FontWeights.Bold,
                     Foreground = new SolidColorBrush(Color.FromRgb(253, 224, 71)),
@@ -300,7 +300,7 @@ namespace Score
 
                 PreviewPanel.Children.Add(preview);
 
-                if (HostAnswerKeyLabel != null) HostAnswerKeyLabel.Text = "🏆 Scoreboard / Standings Slide";
+                if (HostAnswerKeyLabel != null) HostAnswerKeyLabel.Text = "Scoreboard / Standings Slide";
                 if (HostAliasesLabel != null) HostAliasesLabel.Text = "Current team scores and rankings displayed on stage.";
                 if (HostNotesLabel != null) HostNotesLabel.Text = string.IsNullOrWhiteSpace(SlideExplanationEditor?.Text) ? "Host secret notes (optional)" : SlideExplanationEditor.Text;
                 return;
@@ -383,7 +383,7 @@ namespace Score
                     {
                         var checkBadge = new TextBlock
                         {
-                            Text = "✓ Key",
+                            Text = "Key",
                             FontSize = 10,
                             FontWeight = FontWeights.Bold,
                             Foreground = new SolidColorBrush(Color.FromRgb(74, 222, 128)),
@@ -418,7 +418,7 @@ namespace Score
                     Margin = new Thickness(0, 0, 4, 0),
                     Child = new TextBlock
                     {
-                        Text = "✓ TRUE" + (isTrueCorrect ? " (Key)" : ""),
+                        Text = "TRUE" + (isTrueCorrect ? " (Key)" : ""),
                         FontSize = 12,
                         FontWeight = FontWeights.Bold,
                         Foreground = isTrueCorrect ? new SolidColorBrush(Color.FromRgb(74, 222, 128)) : new SolidColorBrush(Color.FromRgb(203, 213, 225)),
@@ -438,7 +438,7 @@ namespace Score
                     Margin = new Thickness(4, 0, 0, 0),
                     Child = new TextBlock
                     {
-                        Text = "✗ FALSE" + (isFalseCorrect ? " (Key)" : ""),
+                        Text = "FALSE" + (isFalseCorrect ? " (Key)" : ""),
                         FontSize = 12,
                         FontWeight = FontWeights.Bold,
                         Foreground = isFalseCorrect ? new SolidColorBrush(Color.FromRgb(252, 165, 165)) : new SolidColorBrush(Color.FromRgb(203, 213, 225)),
@@ -469,7 +469,7 @@ namespace Score
                     var hintStack = new StackPanel();
                     hintStack.Children.Add(new TextBlock
                     {
-                        Text = $"💡 Clue Available (1 of {hints.Length}):",
+                        Text = $"Clue Available (1 of {hints.Length}):",
                         FontSize = 9.5,
                         FontWeight = FontWeights.Bold,
                         Foreground = new SolidColorBrush(Color.FromRgb(253, 224, 71))
@@ -541,8 +541,8 @@ namespace Score
                 var promptOn = SlidePromptOnEditor?.Text?.Trim();
                 var doNotAccept = SlideDoNotAcceptEditor?.Text?.Trim();
                 var parts = new List<string>();
-                if (!string.IsNullOrWhiteSpace(promptOn)) parts.Add("⚡ PROMPT ON: " + promptOn);
-                if (!string.IsNullOrWhiteSpace(doNotAccept)) parts.Add("🚫 DO NOT ACCEPT: " + doNotAccept);
+                if (!string.IsNullOrWhiteSpace(promptOn)) parts.Add("PROMPT ON: " + promptOn);
+                if (!string.IsNullOrWhiteSpace(doNotAccept)) parts.Add("DO NOT ACCEPT: " + doNotAccept);
                 if (!string.IsNullOrWhiteSpace(notes)) parts.Add(notes);
                 HostNotesLabel.Text = parts.Count > 0 ? string.Join("\n", parts) : "No host secret trivia.";
             }

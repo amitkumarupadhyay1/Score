@@ -453,7 +453,7 @@ namespace Score
                     ConsoleMediaImage.Source = null;
                     ConsoleMediaImage.Visibility = Visibility.Collapsed;
                     MediaTransportControls.Visibility = Visibility.Visible;
-                    MediaPlayPauseButton.Content = "⏸ PAUSE (M)";
+                    MediaPlayPauseButton.Content = "PAUSE (M)";
                     ConsoleMediaPanel.Visibility = Visibility.Visible;
                 }
                 else
@@ -476,7 +476,7 @@ namespace Score
                     var letter = ((char)('A' + i)).ToString();
                     var isAnswer = string.Equals(_currentSlide.CorrectAnswer?.Trim(), letter, StringComparison.OrdinalIgnoreCase) ||
                                    string.Equals(_currentSlide.CorrectAnswer?.Trim(), options[i], StringComparison.OrdinalIgnoreCase);
-                    optLines.Add($"{letter}. {options[i]}{(isAnswer ? "  ✓ [KEY]" : "")}");
+                    optLines.Add($"{letter}. {options[i]}{(isAnswer ? "  [KEY]" : "")}");
                 }
                 ConsoleSlideOptions.Text = string.Join(Environment.NewLine, optLines);
             }

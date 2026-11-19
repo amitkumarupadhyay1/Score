@@ -458,33 +458,33 @@ namespace Score.Tests
             Equal(Visibility.Collapsed, card2.Visibility);
             Equal(Visibility.Collapsed, card3.Visibility);
             Equal(Visibility.Visible, instructionBanner.Visibility);
-            Equal("✓ Save Instruction", saveSlideBtn.Content);
+            Equal("Save Instruction", saveSlideBtn.Content);
 
             // Toggle to Timer
             slideTypeSelector.SelectedItem = "Timer";
             Equal(Visibility.Collapsed, card2.Visibility);
             Equal(Visibility.Visible, card3.Visibility);
             Equal(Visibility.Collapsed, instructionBanner.Visibility);
-            Equal("✓ Save Timer", saveSlideBtn.Content);
+            Equal("Save Timer", saveSlideBtn.Content);
 
             // Toggle to Media
             slideTypeSelector.SelectedItem = "Media";
             Equal(Visibility.Collapsed, card2.Visibility);
             Equal(Visibility.Collapsed, card3.Visibility);
-            Equal("✓ Save Media Slide", saveSlideBtn.Content);
+            Equal("Save Media Slide", saveSlideBtn.Content);
 
             // Toggle to Scoreboard
             slideTypeSelector.SelectedItem = "Scoreboard";
             Equal(Visibility.Collapsed, card2.Visibility);
             Equal(Visibility.Collapsed, card3.Visibility);
-            Equal("✓ Save Scoreboard", saveSlideBtn.Content);
+            Equal("Save Scoreboard", saveSlideBtn.Content);
 
             // Toggle back to Question
             slideTypeSelector.SelectedItem = "Question";
             Equal(Visibility.Visible, card2.Visibility);
             Equal(Visibility.Visible, card3.Visibility);
             Equal(Visibility.Collapsed, instructionBanner.Visibility);
-            Equal("✓ Save Question", saveSlideBtn.Content);
+            Equal("Save Question", saveSlideBtn.Content);
 
             // Verify Option Card click-to-select
             var optBCard = Find<Border>(builder, "OptionBCard");
@@ -632,10 +632,10 @@ namespace Score.Tests
             QuizChimes.IsMuted = false;
             Click(soundButton);
             Equal(true, QuizChimes.IsMuted);
-            Equal("🔇 MUTE", soundButton.Content);
+            Equal("MUTE", soundButton.Content);
             Click(soundButton);
             Equal(false, QuizChimes.IsMuted);
-            Equal("🔊 SOUND ON", soundButton.Content);
+            Equal("SOUND ON", soundButton.Content);
 
             VerifyHostConducting(consoleWindow);
 
@@ -645,7 +645,7 @@ namespace Score.Tests
             consoleWindow.ToggleFocusMode();
             consoleWindow.ApplyTheme("Emerald Arena");
             Equal("Emerald Arena", QuizThemePalette.GetPalette("Emerald").Name);
-            Equal("Royal Velvet", QuizThemePalette.GetPalette("Neon").Name);
+            Equal("Cobalt Ocean", QuizThemePalette.GetPalette("Neon").Name);
             Equal("Daylight Contrast", QuizThemePalette.GetPalette("Light").Name);
 
             consoleWindow.Close();

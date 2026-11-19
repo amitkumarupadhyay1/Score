@@ -25,10 +25,10 @@
             <Setter Property="Effect" Value="{StaticResource PanelGlowEffect}"/>
         </Style>
 
-        <!-- Create New Button (prominent indigo) -->
+        <!-- Create New Button (prominent corporate blue) -->
         <Style x:Key="CreateButton" TargetType="Button" BasedOn="{StaticResource ToolbarButtonStyle}">
-            <Setter Property="Background" Value="#FF4F46E5"/>
-            <Setter Property="BorderBrush" Value="#FF4338CA"/>
+            <Setter Property="Background" Value="#FF005A9C"/>
+            <Setter Property="BorderBrush" Value="#FF004377"/>
             <Setter Property="Foreground" Value="#FFFFFFFF"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Height" Value="36"/>
@@ -46,13 +46,13 @@
                 <Button x:Name="CreateNewButton" DockPanel.Dock="Right"
                         Style="{StaticResource CreateButton}"
                         Click="CreateNewButton_Click"
-                        Content="➕  CREATE NEW QUIZ"/>
+                        Content="CREATE NEW QUIZ"/>
 
                 <!-- Left: Title & Subtitle -->
                 <StackPanel VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal">
-                        <Border Background="#FF4F46E5" CornerRadius="6" Width="26" Height="26" Margin="0,0,8,0">
-                            <TextBlock Text="✦" FontSize="14" FontWeight="Bold" Foreground="#FFFFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <Border Background="#FF005A9C" CornerRadius="6" Width="26" Height="26" Margin="0,0,8,0">
+                            <TextBlock Text="Q" FontSize="13" FontWeight="Bold" Foreground="#FFFFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <TextBlock Text="QUIZ LIBRARY &amp; CONDUCT DESK"
                                    FontSize="15" FontWeight="Bold" Foreground="#FFFFFFFF"
@@ -91,7 +91,7 @@
                         Style="{StaticResource ToolbarButtonStyle}"
                         Click="SampleDeckToolbarButton_Click"
                         Margin="0,0,10,0" Padding="12,0"
-                        Content="✦ SAMPLE QUIZ"
+                        Content="SAMPLE QUIZ"
                         ToolTip="Load showcase sample quiz into library"/>
 
                 <!-- Past Sessions History button -->
@@ -99,7 +99,7 @@
                         Style="{StaticResource ToolbarButtonStyle}"
                         Click="HistoryToolbarButton_Click"
                         Margin="0,0,10,0" Padding="12,0"
-                        Content="📊 PAST SESSIONS"
+                        Content="PAST SESSIONS"
                         ToolTip="View history of past quiz sessions, export results, or purge test runs"/>
 
                 <!-- Pre-flight Stage Check button -->
@@ -107,7 +107,7 @@
                         Style="{StaticResource ToolbarButtonStyle}"
                         Click="PreflightCheckToolbarButton_Click"
                         Margin="0,0,14,0" Padding="12,0"
-                        Content="🔍 PRE-FLIGHT CHECK"
+                        Content="PRE-FLIGHT CHECK"
                         ToolTip="Run live stage readiness check on the current quiz deck"/>
 
                 <!-- Search box with placeholder watermark -->
@@ -115,14 +115,11 @@
                     <TextBox x:Name="SearchBox"
                              Style="{StaticResource ToolbarTextStyle}"
                              TextChanged="SearchBox_TextChanged"
-                             Width="360" Padding="30,0,10,0"/>
-                    <TextBlock Text="🔍" FontSize="12" Foreground="#FF94A3B8"
-                               Margin="10,0,0,0" VerticalAlignment="Center"
-                               IsHitTestVisible="False"/>
+                             Width="360" Padding="14,0,10,0"/>
                     <TextBlock x:Name="SearchPlaceholder"
                                Text="Search quizzes by title or description…"
                                FontSize="11" Foreground="#FF94A3B8"
-                               Margin="32,0,0,0" VerticalAlignment="Center"
+                               Margin="16,0,0,0" VerticalAlignment="Center"
                                IsHitTestVisible="False"/>
                 </Grid>
             </DockPanel>
@@ -137,7 +134,7 @@
                             VerticalAlignment="Center">
                     <Button x:Name="PrevPageButton"
                             Style="{StaticResource ToolbarButtonStyle}"
-                            Content="◀ Previous" Margin="0,0,6,0"
+                            Content="Previous" Margin="0,0,6,0"
                             Click="PrevPageButton_Click"/>
                     <Border Background="#FFF1F5F9" CornerRadius="6" Padding="12,4" Margin="4,0">
                         <TextBlock x:Name="PageInfoText"
@@ -147,7 +144,7 @@
                     </Border>
                     <Button x:Name="NextPageButton"
                             Style="{StaticResource ToolbarButtonStyle}"
-                            Content="Next ▶" Margin="6,0,0,0"
+                            Content="Next" Margin="6,0,0,0"
                             Click="NextPageButton_Click"/>
                 </StackPanel>
 
@@ -163,7 +160,6 @@
             <!-- Empty-state overlay -->
             <StackPanel x:Name="EmptyStatePanel" Visibility="Collapsed"
                         HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,40,0,0">
-                <TextBlock Text="📭" FontSize="48" HorizontalAlignment="Center"/>
                 <TextBlock Text="No Quiz Decks Found"
                            FontSize="18" FontWeight="SemiBold"
                            Foreground="#FF1E293B" HorizontalAlignment="Center"
@@ -175,12 +171,12 @@
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <Button Style="{StaticResource CreateButton}"
                             Click="CreateNewButton_Click"
-                            Content="➕  CREATE FIRST QUIZ"
+                            Content="CREATE FIRST QUIZ"
                             Margin="0,0,10,0"/>
                     <Button Style="{StaticResource ToolbarButtonStyle}"
                             Click="SampleDeckToolbarButton_Click"
-                            Content="✦ LOAD SHOWCASE SAMPLE QUIZ"
-                            Height="36" Padding="16,0" Background="#FF4F46E5" Foreground="#FFFFFFFF" BorderBrush="#FF4338CA"/>
+                            Content="LOAD SHOWCASE SAMPLE QUIZ"
+                            Height="36" Padding="16,0" Background="#FF005A9C" Foreground="#FFFFFFFF" BorderBrush="#FF004377"/>
                 </StackPanel>
             </StackPanel>
 

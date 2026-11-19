@@ -235,7 +235,7 @@ namespace Score
             UpdateTieBreakButton();
             WinnerContext.Text = "FINAL RESULT";
             WinnerTitle.Text = winners.Length == 1 ? winners[0].TeamName : "TIE";
-            WinnerScore.Text = highest + " POINTS" + (IsTieBreak ? " · TIE-BREAK " + (currentRound - configuredRounds) : "  🏆");
+            WinnerScore.Text = highest + " POINTS" + (IsTieBreak ? " · TIE-BREAK " + (currentRound - configuredRounds) : " · CHAMPION");
             PopulateFinalStandings(cards);
             FinalStandings.Visibility = Visibility.Visible;
             RoundResultsPanel.Visibility = Visibility.Collapsed;
@@ -339,7 +339,7 @@ namespace Score
                 ShowInTaskbar = false
             };
             var style = (Style)FindResource("ToolbarButtonStyle");
-            var guided = new Button { Name = "GuidedSetupOption", Content = "✦ Guided Setup", Style = style, Background = (Brush)new BrushConverter().ConvertFromString("#FFEDE9FE"), BorderBrush = (Brush)new BrushConverter().ConvertFromString("#FFC4B5FD"), Foreground = (Brush)new BrushConverter().ConvertFromString("#FF5B21B6"), FontWeight = FontWeights.Bold };
+            var guided = new Button { Name = "GuidedSetupOption", Content = "Guided Setup", Style = style, Background = (Brush)new BrushConverter().ConvertFromString("#FFDCEBFA"), BorderBrush = (Brush)new BrushConverter().ConvertFromString("#FFA8C5E3"), Foreground = (Brush)new BrushConverter().ConvertFromString("#FF005A9C"), FontWeight = FontWeights.Bold };
             var keep = new Button { Name = "KeepGameSettings", Content = "Keep roster and settings", Style = style };
             var blank = new Button { Name = "StartBlankGame", Content = "Start blank", Style = style };
             var cancel = new Button { Content = "Cancel", Style = style, IsCancel = true, IsDefault = true };

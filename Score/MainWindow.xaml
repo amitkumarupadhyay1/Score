@@ -45,11 +45,11 @@
                     <Button x:Name="PauseTimerButton" Content="PAUSE" Click="PauseTimerButton_Click" Background="#FFFFEBC7" BorderBrush="#FFE5C98F"/>
                     <Button x:Name="ResumeTimerButton" Content="RESUME" Click="ResumeTimerButton_Click" Background="#FFDCEBFA" BorderBrush="#FFA8C5E3"/>
                     <Button x:Name="RestartTimerButton" Content="RESTART TIMERS" Click="RestartTimerButton_Click" Background="#FFE4EAF2" BorderBrush="#FFBAC8DA" ToolTip="Reset the event and round clocks, then start them again"/>
-                    <Button x:Name="GuidedSetupButton" Content="✦ GUIDED SETUP" Click="GuidedSetupButton_Click" Background="#FFEDE9FE" BorderBrush="#FFC4B5FD" Foreground="#FF5B21B6" FontWeight="SemiBold" ToolTip="Open the step-by-step wizard to set up event, teams, rounds and rules"/>
+                    <Button x:Name="GuidedSetupButton" Content="GUIDED SETUP" Click="GuidedSetupButton_Click" Background="#FFDCEBFA" BorderBrush="#FFA8C5E3" Foreground="#FF005A9C" FontWeight="SemiBold" ToolTip="Open the step-by-step wizard to set up event, teams, rounds and rules"/>
                     <Button x:Name="RoundSetupButton" MinWidth="96" Content="SHOW SETUP" Click="RoundSetupButton_Click" ToolTip="Show or hide round, time limit, and team settings"/>
                     <Button x:Name="ChimeButton" MinWidth="72" Content="SOUND ON" Click="ChimeButton_Click" ToolTip="Turn scoring and round chimes on or off"/>
-                    <Button x:Name="HeaderQuizDeckButton" Content="📋 QUIZ MAKER" Click="QuizDeckButton_Click" Style="{StaticResource ToolbarButtonStyle}" Background="#FF059669" BorderBrush="#FF047857" Foreground="#FFFFFFFF" FontWeight="SemiBold" ToolTip="Create, edit, and import quiz questions and decks"/>
-                    <Button x:Name="HeaderHostQuizButton" Content="🎙 CONDUCT QUIZ" Click="HostQuizButton_Click" Style="{StaticResource ToolbarButtonStyle}" Background="#FF2563EB" BorderBrush="#FF1D4ED8" Foreground="#FFFFFFFF" FontWeight="SemiBold" ToolTip="Conduct a live quiz with Quizmaster console and audience stage view"/>
+                    <Button x:Name="HeaderQuizDeckButton" Content="QUIZ MAKER" Click="QuizDeckButton_Click" Style="{StaticResource ToolbarButtonStyle}" Background="#FF059669" BorderBrush="#FF047857" Foreground="#FFFFFFFF" FontWeight="SemiBold" ToolTip="Create, edit, and import quiz questions and decks"/>
+                    <Button x:Name="HeaderHostQuizButton" Content="CONDUCT QUIZ" Click="HostQuizButton_Click" Style="{StaticResource ToolbarButtonStyle}" Background="#FF2563EB" BorderBrush="#FF1D4ED8" Foreground="#FFFFFFFF" FontWeight="SemiBold" ToolTip="Conduct a live quiz with Quizmaster console and audience stage view"/>
                     <Border Padding="10,5" CornerRadius="12" Background="#FFF1F4F7" BorderBrush="#FFCBD5E1" BorderThickness="1" VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal"><TextBlock x:Name="TeamCountLabel" Text="4" FontSize="18" FontWeight="Bold" Foreground="#FF172B4D"/><TextBlock Text=" TEAMS" Margin="5,0,0,0" VerticalAlignment="Center" FontSize="10" FontWeight="Bold" Foreground="#FF172B4D"/></StackPanel>
                     </Border>
@@ -149,10 +149,10 @@
                     <Button Content="UNDO LAST" Margin="0,3,7,3" Click="UndoLastScoreButton_Click" Style="{StaticResource ToolbarButtonStyle}" ToolTip="Reverse the latest score change and add an audit-log entry"/>
                     <Button x:Name="FinishRoundButton" Margin="0,3,7,3" Content="FINISH ROUND" Click="FinishRoundButton_Click" Style="{StaticResource ToolbarButtonStyle}" Background="#FFD9F2E5" BorderBrush="#FFA8D9BD"/>
                     <Button x:Name="ReviewScoresButton" Margin="0,3,7,3" Content="REVIEW SCORES" Click="ReviewScores_Click" Style="{StaticResource ToolbarButtonStyle}" ToolTip="Correct a current or completed round with a reason"/>
-                    <Button Content="ROUND RESULT" Margin="0,3,7,3" Click="AnnounceWinnerButton_Click" Style="{StaticResource ToolbarButtonStyle}" Background="#FFEAE2F5" BorderBrush="#FFC8B6E0" ToolTip="Preview the current round ranking without finishing the round"/>
+                    <Button Content="ROUND RESULT" Margin="0,3,7,3" Click="AnnounceWinnerButton_Click" Style="{StaticResource ToolbarButtonStyle}" Background="#FFE4EAF2" BorderBrush="#FFBAC8DA" ToolTip="Preview the current round ranking without finishing the round"/>
                     <Button Content="STANDINGS" Margin="0,3,7,3" Click="ShowStandingsButton_Click" Style="{StaticResource ToolbarButtonStyle}" Background="#FFDCEAF2" BorderBrush="#FFAFC8DB" ToolTip="View completed-round scores without stopping the current round"/>
                     <Button Content="EXPORT LOG" Margin="0,3,7,3" Click="ExportLogButton_Click" Style="{StaticResource ToolbarButtonStyle}"/>
-                    <Button x:Name="PastSessionsButton" Margin="0,3,7,3" Content="PAST SESSIONS" Click="PastSessionsButton_Click" Style="{StaticResource ToolbarButtonStyle}" Background="#FFEDE9FE" BorderBrush="#FFC4B5FD" Foreground="#FF5B21B6" ToolTip="View past sessions, scores breakdown, and cascade delete completed runs"/>
+                    <Button x:Name="PastSessionsButton" Margin="0,3,7,3" Content="PAST SESSIONS" Click="PastSessionsButton_Click" Style="{StaticResource ToolbarButtonStyle}" Background="#FFE4EAF2" BorderBrush="#FFBAC8DA" Foreground="#FF172B4D" ToolTip="View past sessions, scores breakdown, and cascade delete completed runs"/>
                     <Button Content="ABOUT" Margin="0,3,7,3" Click="AboutButton_Click" Style="{StaticResource ToolbarButtonStyle}" Background="#FFDCEAF2" BorderBrush="#FFAFC8DB" ToolTip="View application and developer information"/>
                     <Button x:Name="ProjectorButton" Margin="0,3,7,3" Content="PROJECTOR LIVE" Click="ProjectorButton_Click" Style="{StaticResource ToolbarButtonStyle}" ToolTip="Show the audience live round scores"/>
                     <Button x:Name="ProjectorStandingsButton" Margin="0,3,7,3" Content="PROJECTOR STANDINGS" Click="ProjectorStandingsButton_Click" Style="{StaticResource ToolbarButtonStyle}" ToolTip="Show ranked tournament totals to the audience"/>
@@ -212,15 +212,12 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,16,0">
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,3">
-                                    <TextBlock Text="✦ " FontSize="12" FontWeight="Bold" Foreground="#FF4F46E5" VerticalAlignment="Center"/>
-                                    <TextBlock Text="QUIZ DECK STUDIO &amp; STAGE DESK" FontSize="11" FontWeight="Bold" Foreground="#FF1E293B" VerticalAlignment="Center"/>
-                                </StackPanel>
+                                <TextBlock Text="QUIZ DECK STUDIO &amp; STAGE DESK" FontSize="11" FontWeight="Bold" Foreground="#FF1E293B" VerticalAlignment="Center" Margin="0,0,0,3"/>
                                 <TextBlock Text="Create questions, configure buzzers, or conduct a live stage round with audience display." FontSize="11" Foreground="#FF64748B" TextWrapping="Wrap"/>
                             </StackPanel>
                             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                <Button x:Name="QuizDeckButton" Content="📋 QUIZ DECK" Click="QuizDeckButton_Click" Style="{StaticResource ToolbarButtonStyle}" Height="36" Padding="18,0" Background="#FF059669" BorderBrush="#FF047857" Foreground="#FFFFFFFF" FontWeight="SemiBold" Margin="0,0,10,0" ToolTip="Open the Quiz Deck Studio to create, edit, or import slides"/>
-                                <Button x:Name="HostQuizButton" Content="🎙 CONDUCT QUIZ" Click="HostQuizButton_Click" Style="{StaticResource ToolbarButtonStyle}" Height="36" Padding="18,0" Background="#FF2563EB" BorderBrush="#FF1D4ED8" Foreground="#FFFFFFFF" FontWeight="SemiBold" ToolTip="Conduct this quiz on stage with mobile buzzers &amp; audience screen"/>
+                                <Button x:Name="QuizDeckButton" Content="QUIZ DECK" Click="QuizDeckButton_Click" Style="{StaticResource ToolbarButtonStyle}" Height="36" Padding="18,0" Background="#FF059669" BorderBrush="#FF047857" Foreground="#FFFFFFFF" FontWeight="SemiBold" Margin="0,0,10,0" ToolTip="Open the Quiz Deck Studio to create, edit, or import slides"/>
+                                <Button x:Name="HostQuizButton" Content="CONDUCT QUIZ" Click="HostQuizButton_Click" Style="{StaticResource ToolbarButtonStyle}" Height="36" Padding="18,0" Background="#FF2563EB" BorderBrush="#FF1D4ED8" Foreground="#FFFFFFFF" FontWeight="SemiBold" ToolTip="Conduct this quiz on stage with mobile buzzers &amp; audience screen"/>
                             </StackPanel>
                         </Grid>
                     </Border>

@@ -233,7 +233,7 @@ namespace Score.Tests
             var itemsAfter = options.ItemsSource as System.Collections.Generic.List<AudienceOptionItem>;
             Require(itemsAfter != null && itemsAfter.Count == 4, "Must have 4 options.");
             Equal(Visibility.Visible, itemsAfter[1].CheckmarkVisibility);
-            Equal("✔ CORRECT", itemsAfter[1].Checkmark);
+            Equal("CORRECT", itemsAfter[1].Checkmark);
             Equal(FontWeights.Bold, itemsAfter[1].FontWeight);
             Equal(Visibility.Collapsed, itemsAfter[0].CheckmarkVisibility);
 

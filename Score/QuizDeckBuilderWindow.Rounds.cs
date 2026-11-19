@@ -249,7 +249,7 @@ namespace Score
             Grid.SetColumn(addBtn, 0);
             listButtons.Children.Add(addBtn);
 
-            var delBtn = new Button { Content = "🗑 Delete", Height = 28, Margin = new Thickness(4, 0, 0, 0), Foreground = new SolidColorBrush(Color.FromRgb(185, 28, 28)) };
+            var delBtn = new Button { Content = "Delete", Height = 28, Margin = new Thickness(4, 0, 0, 0), Foreground = new SolidColorBrush(Color.FromRgb(185, 28, 28)) };
             delBtn.Click += DeleteRound_Click;
             Grid.SetColumn(delBtn, 1);
             listButtons.Children.Add(delBtn);

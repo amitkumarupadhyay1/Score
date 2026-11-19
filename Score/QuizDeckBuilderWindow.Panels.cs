@@ -11,7 +11,7 @@ namespace Score
         {
             LeftColumnDef.Width = new GridLength(0);
             ExpandLeftPanelButton.Visibility = Visibility.Visible;
-            StatusText.Text = "Questions panel collapsed. Click [▶ QUESTIONS] to expand.";
+            StatusText.Text = "Questions panel collapsed. Click [> QUESTIONS] to expand.";
         }
 
         private void ExpandLeftPanelButton_Click(object sender, RoutedEventArgs e)

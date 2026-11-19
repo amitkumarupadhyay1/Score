@@ -24,8 +24,8 @@
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <Border Background="#FF4F46E5" CornerRadius="6" Width="26" Height="26" Margin="0,0,10,0">
-                            <TextBlock Text="📱" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <Border Background="#FF005A9C" CornerRadius="6" Width="26" Height="26" Margin="0,0,10,0">
+                            <TextBlock Text="Q" FontSize="13" FontWeight="Bold" Foreground="#FFFFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <TextBlock Text="MOBILE CONTESTANT BUZZERS" FontSize="13" FontWeight="Bold" Foreground="#FFFFFFFF" VerticalAlignment="Center" />
                     </StackPanel>
@@ -69,7 +69,7 @@
                             </Grid.ColumnDefinitions>
                             <TextBox x:Name="ServerUrlTextBox" Grid.Column="0" Height="36" IsReadOnly="True" FontSize="13" FontWeight="SemiBold" Foreground="#FF0F172A" Background="#FFF8FAFC" BorderBrush="#FFCBD5E1" BorderThickness="1" VerticalContentAlignment="Center" Padding="10,0" />
                             <Button x:Name="CopyUrlButton" Grid.Column="1" Content="Copy URL" Height="36" Padding="14,0" Margin="8,0,0,0" Background="#FF1E293B" BorderBrush="#FF334155" Foreground="#FFFFFFFF" FontWeight="SemiBold" FontSize="12" Click="CopyUrlButton_Click" Cursor="Hand" />
-                            <Button x:Name="OpenBrowserButton" Grid.Column="2" Content="Open in Browser" Height="36" Padding="14,0" Margin="8,0,0,0" Background="#FF4F46E5" BorderBrush="#FF4338CA" Foreground="#FFFFFFFF" FontWeight="SemiBold" FontSize="12" Click="OpenBrowserButton_Click" Cursor="Hand" />
+                            <Button x:Name="OpenBrowserButton" Grid.Column="2" Content="Open in Browser" Height="36" Padding="14,0" Margin="8,0,0,0" Background="#FF005A9C" BorderBrush="#FF004377" Foreground="#FFFFFFFF" FontWeight="SemiBold" FontSize="12" Click="OpenBrowserButton_Click" Cursor="Hand" />
                         </Grid>
                     </StackPanel>
                 </Border>
@@ -77,7 +77,6 @@
                 <!-- Status Note -->
                 <Border Background="#FFF1F5F9" BorderBrush="#FFE2E8F0" BorderThickness="1" CornerRadius="8" Padding="14,10">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="ℹ️" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center" />
                         <TextBlock Text="Incoming buzzes are queued with millisecond timestamps and appear directly on the Quizmaster desk." FontSize="11" Foreground="#FF475569" TextWrapping="Wrap" VerticalAlignment="Center" />
                     </StackPanel>
                 </Border>

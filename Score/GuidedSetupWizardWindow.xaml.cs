@@ -12,7 +12,7 @@ namespace Score
         public string ConfiguredTitle { get; private set; } = "Live Quiz Event";
         public List<string> ConfiguredTeams { get; private set; } = new List<string>();
         public int ConfiguredRounds { get; private set; } = 3;
-        public string ConfiguredRoundName { get; private set; } = "General Knowledge";
+        public string ConfiguredRoundName { get; private set; } = "Round 1";
         public string ConfiguredRoundFormat { get; private set; } = "Standard";
         public int ConfiguredRoundDurationSeconds { get; private set; } = 120;
         public int ConfiguredQuestionDurationSeconds { get; private set; } = 30;
@@ -100,8 +100,8 @@ namespace Score
                 var count = (int)btn.Tag;
                 if (count == activeCount)
                 {
-                    btn.Background = (Brush)new BrushConverter().ConvertFromString("#FF4F46E5");
-                    btn.BorderBrush = (Brush)new BrushConverter().ConvertFromString("#FF4338CA");
+                    btn.Background = (Brush)new BrushConverter().ConvertFromString("#FF005A9C");
+                    btn.BorderBrush = (Brush)new BrushConverter().ConvertFromString("#FF004377");
                     btn.Foreground = Brushes.White;
                 }
                 else
@@ -178,7 +178,7 @@ namespace Score
             ConfiguredMode = isConduct ? "ConductDeck" : "LiveDesk";
             if (LaunchButton != null)
             {
-                LaunchButton.Content = isConduct ? "🎙 OPEN QUIZ DECK STUDIO" : "✦ LAUNCH LIVE DESK";
+                LaunchButton.Content = isConduct ? "OPEN QUIZ DECK STUDIO" : "START LIVE DESK";
             }
         }
 
@@ -195,7 +195,7 @@ namespace Score
             RoundDurationSelector.SelectedIndex = 2; // 2 min
             QuestionTimerSelector.SelectedIndex = 1; // 30 sec
             FirstRoundNameInput.Text = "Astrophysics & Discovery";
-            SummaryInfoText.Text = "✦ Sample Championship loaded! Click LAUNCH LIVE DESK to begin.";
+            SummaryInfoText.Text = "Sample event loaded. Click START LIVE DESK to begin.";
         }
 
         private void LaunchButton_Click(object sender, RoutedEventArgs e)
@@ -229,7 +229,7 @@ namespace Score
             else
                 ConfiguredRounds = 3;
 
-            ConfiguredRoundName = string.IsNullOrWhiteSpace(FirstRoundNameInput.Text) ? "General Knowledge" : FirstRoundNameInput.Text.Trim();
+            ConfiguredRoundName = string.IsNullOrWhiteSpace(FirstRoundNameInput.Text) ? "Round 1" : FirstRoundNameInput.Text.Trim();
 
             if (RoundFormatSelector.SelectedItem is ComboBoxItem formatItem)
                 ConfiguredRoundFormat = formatItem.Content.ToString();

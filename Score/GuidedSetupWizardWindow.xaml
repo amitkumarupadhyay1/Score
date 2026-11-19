@@ -1,9 +1,9 @@
 <Window x:Class="Score.GuidedSetupWizardWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Guided Setup Wizard · QuizScore Live"
-        Width="880" Height="680"
-        MinWidth="780" MinHeight="560"
+        Title="Stage Setup Wizard · QuizScore Live"
+        Width="900" Height="580"
+        MinWidth="820" MinHeight="500"
         WindowStartupLocation="CenterOwner"
         Background="#FFF8FAFC"
         FontFamily="Segoe UI"
@@ -15,186 +15,195 @@
             <Setter Property="Background" Value="#FFFFFFFF" />
             <Setter Property="BorderBrush" Value="#FFE2E8F0" />
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="CornerRadius" Value="10" />
-            <Setter Property="Padding" Value="18,14" />
-            <Setter Property="Margin" Value="0,0,0,14" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Padding" Value="14,12" />
+            <Setter Property="Margin" Value="0,0,0,10" />
         </Style>
         <Style x:Key="CardHeader" TargetType="TextBlock">
             <Setter Property="FontSize" Value="11" />
             <Setter Property="FontWeight" Value="Bold" />
-            <Setter Property="Foreground" Value="#FF4F46E5" />
-            <Setter Property="Margin" Value="0,0,0,10" />
+            <Setter Property="Foreground" Value="#FF172B4D" />
+            <Setter Property="Margin" Value="0,0,0,8" />
         </Style>
         <Style x:Key="FieldLabel" TargetType="TextBlock">
             <Setter Property="FontSize" Value="11" />
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Foreground" Value="#FF334155" />
-            <Setter Property="Margin" Value="0,0,0,5" />
+            <Setter Property="Margin" Value="0,0,0,4" />
         </Style>
     </Window.Resources>
 
     <DockPanel>
-        <!-- Top Gradient Banner -->
-        <Border DockPanel.Dock="Top" Background="#FF0F172A" Padding="24,14">
+        <!-- Top Dark Banner -->
+        <Border DockPanel.Dock="Top" Background="#FF0F172A" Padding="18,10">
             <DockPanel>
                 <Button x:Name="DemoQuickFillButton" DockPanel.Dock="Right"
-                        Content="✦ LOAD EXAMPLE CHAMPIONSHIP"
+                        Content="LOAD SAMPLE EVENT"
                         Style="{StaticResource ToolbarButtonStyle}"
-                        Background="#FF4F46E5" BorderBrush="#FF6366F1" Foreground="#FFFFFFFF"
-                        FontWeight="Bold" Height="32" Padding="14,0"
+                        Background="#FF1E293B" BorderBrush="#FF475569" Foreground="#FFFFFFFF"
+                        FontWeight="SemiBold" Height="30" Padding="12,0"
                         Click="DemoQuickFillButton_Click"
-                        ToolTip="Quickly populate with complete sample championship data" />
+                        ToolTip="Populate with sample teams and format for testing" />
                 <StackPanel VerticalAlignment="Center">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="✦ " FontSize="16" FontWeight="Bold" Foreground="#FF38BDF8" />
-                        <TextBlock Text="GUIDED SETUP WIZARD" FontSize="16" FontWeight="Bold" Foreground="#FFFFFFFF" />
-                    </StackPanel>
-                    <TextBlock Text="Configure your event name, team roster, and round rules in one clean workflow." FontSize="11" Foreground="#FF94A3B8" Margin="0,2,0,0" />
+                    <TextBlock Text="STAGE SETUP WIZARD" FontSize="14" FontWeight="Bold" Foreground="#FFFFFFFF" />
+                    <TextBlock Text="Configure event details, stage team desks, and round timers." FontSize="11" Foreground="#FF94A3B8" Margin="0,2,0,0" />
                 </StackPanel>
             </DockPanel>
         </Border>
 
         <!-- Bottom Action Bar -->
-        <Border DockPanel.Dock="Bottom" Background="#FFFFFFFF" BorderBrush="#FFE2E8F0" BorderThickness="0,1,0,0" Padding="20,12">
+        <Border DockPanel.Dock="Bottom" Background="#FFFFFFFF" BorderBrush="#FFE2E8F0" BorderThickness="0,1,0,0" Padding="18,10">
             <DockPanel>
                 <Button x:Name="CancelButton" DockPanel.Dock="Left"
-                        Content="Cancel" Width="90" Height="36"
+                        Content="Cancel" Width="85" Height="34"
                         Style="{StaticResource ToolbarButtonStyle}"
                         IsCancel="True" Click="CancelButton_Click" />
-                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
-                    <Button x:Name="LaunchButton"
-                            Content="✦ LAUNCH LIVE DESK"
-                            Height="36" Padding="24,0"
-                            Style="{StaticResource ToolbarButtonStyle}"
-                            Background="#FF059669" BorderBrush="#FF047857" Foreground="#FFFFFFFF"
-                            FontWeight="Bold" FontSize="13"
-                            Click="LaunchButton_Click" />
-                </StackPanel>
+                <Button x:Name="LaunchButton" DockPanel.Dock="Right"
+                        Content="START LIVE DESK"
+                        Height="34" Padding="22,0"
+                        Style="{StaticResource ToolbarButtonStyle}"
+                        Background="#FF059669" BorderBrush="#FF047857" Foreground="#FFFFFFFF"
+                        FontWeight="Bold" FontSize="12"
+                        Click="LaunchButton_Click" />
                 <TextBlock x:Name="SummaryInfoText" Text="Ready to initialize live scoring desk."
-                           FontSize="11" Foreground="#FF64748B" VerticalAlignment="Center" Margin="16,0,0,0" />
+                           FontSize="11" Foreground="#FF64748B" VerticalAlignment="Center" Margin="16,0,16,0" TextTrimming="CharacterEllipsis" />
             </DockPanel>
         </Border>
 
-        <!-- Main Form Body -->
-        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20,16">
-            <StackPanel>
-                <!-- Card 1: Event Identity & Mode -->
+        <!-- Main Form Body: 2-Column Grid -->
+        <Grid Margin="16,12,16,6">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.05*" />
+                <ColumnDefinition Width="1.15*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Left Column: Event & Rules -->
+            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                <!-- Card 1: Event Identity -->
                 <Border Style="{StaticResource SetupCard}">
                     <StackPanel>
-                        <TextBlock Text="1. EVENT IDENTITY &amp; OPERATING MODE" Style="{StaticResource CardHeader}" />
-                        <Grid Margin="0,0,0,12">
+                        <TextBlock Text="1. EVENT &amp; MODE" Style="{StaticResource CardHeader}" />
+                        <StackPanel Margin="0,0,0,8">
+                            <TextBlock Text="Event Title" Style="{StaticResource FieldLabel}" />
+                            <Grid>
+                                <TextBox x:Name="EventTitleInput" Height="32" FontSize="12" FontWeight="SemiBold"
+                                         Padding="8,0" VerticalContentAlignment="Center"
+                                         MaxLength="60" TextChanged="EventTitleInput_TextChanged"
+                                         ToolTip="Enter the competition or event title" />
+                                <TextBlock x:Name="EventTitlePlaceholder"
+                                           Text="e.g. Annual Inter-School Science Bowl 2026"
+                                           FontSize="12" Foreground="#FF94A3B8"
+                                           Margin="9,0,0,0" VerticalAlignment="Center"
+                                           IsHitTestVisible="False" />
+                            </Grid>
+                        </StackPanel>
+                        <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="2*" />
-                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0" Margin="0,0,14,0">
-                                <TextBlock Text="Event / Championship Title" Style="{StaticResource FieldLabel}" />
-                                <Grid>
-                                    <TextBox x:Name="EventTitleInput" Height="34" FontSize="13" FontWeight="SemiBold"
-                                             Padding="8,0" VerticalContentAlignment="Center"
-                                             MaxLength="60" TextChanged="EventTitleInput_TextChanged"
-                                             ToolTip="Enter the competition or event title" />
-                                    <TextBlock x:Name="EventTitlePlaceholder"
-                                               Text="e.g. Annual Inter-School Science Bowl 2026"
-                                               FontSize="13" Foreground="#FF94A3B8"
-                                               Margin="9,0,0,0" VerticalAlignment="Center"
-                                               IsHitTestVisible="False" />
-                                </Grid>
-                            </StackPanel>
-                            <StackPanel Grid.Column="1">
+                            <StackPanel Grid.Column="0" Margin="0,0,6,0">
                                 <TextBlock Text="Scoring Mode" Style="{StaticResource FieldLabel}" />
-                                <ComboBox x:Name="ModeSelector" Height="34" SelectedIndex="0"
+                                <ComboBox x:Name="ModeSelector" Height="30" SelectedIndex="0"
                                           Style="{StaticResource ToolbarComboStyle}" SelectionChanged="ModeSelector_SelectionChanged">
                                     <ComboBoxItem Content="Live Scoring Desk" />
                                     <ComboBoxItem Content="Conduct Quiz Deck" />
                                 </ComboBox>
                             </StackPanel>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="First Round Title" Style="{StaticResource FieldLabel}" />
+                                <TextBox x:Name="FirstRoundNameInput" Height="30" Text="Round 1" Padding="8,0"
+                                         VerticalContentAlignment="Center" MaxLength="40" />
+                            </StackPanel>
                         </Grid>
                     </StackPanel>
                 </Border>
 
-                <!-- Card 2: Team Roster -->
+                <!-- Card 2: Rounds & Timing -->
                 <Border Style="{StaticResource SetupCard}">
                     <StackPanel>
-                        <DockPanel Margin="0,0,0,10">
-                            <TextBlock Text="2. TEAM ROSTER (2 TO 12 TEAMS)" Style="{StaticResource CardHeader}" DockPanel.Dock="Left" Margin="0" />
-                            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
-                                <Button x:Name="AutoNumberTeamsButton" Content="Auto-Number Teams"
-                                        Style="{StaticResource ToolbarButtonStyle}" Height="24" Padding="8,0" FontSize="10"
-                                        Click="AutoNumberTeamsButton_Click" ToolTip="Reset names to Team 1, Team 2..." Margin="0,0,8,0" />
-                                <Button x:Name="PasteRosterButton" Content="Paste Roster"
-                                        Style="{StaticResource ToolbarButtonStyle}" Height="24" Padding="8,0" FontSize="10"
-                                        Click="PasteRosterButton_Click" ToolTip="Paste team names from clipboard" />
-                            </StackPanel>
-                        </DockPanel>
-
-                        <!-- Team Count Buttons -->
-                        <TextBlock Text="Number of Participating Teams:" Style="{StaticResource FieldLabel}" />
-                        <WrapPanel x:Name="TeamCountButtonPanel" Margin="0,0,0,12">
-                            <!-- Populated with 2, 3, 4, 5, 6, 8, 10, 12 buttons in code-behind -->
-                        </WrapPanel>
-
-                        <!-- Team Names Input Grid / Text -->
-                        <TextBlock Text="Team Names (one per line):" Style="{StaticResource FieldLabel}" />
-                        <TextBox x:Name="TeamNamesEditor" Height="100" AcceptsReturn="True" TextWrapping="Wrap"
-                                 Padding="8" FontSize="12" FontFamily="Consolas"
-                                 TextChanged="TeamNamesEditor_TextChanged" />
-                        <TextBlock x:Name="RosterCountIndicator" Text="4 teams configured" FontSize="10" Foreground="#FF64748B" Margin="0,4,0,0" />
-                    </StackPanel>
-                </Border>
-
-                <!-- Card 3: Rounds, Timing & Rules -->
-                <Border Style="{StaticResource SetupCard}">
-                    <StackPanel>
-                        <TextBlock Text="3. ROUNDS, TIMING &amp; SCORING RULES" Style="{StaticResource CardHeader}" />
-                        <Grid Margin="0,0,0,8">
+                        <TextBlock Text="2. ROUNDS &amp; TIMING RULES" Style="{StaticResource CardHeader}" />
+                        <Grid Margin="0,0,0,6">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                            <StackPanel Grid.Column="0" Margin="0,0,6,0">
                                 <TextBlock Text="Total Rounds" Style="{StaticResource FieldLabel}" />
-                                <ComboBox x:Name="RoundsCountSelector" Height="32" SelectedIndex="2" Style="{StaticResource ToolbarComboStyle}">
+                                <ComboBox x:Name="RoundsCountSelector" Height="30" SelectedIndex="2" Style="{StaticResource ToolbarComboStyle}">
                                     <ComboBoxItem Content="1" /><ComboBoxItem Content="2" /><ComboBoxItem Content="3" />
                                     <ComboBoxItem Content="4" /><ComboBoxItem Content="5" /><ComboBoxItem Content="6" />
                                     <ComboBoxItem Content="8" /><ComboBoxItem Content="10" />
                                 </ComboBox>
                             </StackPanel>
-                            <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                            <StackPanel Grid.Column="1">
                                 <TextBlock Text="Round Format" Style="{StaticResource FieldLabel}" />
-                                <ComboBox x:Name="RoundFormatSelector" Height="32" SelectedIndex="0" Style="{StaticResource ToolbarComboStyle}">
+                                <ComboBox x:Name="RoundFormatSelector" Height="30" SelectedIndex="0" Style="{StaticResource ToolbarComboStyle}">
                                     <ComboBoxItem Content="Standard" /><ComboBoxItem Content="Rapid fire" />
                                     <ComboBoxItem Content="Buzzer" /><ComboBoxItem Content="Visual / audio" />
                                     <ComboBoxItem Content="Pass / Bounce" />
                                 </ComboBox>
                             </StackPanel>
-                            <StackPanel Grid.Column="2" Margin="0,0,8,0">
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,6,0">
                                 <TextBlock Text="Round Duration" Style="{StaticResource FieldLabel}" />
-                                <ComboBox x:Name="RoundDurationSelector" Height="32" SelectedIndex="2" Style="{StaticResource ToolbarComboStyle}">
+                                <ComboBox x:Name="RoundDurationSelector" Height="30" SelectedIndex="2" Style="{StaticResource ToolbarComboStyle}">
                                     <ComboBoxItem Content="No limit" /><ComboBoxItem Content="1 min" />
                                     <ComboBoxItem Content="2 min" /><ComboBoxItem Content="3 min" />
                                     <ComboBoxItem Content="5 min" /><ComboBoxItem Content="10 min" />
                                 </ComboBox>
                             </StackPanel>
-                            <StackPanel Grid.Column="3">
+                            <StackPanel Grid.Column="1">
                                 <TextBlock Text="Question Clock" Style="{StaticResource FieldLabel}" />
-                                <ComboBox x:Name="QuestionTimerSelector" Height="32" SelectedIndex="1" Style="{StaticResource ToolbarComboStyle}">
+                                <ComboBox x:Name="QuestionTimerSelector" Height="30" SelectedIndex="1" Style="{StaticResource ToolbarComboStyle}">
                                     <ComboBoxItem Content="15 sec" /><ComboBoxItem Content="30 sec" />
                                     <ComboBoxItem Content="45 sec" /><ComboBoxItem Content="60 sec" />
                                     <ComboBoxItem Content="No timer" />
                                 </ComboBox>
                             </StackPanel>
                         </Grid>
-                        <StackPanel Margin="0,8,0,0">
-                            <TextBlock Text="First Round Name / Category" Style="{StaticResource FieldLabel}" />
-                            <TextBox x:Name="FirstRoundNameInput" Height="32" Text="General Knowledge" Padding="8,0"
-                                     VerticalContentAlignment="Center" MaxLength="40" />
-                        </StackPanel>
                     </StackPanel>
                 </Border>
             </StackPanel>
-        </ScrollViewer>
+
+            <!-- Right Column: Stage Team Desks -->
+            <Border Grid.Column="1" Style="{StaticResource SetupCard}">
+                <DockPanel>
+                    <DockPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+                        <TextBlock Text="3. STAGE TEAM DESKS" Style="{StaticResource CardHeader}" DockPanel.Dock="Left" Margin="0" />
+                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                            <Button x:Name="AutoNumberTeamsButton" Content="Auto-Number"
+                                    Style="{StaticResource ToolbarButtonStyle}" Height="22" Padding="8,0" FontSize="10"
+                                    Click="AutoNumberTeamsButton_Click" ToolTip="Reset names to Team 1, Team 2..." Margin="0,0,6,0" />
+                            <Button x:Name="PasteRosterButton" Content="Paste"
+                                    Style="{StaticResource ToolbarButtonStyle}" Height="22" Padding="8,0" FontSize="10"
+                                    Click="PasteRosterButton_Click" ToolTip="Paste team names from clipboard" />
+                        </StackPanel>
+                    </DockPanel>
+
+                    <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+                        <TextBlock Text="Number of Stage Desks:" Style="{StaticResource FieldLabel}" />
+                        <WrapPanel x:Name="TeamCountButtonPanel">
+                            <!-- Populated in code-behind with 2, 3, 4, 5, 6, 8, 10, 12 -->
+                        </WrapPanel>
+                    </StackPanel>
+
+                    <TextBlock x:Name="RosterCountIndicator" Text="4 teams configured" FontSize="10" Foreground="#FF64748B" DockPanel.Dock="Bottom" Margin="0,4,0,0" />
+
+                    <DockPanel>
+                        <TextBlock Text="Team Names (one per desk):" Style="{StaticResource FieldLabel}" DockPanel.Dock="Top" />
+                        <TextBox x:Name="TeamNamesEditor" AcceptsReturn="True" TextWrapping="Wrap"
+                                 Padding="8" FontSize="12" FontFamily="Consolas"
+                                 VerticalScrollBarVisibility="Auto"
+                                 TextChanged="TeamNamesEditor_TextChanged" />
+                    </DockPanel>
+                </DockPanel>
+            </Border>
+        </Grid>
     </DockPanel>
 </Window>

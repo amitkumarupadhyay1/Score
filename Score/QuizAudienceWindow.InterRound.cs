@@ -203,8 +203,8 @@ namespace Score
                 case "corporate":
                 case "slate":
                     AudienceInterRoundPanel.Background = Parse("#FF0F172A");
-                    if (InterRoundBadgeBorder != null) InterRoundBadgeBorder.Background = Parse("#FF312E81");
-                    if (InterRoundTransitionBadge != null) InterRoundTransitionBadge.Foreground = Parse("#FFA5B4FC");
+                    if (InterRoundBadgeBorder != null) InterRoundBadgeBorder.Background = Parse("#FF004377");
+                    if (InterRoundTransitionBadge != null) InterRoundTransitionBadge.Foreground = Parse("#FFDCEBFA");
                     if (InterRoundCompletedTitle != null) InterRoundCompletedTitle.Foreground = Parse("#FFFFFFFF");
                     if (InterRoundNextTitle != null) InterRoundNextTitle.Foreground = Parse("#FF94A3B8");
                     if (InterRoundTableCard != null)
