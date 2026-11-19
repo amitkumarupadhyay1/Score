@@ -23,9 +23,9 @@ namespace Score
 
                 var fadeAnim = new DoubleAnimation
                 {
-                    From = 0.2,
+                    From = 0.6,
                     To = 1.0,
-                    Duration = TimeSpan.FromMilliseconds(220),
+                    Duration = TimeSpan.FromMilliseconds(180),
                     EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
                 };
 

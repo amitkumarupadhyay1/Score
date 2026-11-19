@@ -22,6 +22,16 @@ namespace Score
                 var remaining = _questionTimer.Remaining;
                 ConsoleTimerLabel.Text = $"{(int)remaining.TotalMinutes:D2}:{remaining.Seconds:D2}";
             }
+
+            if (_audienceWindow != null && _audienceWindow.IsLoaded)
+            {
+                var remSeconds = _questionTimer.State == QuizTimerState.Stopped
+                    ? (_currentSlide != null && _currentSlide.TimeLimitSeconds > 0 ? _currentSlide.TimeLimitSeconds : 0)
+                    : (int)Math.Ceiling(_questionTimer.Remaining.TotalSeconds);
+                var stateStr = _questionTimer.State == QuizTimerState.Running ? "Running" :
+                               _questionTimer.State == QuizTimerState.Paused ? "Paused" : "Stopped";
+                _audienceWindow.UpdateTimerFromConsole(remSeconds, stateStr);
+            }
         }
 
         private void TimerRefresh_Tick(object sender, EventArgs e)
@@ -32,6 +42,16 @@ namespace Score
                 ConsoleTimerLabel.Foreground = Brushes.Crimson;
             else
                 ConsoleTimerLabel.Foreground = (Brush)new BrushConverter().ConvertFromString("#FF38BDF8");
+
+            if (_audienceWindow != null && _audienceWindow.IsLoaded)
+            {
+                var remSeconds = _questionTimer.State == QuizTimerState.Stopped
+                    ? (_currentSlide != null && _currentSlide.TimeLimitSeconds > 0 ? _currentSlide.TimeLimitSeconds : 0)
+                    : (int)Math.Ceiling(_questionTimer.Remaining.TotalSeconds);
+                var stateStr = _questionTimer.State == QuizTimerState.Running ? "Running" :
+                               _questionTimer.State == QuizTimerState.Paused ? "Paused" : "Stopped";
+                _audienceWindow.UpdateTimerFromConsole(remSeconds, stateStr);
+            }
 
             if (_questionTimer.State == QuizTimerState.Running && _questionTimer.Duration > TimeSpan.Zero)
             {

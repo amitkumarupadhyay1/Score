@@ -32,7 +32,7 @@
         <Border DockPanel.Dock="Bottom" Background="#FFFFFFFF" BorderBrush="#FFE2E8F0" BorderThickness="0,1,0,0" Padding="18,12">
             <DockPanel>
                 <Button x:Name="ExportCsvButton" DockPanel.Dock="Left"
-                        Content="📥 EXPORT SELECTED TO CSV"
+                        Content="EXPORT SELECTED TO CSV"
                         Style="{StaticResource ToolbarButtonStyle}"
                         Background="#FF059669" BorderBrush="#FF047857" Foreground="#FFFFFFFF"
                         FontWeight="Bold" Height="32" Padding="14,0"

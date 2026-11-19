@@ -78,6 +78,14 @@ namespace Score
         private string _timerState;
         private string _lastPollingError;
         private int _lastSeenBuzzEntryId;
+        private int _renderedSlideId = -1;
+        private bool _renderedAnswerRevealed = false;
+        private string _renderedActiveTeam = null;
+        private int _renderedClueStep = -1;
+        private string _renderedScoreboardSignature = null;
+        private int _lastPolledDeckId = -1;
+        private List<DeckSlide> _cachedSlides = null;
+        private DateTime _lastConsoleTimerUpdate = DateTime.MinValue;
 
         public QuizAudienceWindow()
         {
@@ -134,6 +142,8 @@ namespace Score
                 return;
             }
 
+            var isSlideChanged = (_renderedSlideId != slide.DeckSlideId || (session != null && _currentSessionId != session.QuizDeckSessionId));
+
             if (session != null && session.QuizDeckId > 0 && (_currentSessionId != session.QuizDeckSessionId || string.IsNullOrEmpty(_currentDeckTitle)))
             {
                 _currentSessionId = session.QuizDeckSessionId;
@@ -148,7 +158,7 @@ namespace Score
                 catch { }
             }
 
-            if (!string.IsNullOrEmpty(_currentDeckTitle))
+            if (!string.IsNullOrEmpty(_currentDeckTitle) && AudienceDeckTitle.Text != _currentDeckTitle)
             {
                 AudienceDeckTitle.Text = _currentDeckTitle;
             }
@@ -158,47 +168,89 @@ namespace Score
             var isTimer = string.Equals(slide.SlideType, "Timer", StringComparison.OrdinalIgnoreCase);
             var isScoreboard = string.Equals(slide.SlideType, "Scoreboard", StringComparison.OrdinalIgnoreCase);
 
-            AudienceSlideType.Text = (slide.SlideType ?? "QUESTION").ToUpperInvariant();
-            AudienceRoundName.Text = (slide.RoundName ?? "ROUND 1").ToUpperInvariant();
-            AudiencePointsLabel.Text = isInstruction ? "RULES / ANNOUNCEMENT" :
-                                       isMedia ? "MEDIA CLUE" :
-                                       isTimer ? $"TIMER ({slide.TimeLimitSeconds}s)" :
-                                       isScoreboard ? "SCOREBOARD" :
-                                       $"{slide.Points} POINTS";
-
-            AudienceSlideTitle.Text = slide.Title ?? string.Empty;
-            AudienceSlideContent.Text = slide.ContentText ?? string.Empty;
-
-            AudienceOptions.ItemsSource = BuildOptionItems(slide, isAnswerRevealed);
-            ShowMedia(slide);
-            HideInterRoundLeaderboard();
-            UpdateStageRulesDisplay(slide);
-
-            var hints = (slide.HintsJson ?? string.Empty).Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-            if (clueStep > 0 && hints.Length > 0)
+            if (isSlideChanged)
             {
-                var revealedCount = Math.Min(clueStep, hints.Length);
-                AudienceCluesList.ItemsSource = hints.Take(revealedCount).Select((h, i) => $"Clue {i + 1}: {h}").ToList();
-                AudienceCluesPanel.Visibility = Visibility.Visible;
+                _renderedSlideId = slide.DeckSlideId;
+                _renderedAnswerRevealed = isAnswerRevealed;
+                _renderedClueStep = clueStep;
+                _renderedActiveTeam = activeTeam;
+
+                AudienceSlideType.Text = (slide.SlideType ?? "QUESTION").ToUpperInvariant();
+                AudienceRoundName.Text = (slide.RoundName ?? "ROUND 1").ToUpperInvariant();
+                AudiencePointsLabel.Text = isInstruction ? "RULES / ANNOUNCEMENT" :
+                                           isMedia ? "MEDIA CLUE" :
+                                           isTimer ? $"TIMER ({slide.TimeLimitSeconds}s)" :
+                                           isScoreboard ? "SCOREBOARD" :
+                                           $"{slide.Points} POINTS";
+
+                AudienceSlideTitle.Text = slide.Title ?? string.Empty;
+                AudienceSlideContent.Text = slide.ContentText ?? string.Empty;
+
+                AudienceOptions.ItemsSource = BuildOptionItems(slide, isAnswerRevealed);
+                ShowMedia(slide);
+                HideInterRoundLeaderboard();
+                UpdateStageRulesDisplay(slide);
+
+                var hints = (slide.HintsJson ?? string.Empty).Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                if (clueStep > 0 && hints.Length > 0)
+                {
+                    var revealedCount = Math.Min(clueStep, hints.Length);
+                    AudienceCluesList.ItemsSource = hints.Take(revealedCount).Select((h, i) => $"Clue {i + 1}: {h}").ToList();
+                    AudienceCluesPanel.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    AudienceCluesPanel.Visibility = Visibility.Collapsed;
+                }
+
+                if (isAnswerRevealed && !string.IsNullOrWhiteSpace(slide.CorrectAnswer))
+                {
+                    AudienceAnswerText.Text = slide.CorrectAnswer;
+                    AudienceAnswerContainer.Visibility = Visibility.Visible;
+                    AnimateAnswerReveal();
+                }
+                else
+                {
+                    AudienceAnswerContainer.Visibility = Visibility.Collapsed;
+                }
+
+                AnimateSlideTransition();
             }
             else
             {
-                AudienceCluesPanel.Visibility = Visibility.Collapsed;
-            }
+                // Sitting on the same slide: update only deltas without re-animating or re-binding
+                if (_renderedAnswerRevealed != isAnswerRevealed)
+                {
+                    _renderedAnswerRevealed = isAnswerRevealed;
+                    AudienceOptions.ItemsSource = BuildOptionItems(slide, isAnswerRevealed);
+                    if (isAnswerRevealed && !string.IsNullOrWhiteSpace(slide.CorrectAnswer))
+                    {
+                        AudienceAnswerText.Text = slide.CorrectAnswer;
+                        AudienceAnswerContainer.Visibility = Visibility.Visible;
+                        AnimateAnswerReveal();
+                    }
+                    else
+                    {
+                        AudienceAnswerContainer.Visibility = Visibility.Collapsed;
+                    }
+                }
 
-            // Reveal Answer (slide.Explanation is strictly removed from stage view)
-            if (isAnswerRevealed && !string.IsNullOrWhiteSpace(slide.CorrectAnswer))
-            {
-                AudienceAnswerText.Text = slide.CorrectAnswer;
-                AudienceAnswerContainer.Visibility = Visibility.Visible;
-                AnimateAnswerReveal();
+                if (_renderedClueStep != clueStep)
+                {
+                    _renderedClueStep = clueStep;
+                    var hints = (slide.HintsJson ?? string.Empty).Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (clueStep > 0 && hints.Length > 0)
+                    {
+                        var revealedCount = Math.Min(clueStep, hints.Length);
+                        AudienceCluesList.ItemsSource = hints.Take(revealedCount).Select((h, i) => $"Clue {i + 1}: {h}").ToList();
+                        AudienceCluesPanel.Visibility = Visibility.Visible;
+                    }
+                    else
+                    {
+                        AudienceCluesPanel.Visibility = Visibility.Collapsed;
+                    }
+                }
             }
-            else
-            {
-                AudienceAnswerContainer.Visibility = Visibility.Collapsed;
-            }
-
-            AnimateSlideTransition();
 
             _timerDurationSeconds = Math.Max(0, slide.TimeLimitSeconds);
             if (session != null)
@@ -294,11 +346,22 @@ namespace Score
 
             if (teams == null || teams.Count == 0)
             {
-                AudienceScoreboard.ItemsSource = null;
+                if (AudienceScoreboard.ItemsSource != null)
+                {
+                    AudienceScoreboard.ItemsSource = null;
+                    _renderedScoreboardSignature = null;
+                }
                 return;
             }
 
             var dict = scores ?? new Dictionary<string, int>();
+            var sig = string.Join(";", teams.Select(t => $"{t.TeamName}:{(dict.TryGetValue(t.TeamName, out var sc) ? sc : 0)}"));
+            if (string.Equals(_renderedScoreboardSignature, sig, StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            _renderedScoreboardSignature = sig;
             AudienceScoreboard.ItemsSource = teams
                 .Select(t => new
                 {
@@ -440,22 +503,29 @@ namespace Score
 
                 if (session == null)
                 {
-                    ResetToStandby();
+                    if (_currentSessionId != 0)
+                    {
+                        ResetToStandby();
+                    }
                     return;
                 }
 
-                var deck = _db.QuizDecks.AsNoTracking().FirstOrDefault(d => d.QuizDeckId == session.QuizDeckId);
-                if (deck != null)
+                if (_cachedSlides == null || _lastPolledDeckId != session.QuizDeckId)
                 {
-                    _currentDeckTitle = deck.Title ?? "QUIZ";
-                    AudienceDeckTitle.Text = _currentDeckTitle;
+                    _lastPolledDeckId = session.QuizDeckId;
+                    var deck = _db.QuizDecks.AsNoTracking().FirstOrDefault(d => d.QuizDeckId == session.QuizDeckId);
+                    if (deck != null)
+                    {
+                        _currentDeckTitle = deck.Title ?? "QUIZ";
+                        AudienceDeckTitle.Text = _currentDeckTitle;
+                    }
+                    _cachedSlides = _db.DeckSlides.AsNoTracking()
+                        .Where(s => s.QuizDeckId == session.QuizDeckId && s.IsActive)
+                        .OrderBy(s => s.SlideOrder)
+                        .ToList();
                 }
-                var slides = _db.DeckSlides.AsNoTracking()
-                    .Where(s => s.QuizDeckId == session.QuizDeckId && s.IsActive)
-                    .OrderBy(s => s.SlideOrder)
-                    .ToList();
 
-                if (slides.Count == 0)
+                if (_cachedSlides == null || _cachedSlides.Count == 0)
                 {
                     AudienceSlideTitle.Text = "This quiz has no active slides.";
                     AudienceSlideContent.Text = string.Empty;
@@ -463,8 +533,8 @@ namespace Score
                     return;
                 }
 
-                var slideIndex = Math.Max(0, Math.Min(session.CurrentSlideIndex, slides.Count - 1));
-                var slide = slides[slideIndex];
+                var slideIndex = Math.Max(0, Math.Min(session.CurrentSlideIndex, _cachedSlides.Count - 1));
+                var slide = _cachedSlides[slideIndex];
 
                 PushSlideState(slide, session, session.AnswerRevealed, session.ActiveTeamOnFloor, session.ClueRevealStep);
 
@@ -498,7 +568,7 @@ namespace Score
                     else
                     {
                         _buzzDismissTimer.Stop();
-                        AudienceBuzzIndicator.Text = $"👉 PASSED TO {latestBuzz.TeamName?.ToUpperInvariant()}";
+                        AudienceBuzzIndicator.Text = $"PASSED TO {latestBuzz.TeamName?.ToUpperInvariant()}";
                         AudienceBuzzBorder.Visibility = Visibility.Visible;
                         TriggerBuzzAnimation();
                         _buzzDismissTimer.Start();
@@ -522,65 +592,48 @@ namespace Score
             }
         }
 
-        private void ShowMedia(DeckSlide slide)
+        public void UpdateTimerFromConsole(int remainingSeconds, string timerState)
         {
-            var mediaPath = slide?.MediaPath?.Trim();
-            if (string.Equals(_currentLoadedMediaPath, mediaPath, StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(mediaPath))
+            if (!Dispatcher.CheckAccess())
             {
-                // Media is already loaded and active. Do not interrupt or reload every second.
+                Dispatcher.Invoke(() => UpdateTimerFromConsole(remainingSeconds, timerState));
                 return;
             }
 
-            _currentLoadedMediaPath = mediaPath;
-            AudienceImage.Source = null;
-            AudienceMediaPlayer.Stop();
-            AudienceMediaPlayer.Source = null;
-            AudienceImage.Visibility = Visibility.Collapsed;
-            AudienceMediaPlayer.Visibility = Visibility.Collapsed;
-
-            if (string.IsNullOrWhiteSpace(mediaPath))
+            _lastConsoleTimerUpdate = DateTime.UtcNow;
+            _timerState = timerState;
+            var remaining = Math.Max(0, remainingSeconds);
+            if (_timerDurationSeconds > 0)
             {
-                ApplyMediaDisplayMode(slide, false);
-                return;
+                remaining = Math.Min(_timerDurationSeconds, remaining);
             }
 
-            var path = Path.GetFullPath(mediaPath);
-            if (!File.Exists(path))
-            {
-                ApplyMediaDisplayMode(slide, false);
-                return;
-            }
+            AudienceTimerLabel.Text = $"{remaining / 60:D2}:{remaining % 60:D2}";
 
-            var uri = new Uri(path);
-            var ext = Path.GetExtension(path).ToLowerInvariant();
-            var isAudioOnly = slide.MediaDisplayMode == 2;
-            var hasVisualMedia = false;
-
-            if (ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".gif" || ext == ".bmp")
+            if (remaining <= 5 && remaining > 0)
             {
-                if (!isAudioOnly)
-                {
-                    AudienceImage.Source = new BitmapImage(uri);
-                    AudienceImage.Visibility = Visibility.Visible;
-                    hasVisualMedia = true;
-                }
+                AudienceTimerLabel.Foreground = TimerWarningBrush;
+                if (timerState == "Running") StartTimerPulse();
+                else StopTimerPulse();
             }
-            else if (ext == ".mp4" || ext == ".mp3" || ext == ".wav" || ext == ".wmv" || ext == ".avi")
+            else if (remaining == 0)
             {
-                AudienceMediaPlayer.Source = uri;
-                if (!isAudioOnly)
-                {
-                    AudienceMediaPlayer.Visibility = Visibility.Visible;
-                    hasVisualMedia = true;
-                }
-                AudienceMediaPlayer.Play();
+                AudienceTimerLabel.Foreground = TimerExpiredBrush;
+                StopTimerPulse();
             }
-
-            ApplyMediaDisplayMode(slide, hasVisualMedia);
+            else
+            {
+                AudienceTimerLabel.Foreground = TimerNormalBrush;
+                StopTimerPulse();
+            }
         }
 
         private void ClockTimer_Tick(object sender, EventArgs e)
         {
+            if ((DateTime.UtcNow - _lastConsoleTimerUpdate).TotalSeconds < 1.5)
+            {
+                return;
+            }
             UpdateClockDisplay();
         }
 
@@ -590,16 +643,25 @@ namespace Score
             {
                 AudienceTimerLabel.Text = "00:00";
                 AudienceTimerLabel.Foreground = TimerNormalBrush;
+                StopTimerPulse();
                 return;
             }
 
-            var elapsed = _timerElapsedSeconds;
+            var elapsed = Math.Max(0, _timerElapsedSeconds);
             if (_timerState == "Running" && _timerStartedAtUtc.HasValue)
             {
-                elapsed += (int)(DateTime.UtcNow - _timerStartedAtUtc.Value).TotalSeconds;
+                var started = _timerStartedAtUtc.Value;
+                var startedUtc = started.Kind == DateTimeKind.Local ? started.ToUniversalTime() :
+                                 started.Kind == DateTimeKind.Utc ? started :
+                                 DateTime.SpecifyKind(started, DateTimeKind.Utc);
+                var diff = (int)(DateTime.UtcNow - startedUtc).TotalSeconds;
+                if (diff > 0)
+                {
+                    elapsed += diff;
+                }
             }
 
-            var remaining = Math.Max(0, _timerDurationSeconds - elapsed);
+            var remaining = Math.Max(0, Math.Min(_timerDurationSeconds, _timerDurationSeconds - elapsed));
             AudienceTimerLabel.Text = $"{remaining / 60:D2}:{remaining % 60:D2}";
 
             if (remaining <= 5 && remaining > 0)
@@ -619,57 +681,5 @@ namespace Score
                 StopTimerPulse();
             }
         }
-
-        public void ShowOnAudienceScreen(Window host)
-        {
-            var hostScreen = Screen.FromHandle(new WindowInteropHelper(host).Handle);
-            var audienceScreen = Screen.AllScreens.FirstOrDefault(screen => screen.DeviceName != hostScreen.DeviceName);
-            if (audienceScreen == null)
-            {
-                WindowStartupLocation = WindowStartupLocation.CenterScreen;
-                WindowState = WindowState.Maximized;
-                Show();
-                return;
-            }
-            WindowStartupLocation = WindowStartupLocation.Manual;
-            SourceInitialized += (sender, args) =>
-            {
-                var handle = new WindowInteropHelper(this).Handle;
-                var monitor = MonitorFromPoint(new POINT { X = audienceScreen.Bounds.Left + 1, Y = audienceScreen.Bounds.Top + 1 }, 2 /* MONITOR_DEFAULTTONEAREST */);
-                var info = new MONITORINFO { Size = Marshal.SizeOf(typeof(MONITORINFO)) };
-                if (GetMonitorInfo(monitor, ref info))
-                    SetWindowPos(handle, IntPtr.Zero, info.Monitor.Left, info.Monitor.Top, info.Monitor.Right - info.Monitor.Left, info.Monitor.Bottom - info.Monitor.Top, 0x0014);
-                else
-                    SetWindowPos(handle, IntPtr.Zero, audienceScreen.Bounds.Left, audienceScreen.Bounds.Top, audienceScreen.Bounds.Width, audienceScreen.Bounds.Height, 0x0014);
-            };
-            WindowState = WindowState.Maximized;
-            Show();
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct POINT { public int X; public int Y; }
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct RECT { public int Left, Top, Right, Bottom; }
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct MONITORINFO
-        {
-            public int Size;
-            public RECT Monitor;
-            public RECT WorkArea;
-            public uint Flags;
-        }
-
-        [DllImport("user32.dll")]
-        private static extern IntPtr MonitorFromPoint(POINT pt, uint flags);
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFO lpmi);
-
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
     }
 }

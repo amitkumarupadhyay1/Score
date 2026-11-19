@@ -34,6 +34,12 @@ namespace Score
         private QuizBuzzerServer _buzzerServer;
         private QuizAudienceWindow _audienceWindow;
         private bool _refreshingTeamList;
+        private static readonly BrushConverter _brushConv = new BrushConverter();
+        private static readonly string[] _teamColorPalette = new[]
+        {
+            "#FF9B1C54", "#FF005A9C", "#FF176B45", "#FF765000", "#FF593C8F", "#FFA33E00",
+            "#FF006B70", "#FF526900", "#FF9B315C", "#FF3C54A5", "#FF805100", "#FF5A4398"
+        };
 
         private DeckSlide _currentSlide => (_slideList != null && _currentSlideIndex >= 0 && _currentSlideIndex < _slideList.Count) ? _slideList[_currentSlideIndex] : null;
 
@@ -253,15 +259,50 @@ namespace Score
             try
             {
                 ConsoleTeamList.ItemsSource = null;
-                var teamItems = _teams.Select((t, index) => new
+                int maxScore = _teamScores.Values.Count > 0 ? _teamScores.Values.Max() : 0;
+                bool anyScores = _teamScores.Values.Any(s => s > 0);
+                var orderedScores = _teamScores.Values.Distinct().OrderByDescending(s => s).ToList();
+
+                var teamItems = _teams.Select((t, index) =>
                 {
-                    QuickKey = index < 9 ? $"[{index + 1}]" : "   ",
-                    Team = t,
-                    Score = _teamScores.TryGetValue(t, out var sc) ? sc : 0,
-                    Status = _currentBuzzingTeam == t ? "ANSWERING" :
-                             _buzzQueue.Contains(t) ? $"QUEUED #{_buzzQueue.IndexOf(t) + 1}" :
-                             _buzzedTeams.Contains(t) ? "BUZZED" : string.Empty
+                    int score = _teamScores.TryGetValue(t, out var sc) ? sc : 0;
+                    string colorHex = _teamColorPalette[index % _teamColorPalette.Length];
+                    var teamBrush = (Brush)_brushConv.ConvertFromString(colorHex);
+                    if (teamBrush != null && teamBrush.CanFreeze) teamBrush.Freeze();
+
+                    int rankIndex = orderedScores.IndexOf(score);
+                    string rankStr = rankIndex == 0 ? "1ST" : rankIndex == 1 ? "2ND" : rankIndex == 2 ? "3RD" : $"{rankIndex + 1}TH";
+                    bool isLeader = anyScores && score == maxScore;
+
+                    string status = _currentBuzzingTeam == t ? "ANSWERING" :
+                                    _buzzQueue.Contains(t) ? $"QUEUED #{_buzzQueue.IndexOf(t) + 1}" :
+                                    _buzzedTeams.Contains(t) ? "BUZZED" : string.Empty;
+
+                    string initial = (index + 1).ToString();
+                    if (!string.IsNullOrWhiteSpace(t))
+                    {
+                        if (t.StartsWith("Team ", StringComparison.OrdinalIgnoreCase) && t.Length > 5)
+                            initial = t.Substring(5).Trim();
+                        else if (t.Length <= 3)
+                            initial = t.ToUpperInvariant();
+                        else
+                            initial = t.Substring(0, 1).ToUpperInvariant();
+                    }
+
+                    return new
+                    {
+                        QuickKey = index < 9 ? $"[{index + 1}]" : "   ",
+                        Team = t,
+                        Score = score,
+                        Status = status,
+                        StatusVisibility = string.IsNullOrEmpty(status) ? Visibility.Collapsed : Visibility.Visible,
+                        Initial = initial,
+                        Rank = rankStr,
+                        LeadVisibility = isLeader ? Visibility.Visible : Visibility.Collapsed,
+                        CardBorderBrush = teamBrush
+                    };
                 }).ToList();
+
                 ConsoleTeamList.SelectedValuePath = "Team";
                 ConsoleTeamList.ItemsSource = teamItems;
                 if (_currentBuzzingTeam != null)

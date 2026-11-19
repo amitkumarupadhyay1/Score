@@ -99,10 +99,10 @@ namespace Score
                 var stack = new StackPanel();
                 stack.Children.Add(new TextBlock
                 {
-                    Text = "📢 STAGE ANNOUNCEMENT / RULES",
+                    Text = "STAGE ANNOUNCEMENT / RULES",
                     FontSize = 10,
                     FontWeight = FontWeights.Bold,
-                    Foreground = new SolidColorBrush(Color.FromRgb(216, 180, 254)),
+                    Foreground = new SolidColorBrush(Color.FromRgb(186, 230, 253)),
                     Margin = new Thickness(0, 0, 0, 8)
                 });
                 stack.Children.Add(new TextBlock
@@ -118,7 +118,7 @@ namespace Score
 
                 PreviewPanel.Children.Add(preview);
 
-                if (HostAnswerKeyLabel != null) HostAnswerKeyLabel.Text = "📢 Instruction / Rules Slide";
+                if (HostAnswerKeyLabel != null) HostAnswerKeyLabel.Text = "Instruction / Rules Slide";
                 if (HostAliasesLabel != null) HostAliasesLabel.Text = "No player answers or scoring required on stage.";
                 if (HostNotesLabel != null) HostNotesLabel.Text = string.IsNullOrWhiteSpace(SlideExplanationEditor?.Text) ? "Host secret notes (optional)" : SlideExplanationEditor.Text;
                 return;
@@ -139,7 +139,7 @@ namespace Score
                 var mediaStack = new StackPanel();
                 mediaStack.Children.Add(new TextBlock
                 {
-                    Text = "🎬 MEDIA DISPLAY STAGE",
+                    Text = "MEDIA DISPLAY STAGE",
                     FontSize = 10,
                     FontWeight = FontWeights.Bold,
                     Foreground = new SolidColorBrush(Color.FromRgb(253, 224, 71)),
@@ -168,7 +168,7 @@ namespace Score
                     {
                         mediaStack.Children.Add(new TextBlock
                         {
-                            Text = $"🎬 [{mediaType}] {Path.GetFileName(SlideMediaPathEditor.Text)}",
+                            Text = $"[{mediaType}] {Path.GetFileName(SlideMediaPathEditor.Text)}",
                             FontSize = 12,
                             Foreground = new SolidColorBrush(Color.FromRgb(147, 197, 253)),
                             Margin = new Thickness(0, 0, 0, 6)
@@ -179,7 +179,7 @@ namespace Score
                 {
                     mediaStack.Children.Add(new TextBlock
                     {
-                        Text = "🎬 [Select or attach a media clue file]",
+                        Text = "[Select or attach a media clue file]",
                         FontSize = 11.5,
                         FontStyle = FontStyles.Italic,
                         Foreground = new SolidColorBrush(Color.FromRgb(203, 213, 225)),
@@ -200,7 +200,7 @@ namespace Score
 
                 PreviewPanel.Children.Add(preview);
 
-                if (HostAnswerKeyLabel != null) HostAnswerKeyLabel.Text = "🎬 Media Clue Slide";
+                if (HostAnswerKeyLabel != null) HostAnswerKeyLabel.Text = "Media Clue Slide";
                 if (HostAliasesLabel != null) HostAliasesLabel.Text = "Media playback and clue displayed on stage.";
                 if (HostNotesLabel != null) HostNotesLabel.Text = string.IsNullOrWhiteSpace(SlideExplanationEditor?.Text) ? "Host secret notes (optional)" : SlideExplanationEditor.Text;
                 return;
@@ -513,9 +513,9 @@ namespace Score
                 {
                     preview.Children.Add(new TextBlock
                     {
-                        Text = $"🎬 [{mediaType}] {Path.GetFileName(SlideMediaPathEditor.Text)}",
+                        Text = $"[{mediaType}] {Path.GetFileName(SlideMediaPathEditor.Text)}",
                         FontSize = 11,
-                        Foreground = new SolidColorBrush(Color.FromRgb(129, 140, 248)),
+                        Foreground = new SolidColorBrush(Color.FromRgb(56, 189, 248)),
                         Margin = new Thickness(0, 0, 0, 8)
                     });
                 }

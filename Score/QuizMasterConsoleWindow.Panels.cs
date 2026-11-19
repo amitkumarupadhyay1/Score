@@ -77,7 +77,7 @@ namespace Score
         {
             if (FocusModeButton != null)
             {
-                FocusModeButton.Content = (_isLeftCollapsed && _isRightCollapsed) ? "⛶ EXIT FOCUS" : "⛶ FOCUS";
+                FocusModeButton.Content = (_isLeftCollapsed && _isRightCollapsed) ? "EXIT FOCUS" : "FOCUS";
             }
         }
 

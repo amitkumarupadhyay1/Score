@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using Microsoft.Win32;
 
@@ -166,6 +168,67 @@ namespace Score
             catch { }
         }
 
+        private void ShowMedia(DeckSlide slide)
+        {
+            var mediaPath = slide?.MediaPath?.Trim();
+            if (string.IsNullOrEmpty(_currentLoadedMediaPath) && string.IsNullOrEmpty(mediaPath))
+            {
+                return;
+            }
+            if (string.Equals(_currentLoadedMediaPath, mediaPath, StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(mediaPath))
+            {
+                // Media is already loaded and active. Do not interrupt or reload.
+                return;
+            }
+
+            _currentLoadedMediaPath = mediaPath;
+            AudienceImage.Source = null;
+            AudienceMediaPlayer.Stop();
+            AudienceMediaPlayer.Source = null;
+            AudienceImage.Visibility = Visibility.Collapsed;
+            AudienceMediaPlayer.Visibility = Visibility.Collapsed;
+
+            if (string.IsNullOrWhiteSpace(mediaPath))
+            {
+                ApplyMediaDisplayMode(slide, false);
+                return;
+            }
+
+            var path = Path.GetFullPath(mediaPath);
+            if (!File.Exists(path))
+            {
+                ApplyMediaDisplayMode(slide, false);
+                return;
+            }
+
+            var uri = new Uri(path);
+            var ext = Path.GetExtension(path).ToLowerInvariant();
+            var isAudioOnly = slide.MediaDisplayMode == 2;
+            var hasVisualMedia = false;
+
+            if (ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".gif" || ext == ".bmp")
+            {
+                if (!isAudioOnly)
+                {
+                    AudienceImage.Source = new BitmapImage(uri);
+                    AudienceImage.Visibility = Visibility.Visible;
+                    hasVisualMedia = true;
+                }
+            }
+            else if (ext == ".mp4" || ext == ".mp3" || ext == ".wav" || ext == ".wmv" || ext == ".avi")
+            {
+                AudienceMediaPlayer.Source = uri;
+                if (!isAudioOnly)
+                {
+                    AudienceMediaPlayer.Visibility = Visibility.Visible;
+                    hasVisualMedia = true;
+                }
+                AudienceMediaPlayer.Play();
+            }
+
+            ApplyMediaDisplayMode(slide, hasVisualMedia);
+        }
+
         private void ApplyMediaDisplayMode(DeckSlide slide, bool hasMedia)
         {
             if (!hasMedia)
@@ -204,6 +267,14 @@ namespace Score
         {
             _currentSessionId = 0;
             _currentDeckTitle = null;
+            _renderedSlideId = -1;
+            _renderedAnswerRevealed = false;
+            _renderedActiveTeam = null;
+            _renderedClueStep = -1;
+            _renderedScoreboardSignature = null;
+            _lastPolledDeckId = -1;
+            _cachedSlides = null;
+            _lastConsoleTimerUpdate = DateTime.MinValue;
             AudienceDeckTitle.Text = "QUIZ SCORE LIVE";
             AudienceRoundName.Text = "WAITING";
             AudiencePointsLabel.Text = "STANDBY";
@@ -224,5 +295,57 @@ namespace Score
             HideStageRulesMatrix();
             HideInterRoundLeaderboard();
         }
+
+        public void ShowOnAudienceScreen(Window host)
+        {
+            var hostScreen = System.Windows.Forms.Screen.FromHandle(new WindowInteropHelper(host).Handle);
+            var audienceScreen = System.Windows.Forms.Screen.AllScreens.FirstOrDefault(screen => screen.DeviceName != hostScreen.DeviceName);
+            if (audienceScreen == null)
+            {
+                WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                WindowState = WindowState.Maximized;
+                Show();
+                return;
+            }
+            WindowStartupLocation = WindowStartupLocation.Manual;
+            SourceInitialized += (sender, args) =>
+            {
+                var handle = new WindowInteropHelper(this).Handle;
+                var monitor = MonitorFromPoint(new POINT { X = audienceScreen.Bounds.Left + 1, Y = audienceScreen.Bounds.Top + 1 }, 2 /* MONITOR_DEFAULTTONEAREST */);
+                var info = new MONITORINFO { Size = Marshal.SizeOf(typeof(MONITORINFO)) };
+                if (GetMonitorInfo(monitor, ref info))
+                    SetWindowPos(handle, IntPtr.Zero, info.Monitor.Left, info.Monitor.Top, info.Monitor.Right - info.Monitor.Left, info.Monitor.Bottom - info.Monitor.Top, 0x0014);
+                else
+                    SetWindowPos(handle, IntPtr.Zero, audienceScreen.Bounds.Left, audienceScreen.Bounds.Top, audienceScreen.Bounds.Width, audienceScreen.Bounds.Height, 0x0014);
+            };
+            WindowState = WindowState.Maximized;
+            Show();
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct POINT { public int X; public int Y; }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct RECT { public int Left, Top, Right, Bottom; }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct MONITORINFO
+        {
+            public int Size;
+            public RECT Monitor;
+            public RECT WorkArea;
+            public uint Flags;
+        }
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr MonitorFromPoint(POINT pt, uint flags);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFO lpmi);
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
     }
 }

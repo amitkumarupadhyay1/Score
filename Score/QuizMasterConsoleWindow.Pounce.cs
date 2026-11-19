@@ -240,7 +240,7 @@ namespace Score
             PushSlideStateToAudience();
             RefreshPounceQueueUI();
 
-            ConsoleStatusText.Text = $"✗ Pounce INCORRECT: {teamName} penalized {penalty} pts.";
+            ConsoleStatusText.Text = $"Pounce INCORRECT: {teamName} penalized {penalty} pts.";
         }
 
         private void ClearPouncesButton_Click(object sender, RoutedEventArgs e)

@@ -22,7 +22,7 @@ namespace Score
                 {
                     Key = "science",
                     Name = "Science & Technology",
-                    Icon = "🔬",
+                    Icon = "SCI",
                     Description = "Physics, Astronomy, Biology, and Groundbreaking Tech",
                     Questions = new List<DeckSlide>
                     {
@@ -132,7 +132,7 @@ namespace Score
                 {
                     Key = "history",
                     Name = "History & Civilization",
-                    Icon = "🏛️",
+                    Icon = "HIS",
                     Description = "Ancient Empires, Revolutions, and World Milestones",
                     Questions = new List<DeckSlide>
                     {
@@ -242,7 +242,7 @@ namespace Score
                 {
                     Key = "geography",
                     Name = "World Geography",
-                    Icon = "🌍",
+                    Icon = "GEO",
                     Description = "Capitals, Natural Wonders, Rivers, and Topography",
                     Questions = new List<DeckSlide>
                     {
@@ -352,7 +352,7 @@ namespace Score
                 {
                     Key = "popculture",
                     Name = "Pop Culture & Cinema",
-                    Icon = "🎬",
+                    Icon = "POP",
                     Description = "Hollywood, Legendary Music, Television, and Gaming",
                     Questions = new List<DeckSlide>
                     {
@@ -462,7 +462,7 @@ namespace Score
                 {
                     Key = "sports",
                     Name = "Sports & Olympics",
-                    Icon = "⚽",
+                    Icon = "SPT",
                     Description = "World Cups, Track & Field Records, Tennis, and Legend",
                     Questions = new List<DeckSlide>
                     {
@@ -572,7 +572,7 @@ namespace Score
                 {
                     Key = "literature",
                     Name = "Literature & Arts",
-                    Icon = "📚",
+                    Icon = "LIT",
                     Description = "Classic Masterpieces, World Lore, Authors, and Fine Art",
                     Questions = new List<DeckSlide>
                     {
