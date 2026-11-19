@@ -7,34 +7,45 @@ We have resolved all screen layout defects, unreadable dropdown text, timer free
 ## 1. Defect Fixes & Functional Enhancements
 
 ### A. High-Contrast ComboBox & Unreadable Dropdown Text Resolution
-- **Defect**: The `Deck:` ComboBox in `QuizMasterConsoleWindow` and `QuizDeckBuilderWindow` previously rendered white / pale text on a light dropdown popup background, making quiz names unreadable.
+- **Defect**: The `Deck:` and `Theme:` ComboBoxes in `QuizMasterConsoleWindow` and `QuizDeckBuilderWindow` previously rendered white / pale text on a light dropdown popup background, making options unreadable.
 - **Root Cause**: The ComboBox was declared with `Foreground="#FFFFFFFF"` on the dark toolbar. Standard WPF ComboBox templates inherit `Foreground` down to `ComboBoxItem`s, while the dropdown `Popup` retains the default OS light window background.
-- **Solution**: Defined `DarkToolbarComboStyle` in `App.xaml` and local window resources with explicit contrast rules:
+- **Solution**: Defined `DarkToolbarComboStyle` and `ToolbarComboStyle` in `App.xaml` and window resources with high-contrast rules:
   - **Closed Toggle**: Crisp white `#FFFFFFFF` text on dark slate `#FF1E293B` toolbar.
-  - **Dropdown Popup**: High-contrast dark `#FF0F172A` text on pure white `#FFFFFFFF` background.
-  - **Item Hover**: Soft indigo background `#FFE0E7FF` with deep indigo text `#FF3730A3`.
-  - **Item Selected**: Bold indigo background `#FF4F46E5` with crisp white text `#FFFFFFFF`.
-  - Applied to `ConsoleDeckSelector`, `DeskThemeSelector`, `DeckSelector`, `DeckThemeSelector`, and `SlideTypeSelector`.
+  - **Dropdown Popup**: High-contrast dark navy `#FF0F172A` text on pure white `#FFFFFFFF` background.
+  - **Item Hover**: Corporate blue tint background `#FFDCEBFA` with `#FF005A9C` text.
+  - **Item Selected**: Solid corporate blue background `#FF005A9C` with crisp white text `#FFFFFFFF`.
+  - Applied to all selectors across `QuizMasterConsoleWindow`, `QuizDeckBuilderWindow`, and `QuizLibraryWindow`.
 
 ---
 
-### B. Clean Slate Architecture (Zero Unsolicited Preloaded Data)
-- **Defect**: Opening Quiz Studio or Quiz Library previously auto-seeded a 10-question quiz into the active database, repeatedly surprising the user with unwanted preloaded data (e.g. "Heritage India Quiz" or starter trivia).
+### B. Complete Eradication of Emojis and AI Slop Purple
+- **Professional Typography**: Completely stripped all emojis and decorative symbols (`✦`, `📋`, `🎙`, `💡`, `⚡`, `🚫`, `👥`, `🚨`, `✓`, `👁`, `⬛`, `▶`, `⏹`, `🗑`, `📱`, `ℹ️`, `🔍`, `🏆`, `●`, `🔒`, `⚠️`, `❌`, `✅`, `✏`, `📚`, etc.) from all production XAML, C# code, dialogue prompts, and test assertions. All controls use crisp, professional broadcast-standard text.
+- **Zero Purple Hex Codes**: Removed all ungrounded purple / violet / indigo shades (`#4F46E5`, `#6366F1`, `#5B21B6`, `#EDE9FE`, `#C4B5FD`, `#7C3AED`, `#8B5CF6`, `#4C1D95`, `#3730A3`, `#E0E7FF`, `#E9D5FF`, `#581C87`, `#DDD6FE`, `#6D28D9`, `#F5F3FF`, `#4338CA`, `#312E81`, `#818CF8`, `#A78BFA`) across the entire repository.
+- **Unified App Palette**: Fully aligned with the app's established design language:
+  - Deep Navy & Slate: `#FF0F172A`, `#FF172B4D`, `#FF1E293B`, `#FF334155`
+  - Corporate Blue: `#FF005A9C`, `#FF2563EB`, `#FFDCEBFA`, `#FFA8C5E3`
+  - Emerald Green: `#FF059669`, `#FF176B45`, `#FFD9F2E5`, `#FFA8D9BD`
+  - Neutral Slate: `#FFE4EAF2`, `#FFBAC8DA`, `#FFCBD5E1`, `#FF64748B`
+  - Warm Amber: `#FFD97706`, `#FFB45309`, `#FFFFFBEB`, `#FFFDE68A`
+- **Cobalt Ocean Theme**: Replaced the "Royal Velvet" theme with "Cobalt Ocean", matching the navy and corporate blue stage aesthetics.
+
+---
+
+### C. Clean Slate Architecture (Zero Unsolicited Preloaded Data)
+- **Defect**: Opening Quiz Studio or Quiz Library previously auto-seeded a 10-question quiz into the active database, repeatedly surprising the user with unwanted preloaded data.
 - **Solution**:
   - **Removed All Auto-Seeding**: Stripped unsolicited calls to `EnsureSampleDeck` from `QuizDeckBuilderWindow` and `QuizLibraryWindow`.
   - **Clean Slate on Empty Database**: If no decks exist, the software opens cleanly with a blank "New Quiz Deck" (0 questions) and an empty-state card prompt.
-  - **Explicit On-Demand Showcase Sample**: Users who *want* to explore a complete sample tournament deck can click the new `✦ Load Sample` button on the Quiz Studio toolbar or `✦ LOAD SHOWCASE SAMPLE QUIZ` in the Quiz Library.
-  - **Direct Deck Deletion (`🗑 Delete Deck`)**: Added a 1-click delete button on the Quiz Studio top toolbar with confirmation and cascading cleanup of slides, sessions, responses, and audit entries. Users can instantly purge legacy decks like "Heritage India Quiz" directly from the studio.
+  - **Explicit On-Demand Showcase Sample**: Users who *want* to explore a complete sample tournament deck can click the `Load Sample` button on the Quiz Studio toolbar or `LOAD SHOWCASE SAMPLE QUIZ` in the Quiz Library.
+  - **Direct Deck Deletion (`Delete Deck`)**: Added a 1-click delete button on the Quiz Studio top toolbar with confirmation and cascading cleanup of slides, sessions, responses, and audit entries.
 
 ---
 
-### C. Sidebar Button Truncation Fix
-- **Defect**: In Quiz Studio's left sidebar (220–280px width), "▼ Move Down" was clipped to "Move Do".
-- **Solution**: Replaced long labels with crisp, compact labels:
-  - `▲ Up` (replaces "▲ Move Up")
-  - `▼ Down` (replaces "▼ Move Down")
-  - `🗑 Delete` (replaces "Delete")
-  - Set explicit `Padding="8,0"`, guaranteeing zero text truncation across all monitor resolutions and DPI scales.
+### D. 2-Column Guided Setup Wizard (No Vertical Scrolling)
+- **Ergonomic Stage Setup**: Rebuilt `GuidedSetupWizardWindow` (height 580px) into a side-by-side 2-column layout:
+  - **Left Column**: Event Identity & Rules (Event Title, First Round Category, Total Rounds, Format, Round Duration, Question Clock).
+  - **Right Column**: Team Roster Management (Participant count chips, Auto-Number Teams, Paste Roster, 12-line editor).
+  - Both columns fit on screen simultaneously with zero vertical scrolling required.
 
 ---
 
