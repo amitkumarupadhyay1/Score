@@ -32,6 +32,12 @@ namespace Score
         public bool AllowPass { get; set; }
         public string RoundName { get; set; }
         public int MediaDisplayMode { get; set; }
+        public int? QuizRoundId { get; set; }
+        public string PromptOnText { get; set; }
+        public string DoNotAcceptText { get; set; }
+        public string ClueDecayJson { get; set; }
+        public bool HasStructuredRules { get; set; }
+        public string StageRulesJson { get; set; }
 
         // Visual / UI Presentation Badges
         [NotMapped]

@@ -49,6 +49,9 @@ namespace Score
                 {
                     AudienceSlideContent.Foreground = palette.TextSecondary;
                 }
+
+                ApplyStageRulesTheme(themeName);
+                ApplyInterRoundTheme(themeName);
             }
             catch (Exception ex)
             {

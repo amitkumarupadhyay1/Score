@@ -69,6 +69,7 @@
                     <!-- Stage & Audio -->
                     <Button x:Name="SoundToggleButton" Content="🔊 SOUND ON" Style="{StaticResource ToolbarButtonStyle}" Background="#FF059669" BorderBrush="#FF047857" Foreground="#FFFFFFFF" Margin="0,0,6,0" Click="SoundToggleButton_Click" ToolTip="Toggle sound effects on / off" />
                     <Button x:Name="ArmBuzzerButton" Content="🔔 BUZZERS ARMED (A)" Style="{StaticResource ToolbarButtonStyle}" Background="#FF059669" BorderBrush="#FF047857" Foreground="#FFFFFFFF" Margin="0,0,6,0" Click="ArmBuzzerButton_Click" ToolTip="Arm or lock mobile buzzers (A)" />
+                    <Button x:Name="PounceToggleButton" Content="⚡ POUNCE: OFF (P)" Style="{StaticResource ToolbarButtonStyle}" Background="#FF334155" BorderBrush="#FF475569" Foreground="#FFFFFFFF" FontWeight="Bold" Margin="0,0,6,0" Click="PounceToggleButton_Click" ToolTip="Toggle Chit Pounce mode on contestants' mobile screens (Shortcut: P)" />
                     <Button x:Name="BlackoutToggleButton" Content="⬛ BLACKOUT (B)" Style="{StaticResource ToolbarButtonStyle}" Background="#FF334155" BorderBrush="#FF475569" Foreground="#FFFFFFFF" Margin="0,0,6,0" Click="BlackoutToggleButton_Click" ToolTip="Emergency stage blackout (B)" />
                     <Button x:Name="MobileBuzzerButton" Content="📱 MOBILE BUZZERS (QR)" Style="{StaticResource ToolbarButtonStyle}" Background="#FF4F46E5" BorderBrush="#FF4338CA" Foreground="#FFFFFFFF" Margin="0,0,6,0" Click="MobileBuzzerButton_Click" ToolTip="Host local Wi-Fi mobile buzzers with QR code for contestants" />
                     <Button x:Name="OpenProjectorButton" Content="AUDIENCE VIEW (STAGE)" Style="{StaticResource ToolbarButtonStyle}" Background="#FF0288D1" BorderBrush="#FF0277BD" Foreground="#FFFFFFFF" Margin="0,0,8,0" Click="OpenProjectorButton_Click" ToolTip="Open the audience/projector window for the stage screen" />
@@ -77,6 +78,7 @@
 
                     <!-- Live Conducting Controls -->
                     <Button x:Name="StartQuizButton" Content="▶ START QUIZ" Style="{StaticResource ToolbarButtonStyle}" Background="#FF059669" BorderBrush="#FF10B981" Foreground="#FFFFFFFF" FontWeight="Bold" Margin="0,0,6,0" Click="StartQuizButton_Click" ToolTip="Begin live conducting with registered teams" />
+                    <Button x:Name="RapidFireBarrageButton" Content="⚡ RAPID FIRE (60s)" Style="{StaticResource ToolbarButtonStyle}" Background="#FFE11D48" BorderBrush="#FFBE123C" Foreground="#FFFFFFFF" FontWeight="Bold" Margin="0,0,6,0" Click="RapidFireBarrageButton_Click" ToolTip="Toggle 60s Rapid-Fire Barrage Mode for selected team" />
                     <Button x:Name="EndQuizButton" Content="⏹ FINISH QUIZ" Style="{StaticResource ToolbarButtonStyle}" Background="#FFDC2626" BorderBrush="#FFB91C1C" Foreground="#FFFFFFFF" FontWeight="SemiBold" Margin="0,0,8,0" Click="EndQuizButton_Click" ToolTip="Complete current quiz session and lock final scores" Visibility="Collapsed" />
 
                     <Border Width="1" Height="20" Background="#FF334155" Margin="2,0,8,0" VerticalAlignment="Center" />
@@ -237,6 +239,31 @@
                             </DockPanel>
                         </Border>
 
+                        <!-- Rapid Fire Barrage Controller Banner -->
+                        <Border x:Name="RapidFireBanner" Background="#FFF43F5E" BorderBrush="#FFE11D48" BorderThickness="2" CornerRadius="8" Padding="14,10" Margin="0,0,0,14" Visibility="Collapsed">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Background="#FFFFFFFF" CornerRadius="4" Padding="6,2" Margin="0,0,8,0">
+                                            <TextBlock Text="⚡ 60s RAPID FIRE BARRAGE" FontSize="11" FontWeight="Bold" Foreground="#FFE11D48" />
+                                        </Border>
+                                        <TextBlock x:Name="RapidFireTeamLabel" Text="ACTIVE TEAM: TEAM 1" FontSize="14" FontWeight="Bold" Foreground="#FFFFFFFF" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                    <TextBlock x:Name="RapidFireStatsLabel" Text="Attempted: 0 | Correct: 0 | Points: +0 | [ENTER] = Correct (+Advance) | [SPACE] = Pass (0 pts +Advance)" FontSize="11" Foreground="#FFFFE4E6" Margin="0,4,0,0" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Border Background="#88000000" CornerRadius="6" Padding="10,4" Margin="0,0,8,0">
+                                        <TextBlock x:Name="RapidFireClockLabel" Text="60" FontFamily="Consolas" FontSize="26" FontWeight="Bold" Foreground="#FFFFFFFF" />
+                                    </Border>
+                                    <Button x:Name="StopRapidFireButton" Content="⏹ STOP BARRAGE" Style="{StaticResource ToolbarButtonStyle}" Background="#FF881337" BorderBrush="#FF4C0519" Foreground="#FFFFFFFF" FontWeight="Bold" Padding="10,4" Click="StopRapidFireButton_Click" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
                         <!-- Floor / Turn & Pass Indicator Banner -->
                         <Border x:Name="TurnBanner" Background="#FFFEF9C3" BorderBrush="#FFFDE047" BorderThickness="1" CornerRadius="8" Padding="12,8" Margin="0,0,0,14">
                             <Grid>
@@ -283,6 +310,26 @@
                                     <Button x:Name="RevealClueButton" Content="💡 REVEAL NEXT CLUE" Style="{StaticResource ToolbarButtonStyle}" Background="#FFFEF08A" BorderBrush="#FFFACC15" Foreground="#FF854D0E" Padding="10,2" DockPanel.Dock="Left" Click="RevealClueButton_Click" Visibility="Collapsed" />
                                     <TextBlock x:Name="ClueStatusLabel" FontSize="11" FontWeight="SemiBold" Foreground="#FF854D0E" Margin="10,0,0,0" VerticalAlignment="Center" />
                                 </DockPanel>
+
+                                <!-- Directives Prompter Panel (Prompt On / Do Not Accept) -->
+                                <StackPanel x:Name="ConsoleDirectivesPanel" Margin="0,8,0,0" Visibility="Collapsed">
+                                    <Border x:Name="PromptOnBadgeBorder" Background="#FFFEF3C7" BorderBrush="#FFF59E0B" BorderThickness="1" CornerRadius="4" Padding="8,4" Margin="0,0,0,4" Visibility="Collapsed">
+                                        <DockPanel LastChildFill="True">
+                                            <Border Background="#FFF59E0B" CornerRadius="3" Padding="6,1" Margin="0,0,8,0" DockPanel.Dock="Left" VerticalAlignment="Center">
+                                                <TextBlock Text="PROMPT ON" FontSize="9" FontWeight="Bold" Foreground="#FFFFFFFF" />
+                                            </Border>
+                                            <TextBlock x:Name="ConsolePromptOnText" FontSize="12" FontWeight="SemiBold" Foreground="#FF92400E" TextWrapping="Wrap" VerticalAlignment="Center" />
+                                        </DockPanel>
+                                    </Border>
+                                    <Border x:Name="DoNotAcceptBadgeBorder" Background="#FFFEE2E2" BorderBrush="#FFEF4444" BorderThickness="1" CornerRadius="4" Padding="8,4" Margin="0,0,0,2" Visibility="Collapsed">
+                                        <DockPanel LastChildFill="True">
+                                            <Border Background="#FFEF4444" CornerRadius="3" Padding="6,1" Margin="0,0,8,0" DockPanel.Dock="Left" VerticalAlignment="Center">
+                                                <TextBlock Text="DO NOT ACCEPT" FontSize="9" FontWeight="Bold" Foreground="#FFFFFFFF" />
+                                            </Border>
+                                            <TextBlock x:Name="ConsoleDoNotAcceptText" FontSize="12" FontWeight="SemiBold" Foreground="#FF991B1B" TextWrapping="Wrap" VerticalAlignment="Center" />
+                                        </DockPanel>
+                                    </Border>
+                                </StackPanel>
                             </StackPanel>
                         </Border>
 
@@ -368,6 +415,46 @@
                                 <TextBlock x:Name="BuzzQueueListLabel" Text="No active buzzes" FontSize="12" FontWeight="SemiBold" Foreground="#FF991B1B" Margin="0,2,0,0" />
                             </StackPanel>
                         </DockPanel>
+                    </Border>
+
+                    <!-- Chit Pounce Submissions Panel -->
+                    <Border DockPanel.Dock="Top" x:Name="PounceQueuePanel" Background="#FFF5F3FF" BorderBrush="#FFDDD6FE" BorderThickness="0,0,0,1" Padding="10,8" Visibility="Collapsed">
+                        <StackPanel>
+                            <DockPanel Margin="0,0,0,6">
+                                <Button x:Name="ClearPouncesButton" Content="CLEAR POUNCES" DockPanel.Dock="Right" Height="24" Padding="8,0" Style="{StaticResource ToolbarButtonStyle}" Background="#FF7C3AED" BorderBrush="#FF6D28D9" Foreground="#FFFFFFFF" FontSize="10" FontWeight="Bold" Click="ClearPouncesButton_Click" ToolTip="Clear pounce submissions queue for next question" />
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="⚡ CHIT POUNCE QUEUE" FontSize="11" FontWeight="Bold" Foreground="#FF6D28D9" />
+                                    <Border x:Name="PounceCountBadge" Background="#FF8B5CF6" CornerRadius="8" Padding="6,1" Margin="6,0,0,0">
+                                        <TextBlock x:Name="PounceCountText" Text="0" FontSize="10" FontWeight="Bold" Foreground="#FFFFFFFF" />
+                                    </Border>
+                                </StackPanel>
+                            </DockPanel>
+                            <ItemsControl x:Name="PounceItemsControl">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="#FFFFFFFF" BorderBrush="#FFDDD6FE" BorderThickness="1" CornerRadius="6" Padding="8,6" Margin="0,0,0,4">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="{Binding TeamName}" FontSize="12" FontWeight="Bold" Foreground="#FF1E1B4B" />
+                                                        <TextBlock Text="{Binding StatusLabel}" FontSize="10" FontWeight="SemiBold" Foreground="{Binding StatusBrush}" Margin="6,0,0,0" VerticalAlignment="Center" />
+                                                    </StackPanel>
+                                                    <TextBlock Text="{Binding Answer}" FontSize="13" FontWeight="SemiBold" Foreground="#FF4C1D95" Margin="0,2,0,0" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0,0,0">
+                                                    <Button Content="{Binding CorrectButtonLabel}" Tag="{Binding}" Style="{StaticResource ToolbarButtonStyle}" Background="#FF16A34A" BorderBrush="#FF15803D" Foreground="#FFFFFFFF" FontSize="11" FontWeight="Bold" Padding="8,2" Margin="0,0,4,0" Click="PounceCorrectButton_Click" IsEnabled="{Binding CanEvaluate}" />
+                                                    <Button Content="{Binding IncorrectButtonLabel}" Tag="{Binding}" Style="{StaticResource ToolbarButtonStyle}" Background="#FFDC2626" BorderBrush="#FFB91C1C" Foreground="#FFFFFFFF" FontSize="11" FontWeight="Bold" Padding="8,2" Click="PounceIncorrectButton_Click" IsEnabled="{Binding CanEvaluate}" />
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
                     </Border>
 
                     <!-- Team Score List -->

@@ -94,6 +94,7 @@
     <Compile Include="QuizEventLog.cs" />
     <Compile Include="QuizDeck.cs" />
     <Compile Include="DeckSlide.cs" />
+    <Compile Include="QuizModels.cs" />
     <Compile Include="QuizDeckSession.cs" />
     <Compile Include="QuizResponse.cs" />
     <Compile Include="QuizAuditEntry.cs" />
@@ -102,6 +103,7 @@
     <Compile Include="QuizAIGeneratorService.cs" />
     <Compile Include="QuizCuratedTopics.cs" />
     <Compile Include="QuizBuzzerServer.cs" />
+    <Compile Include="QuizBuzzerServer.Pounce.cs" />
     <Compile Include="QuizQrCodeEncoder.cs" />
     <Compile Include="QuizBuzzerWebAssets.cs" />
     <Compile Include="QuizPreflightValidator.cs" />
@@ -161,6 +163,12 @@
     <Compile Include="QuizDeckBuilderWindow.Panels.cs">
       <DependentUpon>QuizDeckBuilderWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="QuizDeckBuilderWindow.Rounds.cs">
+      <DependentUpon>QuizDeckBuilderWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="QuizDeckBuilderWindow.StageRules.cs">
+      <DependentUpon>QuizDeckBuilderWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="QuizScoringEngine.cs" />
     <Compile Include="QuizMasterConsoleWindow.xaml.cs">
       <DependentUpon>QuizMasterConsoleWindow.xaml</DependentUpon>
@@ -185,6 +193,15 @@
       <DependentUpon>QuizMasterConsoleWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="QuizMasterConsoleWindow.TimerControls.cs">
+      <DependentUpon>QuizMasterConsoleWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="QuizMasterConsoleWindow.Directives.cs">
+      <DependentUpon>QuizMasterConsoleWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="QuizMasterConsoleWindow.RapidFire.cs">
+      <DependentUpon>QuizMasterConsoleWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="QuizMasterConsoleWindow.Pounce.cs">
       <DependentUpon>QuizMasterConsoleWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="TeamEntryDialog.xaml.cs">
@@ -214,6 +231,12 @@
       <DependentUpon>QuizAudienceWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="QuizAudienceWindow.Animations.cs">
+      <DependentUpon>QuizAudienceWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="QuizAudienceWindow.StageRules.cs">
+      <DependentUpon>QuizAudienceWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="QuizAudienceWindow.InterRound.cs">
       <DependentUpon>QuizAudienceWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="QuizBuzzerDialog.xaml">

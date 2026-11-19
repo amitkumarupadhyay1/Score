@@ -26,6 +26,7 @@ namespace Score
         public virtual DbSet<QuizEventLog> QuizEventLogs { get; set; }
 
         public virtual DbSet<QuizDeck> QuizDecks { get; set; }
+        public virtual DbSet<QuizRound> QuizRounds { get; set; }
         public virtual DbSet<DeckSlide> DeckSlides { get; set; }
         public virtual DbSet<QuizDeckSession> QuizDeckSessions { get; set; }
         public virtual DbSet<QuizResponse> QuizResponses { get; set; }

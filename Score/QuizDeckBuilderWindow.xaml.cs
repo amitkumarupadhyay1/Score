@@ -165,11 +165,10 @@ namespace Score
             _slides = new ObservableCollection<DeckSlide>(slidesList);
             SlideListBox.ItemsSource = _slides;
             _selectedSlide = null;
+            LoadRoundsForCurrentDeck();
             RefreshSlideList();
             UpdateLockBanner();
         }
-
-
 
         private void DeckSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -419,6 +418,7 @@ namespace Score
 
             UpdateFormatPanels(slide.QuestionType ?? QuizScoringEngine.QuestionMultipleChoice);
             UpdateEditorCardVisibility(slide.SlideType ?? "Question");
+            LoadSlideIntoEditor(slide);
             HideValidationAlert();
 
             var isInstruction = string.Equals(slide.SlideType, "Instruction", StringComparison.OrdinalIgnoreCase);
@@ -462,6 +462,7 @@ namespace Score
                 AllowPass = true,
                 IsActive = true
             };
+            ApplyCurrentRoundDefaultsToNewSlide(newSlide);
             _db.DeckSlides.Add(newSlide);
             _db.SaveChanges();
             _slides.Add(newSlide);
@@ -502,6 +503,12 @@ namespace Score
                 MediaPath = _selectedSlide.MediaPath,
                 MediaType = _selectedSlide.MediaType,
                 MediaDisplayMode = _selectedSlide.MediaDisplayMode,
+                QuizRoundId = _selectedSlide.QuizRoundId,
+                PromptOnText = _selectedSlide.PromptOnText,
+                DoNotAcceptText = _selectedSlide.DoNotAcceptText,
+                ClueDecayJson = _selectedSlide.ClueDecayJson,
+                HasStructuredRules = _selectedSlide.HasStructuredRules,
+                StageRulesJson = _selectedSlide.StageRulesJson,
                 IsActive = true
             };
 
@@ -588,6 +595,7 @@ namespace Score
             _selectedSlide.HintsJson = isQuestion ? (SlideHintsEditor.Text ?? string.Empty) : string.Empty;
             _selectedSlide.Explanation = (isQuestion || slideType == "Instruction" || isMedia) ? (SlideExplanationEditor.Text ?? string.Empty) : string.Empty;
             _selectedSlide.SlideOrder = order;
+            SaveCurrentSlide(_selectedSlide);
 
             try
             {
@@ -682,7 +690,5 @@ namespace Score
             }
             return true;
         }
-
-
     }
 }

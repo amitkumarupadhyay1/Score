@@ -521,6 +521,7 @@ namespace Score
                 }
             }
 
+            RenderStageRulesPreview(preview, slideType);
             PreviewPanel.Children.Add(preview);
 
             // Update Host Teleprompter Card below Stage Screen
@@ -537,7 +538,13 @@ namespace Score
             if (HostNotesLabel != null)
             {
                 var notes = SlideExplanationEditor?.Text?.Trim();
-                HostNotesLabel.Text = string.IsNullOrWhiteSpace(notes) ? "No host secret trivia." : notes;
+                var promptOn = SlidePromptOnEditor?.Text?.Trim();
+                var doNotAccept = SlideDoNotAcceptEditor?.Text?.Trim();
+                var parts = new List<string>();
+                if (!string.IsNullOrWhiteSpace(promptOn)) parts.Add("⚡ PROMPT ON: " + promptOn);
+                if (!string.IsNullOrWhiteSpace(doNotAccept)) parts.Add("🚫 DO NOT ACCEPT: " + doNotAccept);
+                if (!string.IsNullOrWhiteSpace(notes)) parts.Add(notes);
+                HostNotesLabel.Text = parts.Count > 0 ? string.Join("\n", parts) : "No host secret trivia.";
             }
         }
 

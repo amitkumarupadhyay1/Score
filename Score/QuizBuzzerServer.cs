@@ -12,7 +12,7 @@ using System.Windows.Media.Imaging;
 
 namespace Score
 {
-    public sealed class QuizBuzzerServer : IDisposable
+    public sealed partial class QuizBuzzerServer : IDisposable
     {
         public const int DefaultPort = 8088;
         private HttpListener _httpListener;
@@ -317,6 +317,11 @@ namespace Score
                     return;
                 }
 
+                if (HandlePounceHttpRequest(path, req, res))
+                {
+                    return;
+                }
+
                 res.StatusCode = 404;
                 res.Close();
             }
@@ -447,6 +452,11 @@ namespace Score
 
                         var json = "{\"status\":\"ok\",\"team\":\"" + EscapeJson(team ?? string.Empty) + "\",\"timestamp\":" + utcTicks + "}";
                         WriteTcpResponse(stream, "200 OK", "application/json; charset=utf-8", json);
+                        return;
+                    }
+
+                    if (HandlePounceTcpRequest(stream, method, path, rawUrl, body))
+                    {
                         return;
                     }
 

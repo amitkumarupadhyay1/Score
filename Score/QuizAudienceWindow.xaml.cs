@@ -171,6 +171,8 @@ namespace Score
 
             AudienceOptions.ItemsSource = BuildOptionItems(slide, isAnswerRevealed);
             ShowMedia(slide);
+            HideInterRoundLeaderboard();
+            UpdateStageRulesDisplay(slide);
 
             var hints = (slide.HintsJson ?? string.Empty).Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
             if (clueStep > 0 && hints.Length > 0)
@@ -448,7 +450,6 @@ namespace Score
                     _currentDeckTitle = deck.Title ?? "QUIZ";
                     AudienceDeckTitle.Text = _currentDeckTitle;
                 }
-
                 var slides = _db.DeckSlides.AsNoTracking()
                     .Where(s => s.QuizDeckId == session.QuizDeckId && s.IsActive)
                     .OrderBy(s => s.SlideOrder)

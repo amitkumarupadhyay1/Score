@@ -35,8 +35,7 @@ namespace Score
         private QuizAudienceWindow _audienceWindow;
         private bool _refreshingTeamList;
 
-        private DeckSlide _currentSlide => _slideList != null && _currentSlideIndex >= 0 && _currentSlideIndex < _slideList.Count
-            ? _slideList[_currentSlideIndex] : null;
+        private DeckSlide _currentSlide => (_slideList != null && _currentSlideIndex >= 0 && _currentSlideIndex < _slideList.Count) ? _slideList[_currentSlideIndex] : null;
 
         private int? _initialDeckId;
 
@@ -547,6 +546,7 @@ namespace Score
             }
 
             UpdateFloorBanner();
+            UpdateDirectivesDisplay();
 
             _timerRefresh.Stop();
             if (startTimer && _currentSlide.TimeLimitSeconds > 0 && _currentSession != null)
@@ -639,6 +639,7 @@ namespace Score
             var newIndex = _currentSlideIndex + delta;
             if (newIndex >= 0 && newIndex < _slideList.Count)
             {
+                CheckInterRoundTransition(_currentSlideIndex, newIndex);
                 _currentSlideIndex = newIndex;
                 if (_currentSession != null)
                 {

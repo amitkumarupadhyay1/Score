@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Globalization;
 using System.IO;
@@ -47,7 +48,8 @@ namespace Score
             Execute(connection, "CREATE TABLE IF NOT EXISTS QuizRoundScores (QuizRoundScoreId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, QuizSessionId INTEGER NOT NULL, DatabaseTeamName TEXT, RoundNumber INTEGER NOT NULL, ScoreValue INTEGER NOT NULL, TeamElapsedSeconds INTEGER NOT NULL, ElapsedSeconds INTEGER NOT NULL, IsFinalized INTEGER NOT NULL)");
             Execute(connection, "CREATE TABLE IF NOT EXISTS QuizEventLogs (QuizEventLogId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, QuizSessionId INTEGER NOT NULL, OccurredAtUtc TEXT NOT NULL, EventType TEXT, Team TEXT, RoundNumber INTEGER NOT NULL, ScoreChange INTEGER NOT NULL, ScoreAfter INTEGER NOT NULL, ElapsedSeconds INTEGER NOT NULL, Details TEXT)");
             Execute(connection, "CREATE TABLE IF NOT EXISTS QuizDecks (QuizDeckId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, Title TEXT, Description TEXT, Theme TEXT, CreatedAtUtc DATETIME, UpdatedAtUtc DATETIME, IsActive INTEGER NOT NULL)");
-            Execute(connection, "CREATE TABLE IF NOT EXISTS DeckSlides (DeckSlideId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, QuizDeckId INTEGER NOT NULL, SlideType TEXT, QuestionType TEXT, RoundType TEXT, SlideOrder INTEGER NOT NULL, Title TEXT, ContentText TEXT, MediaPath TEXT, MediaType TEXT, CorrectAnswer TEXT, OptionsJson TEXT, Points INTEGER NOT NULL DEFAULT 0, PenaltyPoints INTEGER NOT NULL DEFAULT 0, TimeLimitSeconds INTEGER NOT NULL DEFAULT 0, IsActive INTEGER NOT NULL, HintsJson TEXT, AlternateAnswers TEXT, Explanation TEXT, BonusPoints INTEGER NOT NULL DEFAULT 0, AllowPass INTEGER NOT NULL DEFAULT 1, RoundName TEXT, MediaDisplayMode INTEGER NOT NULL DEFAULT 0)");
+            Execute(connection, "CREATE TABLE IF NOT EXISTS QuizRounds (QuizRoundId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, QuizDeckId INTEGER NOT NULL, RoundOrder INTEGER NOT NULL DEFAULT 1, RoundTitle TEXT, RoundType TEXT, DefaultPoints INTEGER NOT NULL DEFAULT 10, DefaultBouncePoints INTEGER NOT NULL DEFAULT 5, DefaultPenalty INTEGER NOT NULL DEFAULT 0, DefaultTimeSeconds INTEGER NOT NULL DEFAULT 15, ConferringAllowed INTEGER NOT NULL DEFAULT 1, InfiniteBounce INTEGER NOT NULL DEFAULT 1, RulesCardJson TEXT);");
+            Execute(connection, "CREATE TABLE IF NOT EXISTS DeckSlides (DeckSlideId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, QuizDeckId INTEGER NOT NULL, SlideType TEXT, QuestionType TEXT, RoundType TEXT, SlideOrder INTEGER NOT NULL, Title TEXT, ContentText TEXT, MediaPath TEXT, MediaType TEXT, CorrectAnswer TEXT, OptionsJson TEXT, Points INTEGER NOT NULL DEFAULT 0, PenaltyPoints INTEGER NOT NULL DEFAULT 0, TimeLimitSeconds INTEGER NOT NULL DEFAULT 0, IsActive INTEGER NOT NULL, HintsJson TEXT, AlternateAnswers TEXT, Explanation TEXT, BonusPoints INTEGER NOT NULL DEFAULT 0, AllowPass INTEGER NOT NULL DEFAULT 1, RoundName TEXT, MediaDisplayMode INTEGER NOT NULL DEFAULT 0, QuizRoundId INTEGER, PromptOnText TEXT, DoNotAcceptText TEXT, ClueDecayJson TEXT, HasStructuredRules INTEGER NOT NULL DEFAULT 0, StageRulesJson TEXT)");
             Execute(connection, "CREATE TABLE IF NOT EXISTS QuizDeckSessions (QuizDeckSessionId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, QuizDeckId INTEGER NOT NULL, StartedAtUtc DATETIME, CompletedAtUtc DATETIME, Status TEXT, CurrentSlideIndex INTEGER NOT NULL DEFAULT 0, QuizMasterNotes TEXT, TimerStartedAtUtc DATETIME, TimerElapsedSeconds INTEGER NOT NULL DEFAULT 0, TimerState TEXT, AnswerRevealed INTEGER NOT NULL DEFAULT 0, ActiveTeamOnFloor TEXT, PassCount INTEGER NOT NULL DEFAULT 0, BuzzQueueJson TEXT, ClueRevealStep INTEGER NOT NULL DEFAULT 0)");
             Execute(connection, "CREATE TABLE IF NOT EXISTS QuizResponses (QuizResponseId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, QuizDeckSessionId INTEGER NOT NULL, DeckSlideId INTEGER NOT NULL, TeamName TEXT, AnswerText TEXT, AnsweredAtUtc DATETIME, ResponseTimeSeconds INTEGER NOT NULL DEFAULT 0, IsCorrect INTEGER NOT NULL DEFAULT 0, PointsAwarded INTEGER NOT NULL DEFAULT 0, BuzzOrder INTEGER NOT NULL DEFAULT 0, SlideTitleSnapshot TEXT, SlideTypeSnapshot TEXT, SlideOrderSnapshot INTEGER NOT NULL DEFAULT 0, IsPassAttempt INTEGER NOT NULL DEFAULT 0, AdjudicationNotes TEXT)");
             Execute(connection, "CREATE TABLE IF NOT EXISTS QuizAuditEntries (QuizAuditEntryId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, QuizDeckSessionId INTEGER NOT NULL, OccurredAtUtc TEXT NOT NULL, EventType TEXT, TeamName TEXT, SlideNumber INTEGER NOT NULL, OldPoints INTEGER NOT NULL DEFAULT 0, NewPoints INTEGER NOT NULL DEFAULT 0, Reason TEXT)");
@@ -62,6 +64,12 @@ namespace Score
             AddColumnIfMissing(connection, "DeckSlides", "AllowPass", "INTEGER NOT NULL DEFAULT 1");
             AddColumnIfMissing(connection, "DeckSlides", "RoundName", "TEXT");
             AddColumnIfMissing(connection, "DeckSlides", "MediaDisplayMode", "INTEGER NOT NULL DEFAULT 0");
+            AddColumnIfMissing(connection, "DeckSlides", "QuizRoundId", "INTEGER");
+            AddColumnIfMissing(connection, "DeckSlides", "PromptOnText", "TEXT");
+            AddColumnIfMissing(connection, "DeckSlides", "DoNotAcceptText", "TEXT");
+            AddColumnIfMissing(connection, "DeckSlides", "ClueDecayJson", "TEXT");
+            AddColumnIfMissing(connection, "DeckSlides", "HasStructuredRules", "INTEGER NOT NULL DEFAULT 0");
+            AddColumnIfMissing(connection, "DeckSlides", "StageRulesJson", "TEXT");
 
             AddColumnIfMissing(connection, "QuizDeckSessions", "TimerStartedAtUtc", "DATETIME");
             AddColumnIfMissing(connection, "QuizDeckSessions", "TimerElapsedSeconds", "INTEGER NOT NULL DEFAULT 0");
@@ -99,6 +107,104 @@ namespace Score
             Execute(connection, "CREATE INDEX IF NOT EXISTS IX_ScoreCounts_Team ON ScoreCounts (Team)");
             Execute(connection, "CREATE INDEX IF NOT EXISTS IX_QuizRoundScores_SessionRoundTeam ON QuizRoundScores (QuizSessionId, RoundNumber, DatabaseTeamName)");
             Execute(connection, "CREATE INDEX IF NOT EXISTS IX_QuizEventLogs_SessionSequence ON QuizEventLogs (QuizSessionId, QuizEventLogId)");
+            Execute(connection, "CREATE INDEX IF NOT EXISTS IX_QuizRounds_QuizDeckId ON QuizRounds (QuizDeckId)");
+            Execute(connection, "CREATE INDEX IF NOT EXISTS IX_DeckSlides_QuizRoundId ON DeckSlides (QuizRoundId)");
+            AutoMigrateQuizRounds(connection);
+        }
+
+        internal static void AutoMigrateQuizRounds(SQLiteConnection connection)
+        {
+            var deckIds = new List<int>();
+            using (var cmd = new SQLiteCommand("SELECT DISTINCT QuizDeckId FROM DeckSlides WHERE QuizRoundId IS NULL OR QuizRoundId = 0 ORDER BY QuizDeckId", connection))
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    deckIds.Add(Convert.ToInt32(reader[0], CultureInfo.InvariantCulture));
+                }
+            }
+
+            foreach (var deckId in deckIds)
+            {
+                var roundMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+                int currentMaxOrder = 0;
+
+                using (var cmd = new SQLiteCommand("SELECT QuizRoundId, RoundTitle, RoundOrder FROM QuizRounds WHERE QuizDeckId = @deckId ORDER BY RoundOrder", connection))
+                {
+                    cmd.Parameters.AddWithValue("@deckId", deckId);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            int rId = Convert.ToInt32(reader["QuizRoundId"], CultureInfo.InvariantCulture);
+                            string rTitle = Convert.ToString(reader["RoundTitle"], CultureInfo.InvariantCulture) ?? string.Empty;
+                            int rOrder = Convert.ToInt32(reader["RoundOrder"], CultureInfo.InvariantCulture);
+                            if (!string.IsNullOrWhiteSpace(rTitle) && !roundMap.ContainsKey(rTitle))
+                            {
+                                roundMap[rTitle] = rId;
+                            }
+                            if (rOrder > currentMaxOrder) currentMaxOrder = rOrder;
+                        }
+                    }
+                }
+
+                var slides = new List<Tuple<int, string, string, int, int, int>>();
+                using (var cmd = new SQLiteCommand("SELECT DeckSlideId, RoundName, RoundType, Points, PenaltyPoints, TimeLimitSeconds FROM DeckSlides WHERE QuizDeckId = @deckId AND (QuizRoundId IS NULL OR QuizRoundId = 0) ORDER BY SlideOrder ASC, DeckSlideId ASC", connection))
+                {
+                    cmd.Parameters.AddWithValue("@deckId", deckId);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            int sId = Convert.ToInt32(reader["DeckSlideId"], CultureInfo.InvariantCulture);
+                            string rName = reader["RoundName"] != DBNull.Value ? Convert.ToString(reader["RoundName"], CultureInfo.InvariantCulture) : null;
+                            string rType = reader["RoundType"] != DBNull.Value ? Convert.ToString(reader["RoundType"], CultureInfo.InvariantCulture) : null;
+                            int pts = reader["Points"] != DBNull.Value ? Convert.ToInt32(reader["Points"], CultureInfo.InvariantCulture) : 10;
+                            int pen = reader["PenaltyPoints"] != DBNull.Value ? Convert.ToInt32(reader["PenaltyPoints"], CultureInfo.InvariantCulture) : 0;
+                            int time = reader["TimeLimitSeconds"] != DBNull.Value ? Convert.ToInt32(reader["TimeLimitSeconds"], CultureInfo.InvariantCulture) : 15;
+                            slides.Add(Tuple.Create(sId, rName, rType, pts, pen, time));
+                        }
+                    }
+                }
+
+                foreach (var slide in slides)
+                {
+                    int slideId = slide.Item1;
+                    string rawRoundName = slide.Item2;
+                    string roundType = !string.IsNullOrWhiteSpace(slide.Item3) ? slide.Item3.Trim() : "Standard";
+                    int defPts = slide.Item4 > 0 ? slide.Item4 : 10;
+                    int defPen = slide.Item5;
+                    int defTime = slide.Item6 > 0 ? slide.Item6 : 15;
+
+                    string title = !string.IsNullOrWhiteSpace(rawRoundName) ? rawRoundName.Trim() : "General";
+
+                    if (!roundMap.TryGetValue(title, out int roundId))
+                    {
+                        currentMaxOrder++;
+                        using (var insertCmd = new SQLiteCommand(
+                            "INSERT INTO QuizRounds (QuizDeckId, RoundOrder, RoundTitle, RoundType, DefaultPoints, DefaultBouncePoints, DefaultPenalty, DefaultTimeSeconds, ConferringAllowed, InfiniteBounce, RulesCardJson) " +
+                            "VALUES (@deckId, @order, @title, @type, @pts, 5, @pen, @time, 1, 1, NULL); SELECT last_insert_rowid();", connection))
+                        {
+                            insertCmd.Parameters.AddWithValue("@deckId", deckId);
+                            insertCmd.Parameters.AddWithValue("@order", currentMaxOrder);
+                            insertCmd.Parameters.AddWithValue("@title", title);
+                            insertCmd.Parameters.AddWithValue("@type", roundType);
+                            insertCmd.Parameters.AddWithValue("@pts", defPts);
+                            insertCmd.Parameters.AddWithValue("@pen", defPen);
+                            insertCmd.Parameters.AddWithValue("@time", defTime);
+                            roundId = Convert.ToInt32(insertCmd.ExecuteScalar(), CultureInfo.InvariantCulture);
+                        }
+                        roundMap[title] = roundId;
+                    }
+
+                    using (var updateCmd = new SQLiteCommand("UPDATE DeckSlides SET QuizRoundId = @roundId WHERE DeckSlideId = @slideId", connection))
+                    {
+                        updateCmd.Parameters.AddWithValue("@roundId", roundId);
+                        updateCmd.Parameters.AddWithValue("@slideId", slideId);
+                        updateCmd.ExecuteNonQuery();
+                    }
+                }
+            }
         }
 
         private static void AddColumnIfMissing(SQLiteConnection connection, string table, string column, string definition)

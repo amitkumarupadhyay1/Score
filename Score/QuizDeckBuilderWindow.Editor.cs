@@ -23,6 +23,7 @@ namespace Score
             var isScoreboard = string.Equals(slideType, "Scoreboard", StringComparison.OrdinalIgnoreCase);
 
             InstructionNoticeBanner.Visibility = isInstruction ? Visibility.Visible : Visibility.Collapsed;
+            UpdateStageRulesVisibility(isInstruction);
 
             if (SaveSlideButton != null)
             {
@@ -141,6 +142,7 @@ namespace Score
             UpdateTrueFalseHighlight(string.Empty);
             UpdateFormatPanels(QuizScoringEngine.QuestionMultipleChoice);
             UpdateEditorCardVisibility("Question");
+            ClearSlideStageRules();
             HideValidationAlert();
 
             EditStatusIndicator.Text = "Ready to add new question";

@@ -51,6 +51,7 @@
     <Compile Include="QuizWorkflowChecks.Helpers.cs" />
     <Compile Include="ProjectorChecks.cs" />
     <Compile Include="ProductionQualityChecks.cs" />
+    <Compile Include="PounceChecks.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Score\Score.csproj">

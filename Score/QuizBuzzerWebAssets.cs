@@ -160,6 +160,20 @@ namespace Score
         <div id=""teamLockNotice"" style=""display:none; font-size:11px; color:#10B981; font-weight:600; margin-top:6px;"">🔒 Locked to your team for this session</div>
     </div>
 
+    <!-- Pounce (Secret Answer) Section -->
+    <div id=""pounceCard"" class=""card"" style=""display:none; border:2px solid #8B5CF6; background:linear-gradient(180deg, #1E1B4B 0%, #0F172A 100%);"">
+        <div style=""display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;"">
+            <span class=""label"" style=""color:#A78BFA; margin-bottom:0; font-weight:800;"">⚡ CHIT POUNCE (RISK/REWARD)</span>
+            <span id=""pounceBadge"" style=""font-size:10px; font-weight:800; padding:2px 8px; border-radius:10px; background:#6D28D9; color:#DDD6FE;"">LIVE</span>
+        </div>
+        <p style=""font-size:12px; color:#C4B5FD; margin-bottom:10px;"">Submit secret answer directly to host. Bonus for correct, penalty for wrong.</p>
+        <div style=""display:flex; flex-direction:column; gap:8px;"">
+            <input type=""text"" id=""pounceInput"" placeholder=""Secret Answer..."" maxlength=""120"" style=""width:100%; height:44px; font-size:15px; font-weight:600; color:#FFFFFF; background:#0F172A; border:1.5px solid #7C3AED; border-radius:8px; padding:0 12px; outline:none;"" />
+            <button id=""pounceBtn"" type=""button"" style=""width:100%; height:46px; background:#7C3AED; border:2px solid #6D28D9; border-radius:8px; color:#FFF; font-size:16px; font-weight:900; letter-spacing:1px; cursor:pointer; box-shadow:0 4px 10px rgba(124,58,237,0.4);"">POUNCE</button>
+        </div>
+        <div id=""pounceStatus"" style=""display:none; font-size:12px; font-weight:700; margin-top:10px; text-align:center; padding:8px 10px; border-radius:6px; line-height:1.4;""></div>
+    </div>
+
     <div class=""buzzer-container"">
         <button id=""buzzerBtn"" class=""buzzer-btn"" type=""button"">BUZZ IN!</button>
         <div class=""status-box"">
@@ -349,6 +363,126 @@ namespace Score
         } else {
             btn.addEventListener('touchstart', sendBuzz);
             btn.addEventListener('click', sendBuzz);
+        }
+
+        // Pounce (Chit Pounce Subsystem)
+        const pounceCard = document.getElementById('pounceCard');
+        const pounceInput = document.getElementById('pounceInput');
+        const pounceBtn = document.getElementById('pounceBtn');
+        const pounceStatus = document.getElementById('pounceStatus');
+        let pounceSubmitted = false;
+
+        function setPounceStatus(text, isSuccess, isError) {
+            if (!pounceStatus) return;
+            pounceStatus.style.display = 'block';
+            pounceStatus.textContent = text;
+            if (isSuccess) {
+                pounceStatus.style.background = '#065F46';
+                pounceStatus.style.color = '#34D399';
+            } else if (isError) {
+                pounceStatus.style.background = '#831843';
+                pounceStatus.style.color = '#F472B6';
+            } else {
+                pounceStatus.style.background = '#334155';
+                pounceStatus.style.color = '#E2E8F0';
+            }
+        }
+
+        async function fetchServerState() {
+            try {
+                const team = teamSelect ? teamSelect.value : '';
+                const url = '/api/state' + (team ? '?team=' + encodeURIComponent(team) : '');
+                const res = await fetch(url);
+                if (!res.ok) return;
+                const state = await res.json();
+                if (pounceCard) {
+                    if (state.pounceEnabled) {
+                        pounceCard.style.display = 'block';
+                        if (state.hasPounced) {
+                            pounceSubmitted = true;
+                            if (pounceInput) pounceInput.disabled = true;
+                            if (pounceBtn) {
+                                pounceBtn.disabled = true;
+                                pounceBtn.style.opacity = '0.5';
+                            }
+                            setPounceStatus('Pounce submitted! Awaiting host adjudication.', true, false);
+                        }
+                    } else {
+                        pounceCard.style.display = 'none';
+                        if (state.pounceCount === 0) {
+                            pounceSubmitted = false;
+                            if (pounceInput) {
+                                pounceInput.disabled = false;
+                                pounceInput.value = '';
+                            }
+                            if (pounceBtn) {
+                                pounceBtn.disabled = false;
+                                pounceBtn.style.opacity = '1';
+                            }
+                            if (pounceStatus) pounceStatus.style.display = 'none';
+                        }
+                    }
+                }
+            } catch (e) {}
+        }
+        setInterval(fetchServerState, 1500);
+        fetchServerState();
+
+        async function sendPounce(e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            if (pounceSubmitted) return;
+            const team = teamSelect ? teamSelect.value : '';
+            if (!team) {
+                alert('Please select your team first.');
+                return;
+            }
+            const answer = pounceInput ? (pounceInput.value || '').trim() : '';
+            if (!answer) {
+                if (pounceInput) pounceInput.focus();
+                return;
+            }
+
+            if (pounceBtn) pounceBtn.disabled = true;
+            setPounceStatus('Submitting pounce...', false, false);
+
+            try {
+                const res = await fetch('/api/pounce', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ team: team, answer: answer })
+                });
+                const data = await res.json().catch(() => ({}));
+                if (res.ok || data.status === 'ok') {
+                    pounceSubmitted = true;
+                    if (pounceInput) pounceInput.disabled = true;
+                    if (pounceBtn) pounceBtn.style.opacity = '0.5';
+                    setPounceStatus('Pounce submitted! Awaiting host adjudication.', true, false);
+                    if (navigator.vibrate) {
+                        try { navigator.vibrate([100, 50, 100]); } catch (v) {}
+                    }
+                } else if (res.status === 423 || data.status === 'locked') {
+                    if (pounceBtn) pounceBtn.disabled = false;
+                    setPounceStatus('🔒 Pounce locked by host.', false, true);
+                } else if (res.status === 409 || data.status === 'duplicate') {
+                    pounceSubmitted = true;
+                    if (pounceInput) pounceInput.disabled = true;
+                    if (pounceBtn) pounceBtn.style.opacity = '0.5';
+                    setPounceStatus('⚠️ Pounce already submitted for your team.', false, true);
+                } else {
+                    if (pounceBtn) pounceBtn.disabled = false;
+                    setPounceStatus(data.error || 'Failed to submit pounce.', false, true);
+                }
+            } catch (err) {
+                if (pounceBtn) pounceBtn.disabled = false;
+                setPounceStatus('❌ Network error submitting pounce.', false, true);
+            }
+        }
+
+        if (pounceBtn) {
+            pounceBtn.addEventListener('click', sendPounce);
         }
     </script>
 </body>

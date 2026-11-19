@@ -49,6 +49,12 @@ namespace Score
 
         private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
         {
+            if (_isRapidFireActive && HandleRapidFireKey(e.Key))
+            {
+                e.Handled = true;
+                return;
+            }
+
             // If typing inside an editor, don't trigger hotkeys unless Esc
             if (e.OriginalSource is TextBox)
             {
@@ -122,8 +128,12 @@ namespace Score
 
                 case Key.PageUp:
                 case Key.Left:
-                case Key.P:
                     AdvanceSlide(-1);
+                    e.Handled = true;
+                    break;
+
+                case Key.P:
+                    PounceToggleButton_Click(sender, e);
                     e.Handled = true;
                     break;
 
@@ -393,6 +403,7 @@ namespace Score
                     _db.SaveChanges();
                 }
                 UpdateClueDisplay(hints);
+                ApplyClueDecay();
                 ConsoleStatusText.Text = $"Clue {_clueStep} revealed to the audience.";
                 PushSlideStateToAudience();
             }

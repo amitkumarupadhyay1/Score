@@ -33,11 +33,60 @@ namespace Score.Tests
             Run("Quiz import and export handles sample templates and question parsing", TestQuizImportExport);
             Run("Smart AI topic packs, paste importer, and slide discrimination", TestQuizAiFeatures);
             Run("SQLite runtime creates, verifies, and backs up the database", TestDatabaseRuntime);
+            Run("Stage quiz data models, schema, and round auto-migration", TestStageQuizModelsAndMigration);
+            Run("Audience stage rules matrix parsing, theme palettes, and inter-round leaderboard", TestStageRulesAndInterRoundLeaderboard);
+            Run("Studio stage rules JSON, directives, clue decay, and round defaults", TestStudioStageRulesAndRoundDefaults);
+            Run("Console teleprompter directives, clue decay, rapid fire, and team snapshots", TestConsoleDirectivesAndRapidFire);
+            Run("Chit Pounce subsystem, mobile server, state API, and adjudication", PounceChecks.Run);
             Run("Production quality, clean slate, ComboBox contrast, and theme checks", ProductionQualityChecks.Run);
             Run("Live quiz, recovery, export, and both New Game options", QuizWorkflowChecks.Run);
 
             Console.WriteLine(failures == 0 ? "All production checks passed." : failures + " production check(s) failed.");
             return failures == 0 ? 0 : 1;
+        }
+
+        private static void TestStageRulesAndInterRoundLeaderboard()
+        {
+            var stagePalette = QuizThemePalette.GetPalette("Stage");
+            Equal("Midnight Navy", stagePalette.Name);
+            var schoolPalette = QuizThemePalette.GetPalette("School");
+            Equal("Daylight Contrast", schoolPalette.Name);
+            var corpPalette = QuizThemePalette.GetPalette("Corporate");
+            Equal("Corporate Slate", corpPalette.Name);
+            var bcastPalette = QuizThemePalette.GetPalette("Broadcast");
+            Equal("Broadcast Gold", bcastPalette.Name);
+
+            var window = new QuizAudienceWindow();
+            var slide = new DeckSlide
+            {
+                SlideType = "Instruction",
+                Title = "Round 2 Rules",
+                RoundType = "Buzzer Barrage",
+                Points = 20,
+                PenaltyPoints = 5,
+                TimeLimitSeconds = 30,
+                HasStructuredRules = true,
+                StageRulesJson = "{\"ModeBadge\":\"DIRECT WITH BOUNCE\",\"CorrectPoints\":20,\"BouncePoints\":10,\"PenaltyPoints\":-5,\"TimeLimitSeconds\":20,\"ConferringAllowed\":true,\"ConferringBadge\":\"CONFERRING ALLOWED\"}"
+            };
+
+            var parsed = window.ParseStageRules(slide);
+            Equal("DIRECT WITH BOUNCE", parsed.ModeBadge);
+            Equal(20, parsed.CorrectPoints);
+            Equal(10, parsed.BouncePoints);
+            Equal(-5, parsed.PenaltyPoints);
+            Equal(20, parsed.TimeLimitSeconds);
+            Equal(true, parsed.ConferringAllowed);
+            Equal("CONFERRING ALLOWED", parsed.ConferringBadge);
+
+            var snap1 = new TeamScoreSnapshot { TeamName = "Alpha", TotalScore = 150, Rank = 1, RankChange = 2 };
+            var snap2 = new TeamScoreSnapshot { TeamName = "Beta", TotalScore = 120, Rank = 2, RankChange = -1 };
+            Equal(150, snap1.TotalScore);
+            Equal(2, snap1.RankChange);
+            Equal(1, snap1.Rank);
+
+            window.UpdateAudiencePointsBadge(50);
+            Equal("50 POINTS", window.AudiencePointsLabel.Text);
+            window.Close();
         }
 
         private static void TestOvertimePause()
@@ -338,6 +387,244 @@ namespace Score.Tests
                 Environment.SetEnvironmentVariable("QUIZSCORE_HOME", originalHome);
                 if (Directory.Exists(testHome)) Directory.Delete(testHome, true);
             }
+        }
+
+        private static void TestStageQuizModelsAndMigration()
+        {
+            var round = new QuizRound();
+            Equal(0, round.QuizRoundId);
+            Equal(1, round.RoundOrder);
+            Equal("Standard", round.RoundType);
+            Equal(10, round.DefaultPoints);
+            Equal(5, round.DefaultBouncePoints);
+            Equal(0, round.DefaultPenalty);
+            Equal(15, round.DefaultTimeSeconds);
+            True(round.ConferringAllowed, "ConferringAllowed should default to true.");
+            True(round.InfiniteBounce, "InfiniteBounce should default to true.");
+            True(round.RulesCardJson == null, "RulesCardJson should default to null.");
+
+            var slide = new DeckSlide
+            {
+                QuizRoundId = 42,
+                PromptOnText = "Who invented...",
+                DoNotAcceptText = "Do not accept nickname",
+                ClueDecayJson = "[]",
+                HasStructuredRules = true,
+                StageRulesJson = "{\"points\":10}"
+            };
+            Equal((int?)42, slide.QuizRoundId);
+            Equal("Who invented...", slide.PromptOnText);
+            Equal("Do not accept nickname", slide.DoNotAcceptText);
+            Equal("[]", slide.ClueDecayJson);
+            True(slide.HasStructuredRules, "HasStructuredRules should be true.");
+            Equal("{\"points\":10}", slide.StageRulesJson);
+
+            // 3. ScoreDbContext DbSet property
+            True(typeof(ScoreDbContext).GetProperty("QuizRounds") != null, "QuizRounds DbSet property should exist on ScoreDbContext.");
+
+            var originalHome = Environment.GetEnvironmentVariable("QUIZSCORE_HOME");
+            var testHome = Path.Combine(Path.GetTempPath(), "QuizScoreLive-RoundsCheck-" + Guid.NewGuid().ToString("N"));
+            try
+            {
+                Environment.SetEnvironmentVariable("QUIZSCORE_HOME", testHome);
+                AppPaths.Initialize();
+                NativeSqliteLoader.EnsureLoaded();
+                DatabaseMaintenance.Prepare();
+
+                using (var connection = new SQLiteConnection("Data Source=" + AppPaths.DatabasePath + ";Pooling=False;"))
+                {
+                    connection.Open();
+                    True(HasColumn(connection, "QuizRounds", "QuizRoundId"), "QuizRoundId column missing.");
+                    True(HasColumn(connection, "QuizRounds", "QuizDeckId"), "QuizDeckId column missing.");
+                    True(HasColumn(connection, "QuizRounds", "RoundOrder"), "RoundOrder column missing.");
+                    True(HasColumn(connection, "QuizRounds", "RoundTitle"), "RoundTitle column missing.");
+                    True(HasColumn(connection, "QuizRounds", "RoundType"), "RoundType column missing.");
+                    True(HasColumn(connection, "QuizRounds", "DefaultPoints"), "DefaultPoints column missing.");
+                    True(HasColumn(connection, "QuizRounds", "DefaultBouncePoints"), "DefaultBouncePoints column missing.");
+                    True(HasColumn(connection, "QuizRounds", "DefaultPenalty"), "DefaultPenalty column missing.");
+                    True(HasColumn(connection, "QuizRounds", "DefaultTimeSeconds"), "DefaultTimeSeconds column missing.");
+                    True(HasColumn(connection, "QuizRounds", "ConferringAllowed"), "ConferringAllowed column missing.");
+                    True(HasColumn(connection, "QuizRounds", "InfiniteBounce"), "InfiniteBounce column missing.");
+                    True(HasColumn(connection, "QuizRounds", "RulesCardJson"), "RulesCardJson column missing.");
+
+                    True(HasColumn(connection, "DeckSlides", "QuizRoundId"), "QuizRoundId missing from DeckSlides.");
+                    True(HasColumn(connection, "DeckSlides", "PromptOnText"), "PromptOnText missing from DeckSlides.");
+                    True(HasColumn(connection, "DeckSlides", "DoNotAcceptText"), "DoNotAcceptText missing from DeckSlides.");
+                    True(HasColumn(connection, "DeckSlides", "ClueDecayJson"), "ClueDecayJson missing from DeckSlides.");
+                    True(HasColumn(connection, "DeckSlides", "HasStructuredRules"), "HasStructuredRules missing from DeckSlides.");
+                    True(HasColumn(connection, "DeckSlides", "StageRulesJson"), "StageRulesJson missing from DeckSlides.");
+
+                    int deckId = 100;
+                    using (var cmd = new SQLiteCommand("INSERT INTO QuizDecks (QuizDeckId, Title, IsActive) VALUES (" + deckId + ", 'Migration Test Deck', 1);", connection))
+                        cmd.ExecuteNonQuery();
+
+                    using (var cmd = new SQLiteCommand(
+                        "INSERT INTO DeckSlides (QuizDeckId, SlideOrder, SlideType, RoundName, Points, PenaltyPoints, TimeLimitSeconds, IsActive, QuizRoundId) VALUES " +
+                        "(" + deckId + ", 1, 'Question', 'Science', 20, 0, 30, 1, NULL)," +
+                        "(" + deckId + ", 2, 'Question', 'Science', 20, 0, 30, 1, 0)," +
+                        "(" + deckId + ", 3, 'Question', 'History', 15, -5, 20, 1, NULL)," +
+                        "(" + deckId + ", 4, 'Question', NULL, 10, 0, 15, 1, NULL);", connection))
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    DatabaseMaintenance.AutoMigrateQuizRounds(connection);
+
+                    using (var cmd = new SQLiteCommand("SELECT COUNT(*) FROM QuizRounds WHERE QuizDeckId = " + deckId, connection))
+                    {
+                        Equal(3L, Convert.ToInt64(cmd.ExecuteScalar()));
+                    }
+
+                    int scienceRoundId = 0, historyRoundId = 0, generalRoundId = 0;
+                    using (var cmd = new SQLiteCommand("SELECT QuizRoundId, RoundTitle, RoundOrder, DefaultPoints, DefaultTimeSeconds FROM QuizRounds WHERE QuizDeckId = " + deckId + " ORDER BY RoundOrder", connection))
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        True(reader.Read(), "Expected round 1");
+                        scienceRoundId = Convert.ToInt32(reader["QuizRoundId"]);
+                        Equal("Science", Convert.ToString(reader["RoundTitle"]));
+                        Equal(1, Convert.ToInt32(reader["RoundOrder"]));
+                        Equal(20, Convert.ToInt32(reader["DefaultPoints"]));
+                        Equal(30, Convert.ToInt32(reader["DefaultTimeSeconds"]));
+
+                        True(reader.Read(), "Expected round 2");
+                        historyRoundId = Convert.ToInt32(reader["QuizRoundId"]);
+                        Equal("History", Convert.ToString(reader["RoundTitle"]));
+                        Equal(2, Convert.ToInt32(reader["RoundOrder"]));
+                        Equal(15, Convert.ToInt32(reader["DefaultPoints"]));
+                        Equal(20, Convert.ToInt32(reader["DefaultTimeSeconds"]));
+
+                        True(reader.Read(), "Expected round 3");
+                        generalRoundId = Convert.ToInt32(reader["QuizRoundId"]);
+                        Equal("General", Convert.ToString(reader["RoundTitle"]));
+                        Equal(3, Convert.ToInt32(reader["RoundOrder"]));
+                    }
+
+                    using (var cmd = new SQLiteCommand("SELECT DeckSlideId, SlideOrder, QuizRoundId FROM DeckSlides WHERE QuizDeckId = " + deckId + " ORDER BY SlideOrder", connection))
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        True(reader.Read(), "Slide 1");
+                        Equal(scienceRoundId, Convert.ToInt32(reader["QuizRoundId"]));
+
+                        True(reader.Read(), "Slide 2");
+                        Equal(scienceRoundId, Convert.ToInt32(reader["QuizRoundId"]));
+
+                        True(reader.Read(), "Slide 3");
+                        Equal(historyRoundId, Convert.ToInt32(reader["QuizRoundId"]));
+
+                        True(reader.Read(), "Slide 4");
+                        Equal(generalRoundId, Convert.ToInt32(reader["QuizRoundId"]));
+                    }
+
+                    DatabaseMaintenance.AutoMigrateQuizRounds(connection);
+                    using (var cmd = new SQLiteCommand("SELECT COUNT(*) FROM QuizRounds WHERE QuizDeckId = " + deckId, connection))
+                    {
+                        Equal(3L, Convert.ToInt64(cmd.ExecuteScalar()));
+                    }
+                }
+            }
+            finally
+            {
+                Environment.SetEnvironmentVariable("QUIZSCORE_HOME", originalHome);
+                if (Directory.Exists(testHome)) Directory.Delete(testHome, true);
+            }
+        }
+
+        private static void TestStudioStageRulesAndRoundDefaults()
+        {
+            var rules = new StageRulesData
+            {
+                ModeBadge = "Pass / Bounce",
+                Points = 20,
+                BouncePoints = 10,
+                Penalty = 5,
+                TimeSeconds = 25,
+                ConferringAllowed = false,
+                InfiniteBounce = true
+            };
+            var json = rules.ToJson();
+            True(json.Contains("\"modeBadge\":\"Pass / Bounce\""), "JSON mode");
+            True(json.Contains("\"points\":20"), "JSON points");
+            True(json.Contains("\"bouncePoints\":10"), "JSON bounce");
+            True(json.Contains("\"conferringAllowed\":false"), "JSON conferring");
+
+            var parsed = StageRulesData.FromJson(json);
+            Equal("Pass / Bounce", parsed.ModeBadge);
+            Equal(20, parsed.Points);
+            Equal(10, parsed.BouncePoints);
+            Equal(5, parsed.Penalty);
+            Equal(25, parsed.TimeSeconds);
+            Equal(false, parsed.ConferringAllowed);
+            Equal(true, parsed.InfiniteBounce);
+
+            var slide = new DeckSlide
+            {
+                SlideType = "Question",
+                Points = 10,
+                PromptOnText = "Prompt for last name",
+                DoNotAcceptText = "Do not accept England",
+                ClueDecayJson = "50, 40, 30, 20, 10"
+            };
+            Equal("Prompt for last name", slide.PromptOnText);
+            Equal("Do not accept England", slide.DoNotAcceptText);
+            Equal("50, 40, 30, 20, 10", slide.ClueDecayJson);
+
+            var round = new QuizRound
+            {
+                RoundTitle = "Round 2 - Science",
+                RoundType = QuizScoringEngine.RoundBuzzer,
+                DefaultPoints = 25,
+                DefaultBouncePoints = 0,
+                DefaultPenalty = 10,
+                DefaultTimeSeconds = 12,
+                ConferringAllowed = false,
+                InfiniteBounce = false
+            };
+            var newSlide = new DeckSlide { SlideType = "Question" };
+            newSlide.QuizRoundId = round.QuizRoundId;
+            newSlide.RoundName = round.RoundTitle;
+            newSlide.RoundType = round.RoundType;
+            newSlide.Points = round.DefaultPoints;
+            newSlide.PenaltyPoints = round.DefaultPenalty;
+            newSlide.BonusPoints = round.DefaultBouncePoints;
+            newSlide.TimeLimitSeconds = round.DefaultTimeSeconds;
+            newSlide.AllowPass = round.InfiniteBounce || round.DefaultBouncePoints > 0;
+
+            Equal(25, newSlide.Points);
+            Equal(10, newSlide.PenaltyPoints);
+            Equal(0, newSlide.BonusPoints);
+            Equal(12, newSlide.TimeLimitSeconds);
+            Equal(false, newSlide.AllowPass);
+        }
+
+        private static void TestConsoleDirectivesAndRapidFire()
+        {
+            var slide = new DeckSlide
+            {
+                SlideType = "Question",
+                Points = 50,
+                PromptOnText = "Prompt on first name",
+                DoNotAcceptText = "Do not accept nickname",
+                ClueDecayJson = "50, 40, 30, 20, 10"
+            };
+            Equal("Prompt on first name", slide.PromptOnText);
+            Equal("Do not accept nickname", slide.DoNotAcceptText);
+
+            var list = slide.ClueDecayJson.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(int.Parse).ToList();
+            Equal(5, list.Count);
+            Equal(50, list[0]);
+            Equal(10, list[4]);
+
+            var snap = new TeamScoreSnapshot
+            {
+                TeamName = "Team Titans",
+                TotalScore = 120,
+                Rank = 1,
+                RankChange = 0
+            };
+            Equal("Team Titans", snap.TeamName);
+            Equal(1, snap.Rank);
+            Equal(120, snap.TotalScore);
         }
 
         private static bool HasColumn(SQLiteConnection connection, string tableName, string columnName)

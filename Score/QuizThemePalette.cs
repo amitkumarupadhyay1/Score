@@ -94,6 +94,48 @@ namespace Score
                         ScoreCardBackground = Parse("#FFFFFFFF")
                     };
 
+                case "corporate":
+                case "slate":
+                    return new QuizThemePalette
+                    {
+                        Name = "Corporate Slate",
+                        WindowBackground = Parse("#FF0F172A"),
+                        HeaderBackground = Parse("#FF1E293B"),
+                        CardBackground = Parse("#FFFFFFFF"),
+                        TextPrimary = Parse("#FF0F172A"),
+                        TextSecondary = Parse("#FF334155"),
+                        AccentColor = Parse("#FF3B82F6"),
+                        AccentBadgeBackground = Parse("#FFDBEAFE"),
+                        AccentBadgeForeground = Parse("#FF1D4ED8"),
+                        TimerBorderBackground = Parse("#FF1E293B"),
+                        TimerTextBrush = Parse("#FF60A5FA"),
+                        OptionCardBackground = Parse("#FFF8FAFC"),
+                        OptionCardBorder = Parse("#FFCBD5E1"),
+                        OptionTextBrush = Parse("#FF0F172A"),
+                        ScoreCardBackground = Parse("#FF1E293B")
+                    };
+
+                case "broadcast":
+                case "studio":
+                    return new QuizThemePalette
+                    {
+                        Name = "Broadcast Gold",
+                        WindowBackground = Parse("#FF000000"),
+                        HeaderBackground = Parse("#FF111111"),
+                        CardBackground = Parse("#FFFFFFFF"),
+                        TextPrimary = Parse("#FF000000"),
+                        TextSecondary = Parse("#FF1F2937"),
+                        AccentColor = Parse("#FFEAB308"),
+                        AccentBadgeBackground = Parse("#FFFEF08A"),
+                        AccentBadgeForeground = Parse("#FF854D0E"),
+                        TimerBorderBackground = Parse("#FF000000"),
+                        TimerTextBrush = Parse("#FFEAB308"),
+                        OptionCardBackground = Parse("#FFF9FAFB"),
+                        OptionCardBorder = Parse("#FFE5E7EB"),
+                        OptionTextBrush = Parse("#FF111827"),
+                        ScoreCardBackground = Parse("#FF111111")
+                    };
+
                 case "midnight":
                 case "stage":
                 case "classic":

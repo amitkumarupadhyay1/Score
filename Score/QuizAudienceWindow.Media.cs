@@ -221,6 +221,8 @@ namespace Score
             AudienceScoreboard.ItemsSource = null;
             AudienceTimerLabel.Text = "00:00";
             AudienceStatusText.Text = string.Empty;
+            HideStageRulesMatrix();
+            HideInterRoundLeaderboard();
         }
     }
 }

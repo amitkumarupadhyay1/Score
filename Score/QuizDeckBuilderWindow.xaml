@@ -366,6 +366,44 @@
                                 </StackPanel>
                             </Border>
 
+                            <!-- Card: Structured Stage Rules (Instruction slides) -->
+                            <Border x:Name="CardStageRules" Style="{StaticResource StudioCard}" Visibility="Collapsed">
+                                <StackPanel>
+                                    <DockPanel Margin="0,0,0,8">
+                                        <Button x:Name="StageRuleInheritButton" DockPanel.Dock="Right" Content="✦ Inherit from Round" Style="{StaticResource HeaderPillButton}" Background="#FF6366F1" BorderBrush="#FF4F46E5" Foreground="#FFFFFFFF" Height="24" Padding="8,0" Click="StageRuleInheritButton_Click" ToolTip="Pull parent round default scoring and rules into this stage rules card" />
+                                        <TextBlock Text="STAGE RULES CARD (STAGE DISPLAY)" Style="{StaticResource SectionHeader}" VerticalAlignment="Center" Margin="0" />
+                                    </DockPanel>
+                                    <CheckBox x:Name="StageRulesEnabledCheckBox" Content="Enable Structured Rules Card on Stage Screen" FontWeight="SemiBold" FontSize="12" Foreground="#FF334155" Margin="0,0,0,8" Checked="StageRulesEnabled_Changed" Unchecked="StageRulesEnabled_Changed" />
+                                    <Grid x:Name="StageRulesFieldsGrid" Margin="0,0,0,6">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                                            <TextBlock Text="Mode Badge" Style="{StaticResource InputLabel}" />
+                                            <ComboBox x:Name="StageRuleModeSelector" Style="{StaticResource ModernComboBox}" SelectionChanged="PreviewSelector_SelectionChanged" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                                            <TextBlock Text="Correct Pts" Style="{StaticResource InputLabel}" />
+                                            <TextBox x:Name="StageRulePointsEditor" Style="{StaticResource ModernTextBox}" Text="10" TextAlignment="Center" TextChanged="PreviewEditor_TextChanged" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2" Margin="0,0,8,0">
+                                            <TextBlock Text="Bounce Pts" Style="{StaticResource InputLabel}" />
+                                            <TextBox x:Name="StageRuleBounceEditor" Style="{StaticResource ModernTextBox}" Text="5" TextAlignment="Center" TextChanged="PreviewEditor_TextChanged" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="3" Margin="0,0,8,0">
+                                            <TextBlock Text="Penalty" Style="{StaticResource InputLabel}" />
+                                            <TextBox x:Name="StageRulePenaltyEditor" Style="{StaticResource ModernTextBox}" Text="0" TextAlignment="Center" TextChanged="PreviewEditor_TextChanged" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="4">
+                                            <TextBlock Text="Time (sec)" Style="{StaticResource InputLabel}" />
+                                            <TextBox x:Name="StageRuleTimeEditor" Style="{StaticResource ModernTextBox}" Text="15" TextAlignment="Center" TextChanged="PreviewEditor_TextChanged" />
+                                        </StackPanel>
+                                    </Grid>
+                                    <WrapPanel Margin="0,4,0,0">
+                                        <CheckBox x:Name="StageRuleConferringCheckBox" Content="Conferring Allowed" IsChecked="True" FontSize="11.5" Foreground="#FF334155" Margin="0,0,16,0" Checked="StageRulesCheck_Changed" Unchecked="StageRulesCheck_Changed" />
+                                        <CheckBox x:Name="StageRuleInfiniteBounceCheckBox" Content="Infinite Bounce" IsChecked="True" FontSize="11.5" Foreground="#FF334155" Checked="StageRulesCheck_Changed" Unchecked="StageRulesCheck_Changed" />
+                                    </WrapPanel>
+                                </StackPanel>
+                            </Border>
+
                             <!-- Card 1: Question Essentials -->
                             <Border x:Name="Card1QuestionEssentials" Style="{StaticResource StudioCard}">
                                 <StackPanel>
@@ -373,15 +411,14 @@
 
                                     <!-- Quick Format Bar: 4 Columns -->
                                     <Grid Margin="0,0,0,14">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                                         <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                                            <TextBlock Text="Category / Round" Style="{StaticResource InputLabel}" />
-                                            <TextBox x:Name="SlideRoundNameEditor" Style="{StaticResource ModernTextBox}" TextChanged="PreviewEditor_TextChanged" />
+                                            <DockPanel Margin="0,0,0,3">
+                                                <Button x:Name="ManageRoundsButton" DockPanel.Dock="Right" Content="⚙ Rounds" Style="{StaticResource SecondaryButton}" Height="18" Padding="5,0" FontSize="10" Click="ManageRoundsButton_Click" ToolTip="Add, edit, or configure rounds for this deck" />
+                                                <TextBlock Text="Quiz Round" Style="{StaticResource InputLabel}" Margin="0" VerticalAlignment="Center" />
+                                            </DockPanel>
+                                            <ComboBox x:Name="SlideRoundSelector" Style="{StaticResource ModernComboBox}" SelectionChanged="SlideRoundSelector_SelectionChanged" DisplayMemberPath="RoundTitle" SelectedValuePath="QuizRoundId" />
+                                            <TextBox x:Name="SlideRoundNameEditor" Visibility="Collapsed" />
                                         </StackPanel>
                                         <StackPanel Grid.Column="1" Margin="0,0,10,0">
                                             <TextBlock Text="Slide Type" Style="{StaticResource InputLabel}" />
@@ -419,14 +456,8 @@
                                         <!-- Option A -->
                                         <Border x:Name="OptionACard" Background="#FFF8FAFC" BorderBrush="#FFE2E8F0" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6" Cursor="Hand" PreviewMouseLeftButtonDown="OptionCard_PreviewMouseLeftButtonDown">
                                             <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="28" />
-                                                    <ColumnDefinition Width="*" />
-                                                    <ColumnDefinition Width="Auto" />
-                                                </Grid.ColumnDefinitions>
-                                                <Border Background="#FFE2E8F0" CornerRadius="5" Width="22" Height="22" VerticalAlignment="Center">
-                                                    <TextBlock Text="A" FontSize="11" FontWeight="Bold" Foreground="#FF334155" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                                </Border>
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="28" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                                <Border Background="#FFE2E8F0" CornerRadius="5" Width="22" Height="22" VerticalAlignment="Center"><TextBlock Text="A" FontSize="11" FontWeight="Bold" Foreground="#FF334155" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
                                                 <TextBox x:Name="OptionAEditor" Grid.Column="1" BorderThickness="0" Background="Transparent" FontSize="13" Padding="8,0" VerticalContentAlignment="Center" TextChanged="OptionEditor_TextChanged" />
                                                 <RadioButton x:Name="OptionACheck" Grid.Column="2" GroupName="McqAnswerChoice" Content="Correct Answer" FontSize="11" FontWeight="SemiBold" Foreground="#FF15803D" VerticalAlignment="Center" Margin="8,0,0,0" Checked="OptionCheck_Changed" />
                                             </Grid>
@@ -435,14 +466,8 @@
                                         <!-- Option B -->
                                         <Border x:Name="OptionBCard" Background="#FFF8FAFC" BorderBrush="#FFE2E8F0" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6" Cursor="Hand" PreviewMouseLeftButtonDown="OptionCard_PreviewMouseLeftButtonDown">
                                             <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="28" />
-                                                    <ColumnDefinition Width="*" />
-                                                    <ColumnDefinition Width="Auto" />
-                                                </Grid.ColumnDefinitions>
-                                                <Border Background="#FFE2E8F0" CornerRadius="5" Width="22" Height="22" VerticalAlignment="Center">
-                                                    <TextBlock Text="B" FontSize="11" FontWeight="Bold" Foreground="#FF334155" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                                </Border>
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="28" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                                <Border Background="#FFE2E8F0" CornerRadius="5" Width="22" Height="22" VerticalAlignment="Center"><TextBlock Text="B" FontSize="11" FontWeight="Bold" Foreground="#FF334155" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
                                                 <TextBox x:Name="OptionBEditor" Grid.Column="1" BorderThickness="0" Background="Transparent" FontSize="13" Padding="8,0" VerticalContentAlignment="Center" TextChanged="OptionEditor_TextChanged" />
                                                 <RadioButton x:Name="OptionBCheck" Grid.Column="2" GroupName="McqAnswerChoice" Content="Correct Answer" FontSize="11" FontWeight="SemiBold" Foreground="#FF15803D" VerticalAlignment="Center" Margin="8,0,0,0" Checked="OptionCheck_Changed" />
                                             </Grid>
@@ -451,14 +476,8 @@
                                         <!-- Option C -->
                                         <Border x:Name="OptionCCard" Background="#FFF8FAFC" BorderBrush="#FFE2E8F0" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6" Cursor="Hand" PreviewMouseLeftButtonDown="OptionCard_PreviewMouseLeftButtonDown">
                                             <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="28" />
-                                                    <ColumnDefinition Width="*" />
-                                                    <ColumnDefinition Width="Auto" />
-                                                </Grid.ColumnDefinitions>
-                                                <Border Background="#FFE2E8F0" CornerRadius="5" Width="22" Height="22" VerticalAlignment="Center">
-                                                    <TextBlock Text="C" FontSize="11" FontWeight="Bold" Foreground="#FF334155" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                                </Border>
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="28" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                                <Border Background="#FFE2E8F0" CornerRadius="5" Width="22" Height="22" VerticalAlignment="Center"><TextBlock Text="C" FontSize="11" FontWeight="Bold" Foreground="#FF334155" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
                                                 <TextBox x:Name="OptionCEditor" Grid.Column="1" BorderThickness="0" Background="Transparent" FontSize="13" Padding="8,0" VerticalContentAlignment="Center" TextChanged="OptionEditor_TextChanged" />
                                                 <RadioButton x:Name="OptionCCheck" Grid.Column="2" GroupName="McqAnswerChoice" Content="Correct Answer" FontSize="11" FontWeight="SemiBold" Foreground="#FF15803D" VerticalAlignment="Center" Margin="8,0,0,0" Checked="OptionCheck_Changed" />
                                             </Grid>
@@ -467,14 +486,8 @@
                                         <!-- Option D -->
                                         <Border x:Name="OptionDCard" Background="#FFF8FAFC" BorderBrush="#FFE2E8F0" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,8" Cursor="Hand" PreviewMouseLeftButtonDown="OptionCard_PreviewMouseLeftButtonDown">
                                             <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="28" />
-                                                    <ColumnDefinition Width="*" />
-                                                    <ColumnDefinition Width="Auto" />
-                                                </Grid.ColumnDefinitions>
-                                                <Border Background="#FFE2E8F0" CornerRadius="5" Width="22" Height="22" VerticalAlignment="Center">
-                                                    <TextBlock Text="D" FontSize="11" FontWeight="Bold" Foreground="#FF334155" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                                </Border>
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="28" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                                <Border Background="#FFE2E8F0" CornerRadius="5" Width="22" Height="22" VerticalAlignment="Center"><TextBlock Text="D" FontSize="11" FontWeight="Bold" Foreground="#FF334155" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
                                                 <TextBox x:Name="OptionDEditor" Grid.Column="1" BorderThickness="0" Background="Transparent" FontSize="13" Padding="8,0" VerticalContentAlignment="Center" TextChanged="OptionEditor_TextChanged" />
                                                 <RadioButton x:Name="OptionDCheck" Grid.Column="2" GroupName="McqAnswerChoice" Content="Correct Answer" FontSize="11" FontWeight="SemiBold" Foreground="#FF15803D" VerticalAlignment="Center" Margin="8,0,0,0" Checked="OptionCheck_Changed" />
                                             </Grid>
@@ -504,10 +517,7 @@
 
                                     <!-- Primary Answer & Aliases (Always visible for verification & Short Answer) -->
                                     <Grid Margin="0,4,0,6">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                                         <StackPanel Grid.Column="0" Margin="0,0,10,0">
                                             <TextBlock Text="Primary Correct Answer" Style="{StaticResource InputLabel}" Foreground="#FF15803D" />
                                             <TextBox x:Name="SlideCorrectAnswerEditor" Style="{StaticResource ModernTextBox}" FontWeight="Bold" TextChanged="PreviewEditor_TextChanged" />
@@ -515,6 +525,19 @@
                                         <StackPanel Grid.Column="1">
                                             <TextBlock Text="Accepted Synonyms / Aliases (Separate by semicolon)" Style="{StaticResource InputLabel}" />
                                             <TextBox x:Name="SlideAlternateAnswersEditor" Style="{StaticResource ModernTextBox}" ToolTip="e.g. Gandhi; M.K. Gandhi; Mohandas Gandhi" />
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <!-- Adjudication Directives (Prompt On & Do Not Accept) -->
+                                    <Grid x:Name="DirectivesContainer" Margin="0,4,0,6">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                            <TextBlock Text="Prompt On Directive (Ask player to specify)" Style="{StaticResource InputLabel}" Foreground="#FFB45309" />
+                                            <TextBox x:Name="SlidePromptOnEditor" Style="{StaticResource ModernTextBox}" ToolTip="Directive for host teleprompter: ask player for more detail (e.g. Prompt on 'Roosevelt' for first name)" TextChanged="PreviewEditor_TextChanged" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1">
+                                            <TextBlock Text="Do Not Accept Directive (Reject near-misses)" Style="{StaticResource InputLabel}" Foreground="#FFB91C1C" />
+                                            <TextBox x:Name="SlideDoNotAcceptEditor" Style="{StaticResource ModernTextBox}" ToolTip="Explicit rejection warning on host teleprompter (e.g. Do not accept 'England' for 'United Kingdom')" TextChanged="PreviewEditor_TextChanged" />
                                         </StackPanel>
                                     </Grid>
 
@@ -569,11 +592,8 @@
                                 <StackPanel>
                                     <TextBlock Text="4. CLUES, HOST TRIVIA &amp; MEDIA" Style="{StaticResource SectionHeader}" />
 
-                                    <Grid Margin="0,0,0,14">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
+                                    <Grid Margin="0,0,0,10">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                                         <StackPanel Grid.Column="0" Margin="0,0,10,0">
                                             <TextBlock Text="Progressive Clues (One clue per line)" Style="{StaticResource InputLabel}" />
                                             <TextBox x:Name="SlideHintsEditor" Style="{StaticResource ModernMultiLineTextBox}" Height="70" ToolTip="Clues revealed step-by-step during buzzer or bounce rounds" TextChanged="PreviewEditor_TextChanged" />
@@ -583,6 +603,12 @@
                                             <TextBox x:Name="SlideExplanationEditor" Style="{StaticResource ModernMultiLineTextBox}" Height="70" ToolTip="Host background context and trivia revealed on answer" TextChanged="PreviewEditor_TextChanged" />
                                         </StackPanel>
                                     </Grid>
+
+                                    <!-- Clue Point Decay -->
+                                    <StackPanel x:Name="ClueDecayContainer" Margin="0,0,0,10">
+                                        <TextBlock Text="Clue Score Decay (Step-down point values, comma-separated)" Style="{StaticResource InputLabel}" />
+                                        <TextBox x:Name="SlideClueDecayEditor" Style="{StaticResource ModernTextBox}" ToolTip="Comma-separated point values for progressive clues (e.g. 50, 40, 30, 20, 10)" TextChanged="PreviewEditor_TextChanged" />
+                                    </StackPanel>
 
                                     <!-- Media Attachment -->
                                     <TextBlock Text="Media Attachment (Image, Video, or Audio clue)" Style="{StaticResource InputLabel}" />

@@ -189,7 +189,9 @@ namespace Score
                         Dispatcher.Invoke(() => RecordDetailedBuzz(team, swTicks, utcTicks));
                     };
                     _buzzerServer.Start();
+                    WirePounceBuzzerEvents();
                     UpdateBuzzerArmButtonDisplay();
+                    UpdatePounceToggleButtonDisplay();
                 }
             }
             catch (Exception ex)
